@@ -1,0 +1,41 @@
+// Fonts
+@import url('https://fonts.googleapis.com/css?family=Nunito');
+// Variables
+@import 'variables';
+// Bootstrap
+//@import '~bootstrap/scss/bootstrap';
+//my styles
+@import '_footer';
+@import '_school_cards';
+@import '_functions';
+@import '_login';
+
+@font-face {
+  font-family: Tanha;
+  src: url('../fonts/Farsi-Digits/Tanha-FD.eot');
+  src: url('../fonts/Farsi-Digits/Tanha-FD.eot?#iefix') format('Tanha-FD-opentype'),
+  url('../fonts/Farsi-Digits/Tanha-FD.woff') format('woff'),
+  url('../fonts/Farsi-Digits/Tanha-FD.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding-top: 1.4rem;
+}
+
+body {
+  font-family: Tanha, 'Segoe UI', sans-serif !important;
+}
+
+.navbar-laravel {
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.my-content {
+
+  margin-top: 5rem;
+}
