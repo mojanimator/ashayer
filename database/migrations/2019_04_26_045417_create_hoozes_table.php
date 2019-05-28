@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateMadreseTable extends Migration
+class CreateHoozesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,14 @@ class CreateMadreseTable extends Migration
      */
     public function up()
     {
-        Schema::create('madrese', function (Blueprint $table) {
+        Schema::create('hoozes', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name', 100);
-            $table->string('location', 100);
-            $table->integer('students_num');
+            $table->integer('parent')->unsigned();
             $table->timestamps();
+
+            $table->foreign('parent')->references('id')->on('hoozes');
+
         });
     }
 
@@ -29,6 +31,6 @@ class CreateMadreseTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('madrese');
+        Schema::dropIfExists('hoozes');
     }
 }

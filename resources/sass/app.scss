@@ -1,14 +1,17 @@
 // Fonts
-@import url('https://fonts.googleapis.com/css?family=Nunito');
+//@import url('https://fonts.googleapis.com/css?family=Nunito');
 // Variables
 @import 'variables';
 // Bootstrap
 //@import '~bootstrap/scss/bootstrap';
+@import "~rtl-bootstrap/scss/bootstrap";
 //my styles
 @import '_footer';
-@import '_school_cards';
+@import '_schoolCard';
 @import '_functions';
 @import '_login';
+@import '_home';
+@import '_card';
 
 @font-face {
   font-family: Tanha;
@@ -28,6 +31,11 @@ html, body {
 
 body {
   font-family: Tanha, 'Segoe UI', sans-serif !important;
+}
+
+.container-full {
+  margin: 0 auto;
+  width: 100%;
 }
 
 .navbar-laravel {

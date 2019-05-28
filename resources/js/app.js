@@ -4,10 +4,18 @@
  * building robust, powerful web applications using Vue and Laravel.
  */
 
-require('rtl-bootstrap');
+// require('rtl-bootstrap');
 // require('./bootstrap');
 
+$ = require('jquery');
+$.fn.load = function (callback) {
+    jQuery(window).on("load", callback)
+};
 window.Vue = require('vue');
+require('dropzone');
 require('./my-vue');
+
+// require('./footer-reveal.min');
+require('./home');
 
 
