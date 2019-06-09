@@ -22,7 +22,8 @@ class CreateKoochrosTable extends Migration
             $table->string('loc_gheshlagh', 50);
             $table->text('masire_kooch');
             $table->integer('masafate_kooch')->unsigned();
-            $table->timestamps();
+            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->useCurrent();
         });
     }
 

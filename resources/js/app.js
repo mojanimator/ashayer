@@ -5,17 +5,31 @@
  */
 
 // require('rtl-bootstrap');
-// require('./bootstrap');
+require('bootstrap');
 
 $ = require('jquery');
 $.fn.load = function (callback) {
-    jQuery(window).on("load", callback)
+    jQuery(window).on("load", callback);
+
 };
+
+// window.$ = $.extend(require('jquery-ui'));
+window.$ = $.extend(require('jquery-ui/ui/widgets/slider.js'));
+// require('jquery-ui/ui/widgets/slider.js');
 window.Vue = require('vue');
+window.axios = require('axios');
+
+
 require('dropzone');
+require('@fortawesome/fontawesome-free/js/all');
 require('./my-vue');
 
+// require('ol-layerswitcher/dist/ol-layerswitcher');
+// require('ol-layerswitcher/src/ol-layerswitcher');
+
+// require('./slider-range');
+
 // require('./footer-reveal.min');
-require('./home');
+// require('./home');
 
 

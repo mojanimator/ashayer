@@ -10,18 +10,18 @@ use Illuminate\Support\Facades\Storage;
 use Mockery\Exception;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class Doc extends Model
+class UserDoc extends Model
 {
     protected $fillable = [
-        'id', 'school_id', 'uploader_id', 'file_type', 'path',
+        'id', 'user_id', 'doc_type', 'path',
 
     ];
-    protected $table = 'docs';
+    protected $table = 'user_docs';
 
     protected $file;
     protected $fileType;
 
-    protected $baseDir = '/docs';
+    protected $baseDir = '/userdocs';
 
     public function baseDir()
     {
@@ -46,9 +46,9 @@ class Doc extends Model
         $userID = auth()->user()->id;
         $name = sprintf("%s-%s-%s", urlencode(str_replace(' ', '_', $filename)), $userID, time());
         $doc->fill([
-            'school_id' => $docable_id,
+            'user_id' => $docable_id,
             'path' => $name,
-            'uploader_id' => $userID,
+//            'user_id' => $userID,
 //            'thumbnail_path' => "tn-{$name}"
         ]);
 //        $doc->associate(User::find($docable_id));
@@ -72,8 +72,8 @@ class Doc extends Model
     {
         $date = new DateTime();
         DB::table('docs_temp')->insert(
-            ['school_id' => $this->docable_id, 'doc_type' => $this->doc_type, 'path' => $this->path,
-                'uploader_id' => auth()->user()->id, 'created_at' => $date,]
+            ['docable_id' => $this->docable_id, 'docable_type' => $this->docable_type, 'path' => $this->path,
+                'user_id' => auth()->user()->id, 'created_at' => $date,]
         );
 
 

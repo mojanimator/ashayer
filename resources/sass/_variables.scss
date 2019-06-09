@@ -1,6 +1,6 @@
 // Body
 $body-bg: #f8fafc;
-
+//$enable-gradients: true !important;
 // Typography
 $font-family-sans-serif: "Nunito", sans-serif;
 //$font-size-base: 0.9rem;
@@ -19,6 +19,7 @@ $gray-900: #212529 !default;
 $black: #000 !default;
 
 $border-radius: 24px 24px 24px 1px;
+$border-slider: 5px 5px 10px 10px;
 
 $grays: () !default;
 $grays: map-merge((
@@ -45,6 +46,18 @@ $green: #38c172;
 $teal: #4dc0b5;
 $cyan: #6cb2eb;
 
+$purple: #6751A2 !default;
+$dark: #373737 !default;
+$dark-gray: #4a4a4a !default;
+$gray: #7F928B !default;
+$cream: #C1A26A !default;
+$dark-blue: #015474 !default;
+$light-blue: #028BBF !default;
+$dark-green: #51573C !default;
+$light-green: #60aa2f !default;
+$dark-red: #782517 !default;
+$red: #B53029 !default;
+$light-red: #db8f3c !default;
 //my colors
 $flame-start: #ff9a9e;
 $flame-end: #fad0c4;
@@ -70,4 +83,54 @@ $everlasting-end: #e2d1c3;
 $salad-start: #B7F8DB;
 $salad-end: #50A7C2;
 
+$primary: $blue !default;
+$secondary: $cream !default;
+$success: $light-green !default;
+$info: $gray !default;
+$dark-gray: $dark-gray !default;
+$warning: $light-red !default;
+$danger: $red !default;
+$light: $gray-100 !default;
+$dark: $dark !default;
 
+$colors: () !default;
+$colors: map-merge((
+        "purple": $purple,
+        "dark": $dark,
+        "gray": $gray,
+        "dark-gray": $dark-gray,
+        "cream": $cream,
+        'flame-start':$flame-start,
+        "dark-blue": $dark-blue,
+        "light-blue": $light-blue,
+        "dark-green": $dark-green,
+        "light-green": $light-green,
+        "dark-red": $dark-red,
+        "red": $red,
+        "light-red": $light-red,
+        "white": $white,
+        "gray-dark": $gray-800
+), $colors);
+
+$theme-colors: () !default;
+$theme-colors: map-merge((
+        "primary": $primary,
+        "purple": $purple,
+        "secondary": $secondary,
+        "success": $green,
+        "info": $info,
+        "dark-gray": $dark-gray,
+        "warning": $warning,
+        "danger": $danger,
+        "dark-red": $dark-red,
+        "light-red": $light-red,
+        "light": $light,
+        "dark": $dark,
+        "gray": $gray,
+        'flame-start':$flame-start,
+        'cream':$cream,
+        "dark-blue":$dark-blue,
+        "light-blue":$light-blue,
+        "dark-green":$dark-green,
+        "light-green": $success,
+), $theme-colors);

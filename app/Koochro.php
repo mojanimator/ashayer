@@ -10,4 +10,9 @@ class Koochro extends Model
         'masafate_kooch', 'date_created', 'date_updated'];
 
     protected $table = 'koochros';
+
+    public function schools()
+    {
+        return $this->morphMany(School::class, 'schoolable');
+    }
 }

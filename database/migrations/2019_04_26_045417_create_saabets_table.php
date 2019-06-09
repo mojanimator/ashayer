@@ -16,12 +16,9 @@ class CreateSaabetsTable extends Migration
         Schema::create('saabets', function (Blueprint $table) {
             $table->increments('id');
             $table->string('address', 150);
-
-            $table->string('loc_yeylagh', 50);
-            $table->string('address_gheshlagh', 150);
-            $table->string('loc_gheshlagh', 50);
-            $table->text('masire_kooch');
-            $table->timestamps();
+            $table->string('loc', 50);
+            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->useCurrent();
         });
     }
 

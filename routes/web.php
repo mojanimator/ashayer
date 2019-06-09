@@ -17,8 +17,11 @@ Route::get('/', function () {
     return view('layouts.home');
 });
 
-Route::get('madrese/view', 'MadreseController@view')->name('madrese.view');
-Route::post('madrese/all', 'MadreseController@index')->name('madrese.all');
+Route::post('schools/search', 'SchoolController@search')->name('school.search');
+Route::get('/schools', 'SchoolController@view')->name('school.view');
+//Route::post('madrese/all', 'MadreseController@index')->name('madrese.all');
+
+Route::post('hoozes', 'SchoolController@hoozes')->name('school.hoozes');
 
 Auth::routes();
 

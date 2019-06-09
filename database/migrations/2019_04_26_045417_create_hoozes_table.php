@@ -16,10 +16,11 @@ class CreateHoozesTable extends Migration
         Schema::create('hoozes', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name', 100);
-            $table->integer('parent')->unsigned();
-            $table->timestamps();
+            $table->integer('parent_id')->unsigned()->nullable()->default(null);
+            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->useCurrent();
 
-            $table->foreign('parent')->references('id')->on('hoozes');
+            $table->foreign('parent_id')->references('id')->on('hoozes');
 
         });
     }

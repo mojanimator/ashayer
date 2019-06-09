@@ -1,17 +1,34 @@
 // Fonts
 //@import url('https://fonts.googleapis.com/css?family=Nunito');
+@import 'functions';
 // Variables
 @import 'variables';
+//@import '~jquery';
+@import '~jquery-ui/themes/base/all.css';
 // Bootstrap
 //@import '~bootstrap/scss/bootstrap';
 @import "~rtl-bootstrap/scss/bootstrap";
+
+$bootstrap-sass-asset-helper: false;
+$icon-font-name: 'glyphicons-halflings-regular';
+$icon-font-svg-id: 'glyphicons_halflingsregular';
+$icon-font-path: '../fonts/';
+@import "glyphicons";
+@import "~ol/ol.css";
+@import "~ol-layerswitcher/src/ol-layerswitcher.css";
+@import '~@fortawesome/fontawesome-free/scss/fontawesome';
+
+//@import "~@fortawesome/fontawesome-free/css/all";
 //my styles
-@import '_footer';
-@import '_schoolCard';
-@import '_functions';
-@import '_login';
-@import '_home';
-@import '_card';
+@import 'navbar';
+@import 'footer';
+@import 'schoolCard';
+@import 'login';
+@import 'home';
+@import 'card';
+@import 'search-box';
+@import 'dropdown';
+@import 'my-sass';
 
 @font-face {
   font-family: Tanha;

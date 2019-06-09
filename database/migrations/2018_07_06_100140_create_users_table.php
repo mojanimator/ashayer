@@ -29,7 +29,9 @@ class CreateUsersTable extends Migration
 //            $table->string('created_at');
 //            $table->string('updated_at');
 
-            $table->timestamps();
+            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->useCurrent();
+//            $table->timestamps();
         });
     }
 

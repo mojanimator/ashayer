@@ -8,15 +8,15 @@
     <meta name="csrf-token" content="{{csrf_token()}}">
     <title>@yield('title')</title>
     <link rel="stylesheet" href="{{mix('css/app.css')}}" type="text/css">
-    <script async="false" defer
-            src="https://maps.googleapis.com/maps/api/js?key={{env('GOOGLE_API')}}&language=fa&region=IR&libraries=places">
-        //            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBlcVddNcJrrifavMfBBHkGhmh8ajmskbU&callback=initMap">
-    </script>
+
+    {{--<link rel="stylesheet" href="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/css/ol.css"--}}
+    {{--type="text/css">--}}
+
 </head>
 <body>
 
 {{--static navbar--}}
-<nav class="navbar navbar-expand-md navbar-dark fixed-top   bg-primary">
+<nav class="navbar navbar-expand-md navbar-dark fixed-top  bg-gradient-blue">
 
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
             aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,14 +24,14 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarCollapse">
         <ul class="navbar-nav mr-auto">
-            <li class="{{Request::is('/') ? 'active ':''}}nav-item text-center">
+            <li class="{{request()->is('/') ? 'active ':''}}nav-item text-center">
                 <a class="nav-link" href="/">خانه <span class="sr-only">(current)</span></a>
             </li>
-            <li class="{{Request::is('banners/create') ? 'active ':''}} nav-item text-center">
+            <li class="{{request()->is('banners/create') ? 'active ':''}} nav-item text-center">
                 <a class="nav-link" href="/banners/create">ساخت</a>
             </li>
-            <li class="{{Request::is('madrese.view') ? 'active ':''}}nav-item text-center">
-                <a class="nav-link" href="{{route('madrese.view')}}">مدارس</a>
+            <li class="{{request()->is('schools') ? 'active ':''}}nav-item text-center">
+                <a class="nav-link" href="{{route('school.view')}}">مدارس</a>
             </li>
             {{--<li class="{{Request::is('map') ? 'active ':''}}nav-item text-center">--}}
             {{--<a class="nav-link" href="{{route('map')}}">نقشه</a>--}}
@@ -40,8 +40,10 @@
             {{--enter and register or logout--}}
 
             @if(auth()->guest())
-                <li class="nav-item"><a class="nav-link text-center" href="{{url('login')}}">ورود</a></li>
-                <li class="nav-item"><a class="nav-link text-center" href="{{url('register')}}">ثبت نام</a></li>
+                <li class="{{request()->is('login') ? 'active ':''}}nav-item">
+                    <a class="nav-link text-center" href="{{url('login')}}">ورود</a></li>
+                <li class="{{request()->is('register') ? 'active ':''}}nav-item">
+                    <a class="nav-link text-center" href="{{url('register')}}">ثبت نام</a></li>
             @else
                 <li class="nav-item dropdown ">
                     <a href="#" class=" nav-link dropdown-toggle" data-toggle="dropdown" role="button"
@@ -91,7 +93,7 @@
         </form>
 
     </div> <!-- nav collapse -->
-    <a class="navbar-brand" href="/">سه کنج</a>
+    <a class="navbar-brand" href="/">عشایر</a>
 </nav>
 {{--end static navbar--}}
 
@@ -100,11 +102,12 @@
 </section>
 @yield('footer')
 
-
+<script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList"></script>
+<script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/build/ol.js"></script>
 <script src="/js/app.js"></script>
+@yield('scripts')
 {{--@include('flash')--}}
 {{--@yield('script')--}}
-
 
 </body>
 </html>

@@ -1,0 +1,182 @@
+.left-border {
+  border-top-right-radius: 24px;
+  border-bottom-right-radius: 24px;
+}
+
+.right-border {
+  border-top-left-radius: 24px;
+  border-bottom-left-radius: 1px;
+}
+
+#map {
+  height: 30rem;
+  //width: 100%;
+  position: relative;
+  padding: 2rem;
+  margin: 1rem;
+  border-radius: 1rem;
+
+}
+
+#map_card, #map_banner_edit {
+  //min-height: 20rem;
+  //width: 100%;
+}
+
+.map-modal {
+  padding-right: -14px !important;
+  padding-left: -14px !important;
+
+}
+
+#map {
+  min-height: 20rem;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+
+}
+
+.layer-switcher .panel {
+  padding: 0 1em 0 0;
+  margin: 0;
+  font-weight: bold;
+  min-height: 8rem;
+  border: 4px solid #eee;
+  color: $purple;
+  border-radius: 4px;
+  background-color: white;
+  display: none;
+  max-height: 100%;
+  overflow-y: auto;
+
+  li {
+
+  }
+  //input[type=radio] {
+  //  height: 2rem;
+  //}
+}
+
+.loading-page {
+  //content: '';
+  position: absolute;
+  transition: .3s all ease;
+  content: url("/img/loading.gif");
+  //background-image: url("../../../../public/img/loading.gif");
+  top: 70vh;
+  width: 8rem;
+  height: 8rem;
+  overflow: hidden;
+  background-repeat: no-repeat;
+  z-index: 10;
+
+}
+
+.bg-help {
+  //border: .1rem solid #78251755;
+  border-radius: .1rem .1rem .1rem 1rem;
+  background: rgba($light-blue, .2);
+  width: 90%;
+  font-weight: bold;
+  @include pb_box-shadow(10px, 11px, 40px, -20px, rgba($black, .5));
+}
+
+input[type=text] {
+
+  width: 100%;
+  border-radius: $border-radius !important;
+  padding-left: 1rem !important;
+  &:focus {
+    //outline: 3px solid $primary;
+    //border-radius: .5rem !important;
+  }
+
+}
+
+input[type=number] {
+  text-align: center;
+  //outline: none;
+  border: solid rgba(120, 120, 120, .5) .1rem !important;
+
+  &.left-border {
+    border-radius: 24px 24px 24px 1px !important;
+
+  }
+  &.right-border {
+    border-radius: 24px 24px 1px 24px !important;
+
+  }
+  &:focus {
+
+    @include transition(0.3s);
+    outline: none;
+    border: .1rem solid $primary !important;
+
+  }
+  //padding-left: 1rem !important;
+
+}
+
+.bg-gradient-purple {
+  cursor: pointer;
+  border: none;
+  color: #ffff;
+  @include pb_gradient($indigo, $purple, 270deg);
+  @include transition(.3s);
+
+  &:hover {
+    //background: darken($indigo, 10%) !important;
+    @include pb_gradient($indigo, $purple, 180deg);
+
+  }
+  &:active {
+    @include pb_gradient($indigo, $dark-blue, 270deg);
+    @include transition(.3s);
+  }
+}
+
+.bg-gradient-blue {
+  //cursor: pointer;
+  color: #ffff;
+  @include pb_gradient(#036ED9, #3fdaf0, 190deg);
+  border: none;
+  &.btn {
+    cursor: pointer;
+    border: none;
+    @include transition(.3s);
+
+    &:hover {
+      //background: darken($indigo, 10%) !important;
+      @include pb_gradient($indigo, $purple, 180deg);
+
+    }
+    &:active {
+      @include pb_gradient($indigo, $dark-blue, 270deg);
+      @include transition(.3s);
+    }
+  }
+}
+
+.pagination {
+  .page-item {
+    &:first-child {
+      .page-link {
+        margin-left: 0;
+        border-top-right-radius: 24px;
+        border-bottom-right-radius: 24px;
+
+      }
+    }
+    &:last-child {
+      .page-link {
+        border-top-left-radius: 24px;
+        border-bottom-left-radius: 1px;
+      }
+    }
+  }
+  .page-item {
+    color: $primary;
+    cursor: pointer;
+  }
+}
