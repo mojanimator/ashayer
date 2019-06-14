@@ -9,6 +9,8 @@
     <title>@yield('title')</title>
     <link rel="stylesheet" href="{{mix('css/app.css')}}" type="text/css">
 
+    <!-- Include a polyfill for ES6 Promises (optional) for IE11 -->
+
     {{--<link rel="stylesheet" href="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/css/ol.css"--}}
     {{--type="text/css">--}}
 
@@ -102,6 +104,7 @@
 </section>
 @yield('footer')
 
+<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
 <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList"></script>
 <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/build/ol.js"></script>
 <script src="/js/app.js"></script>

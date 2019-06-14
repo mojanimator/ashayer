@@ -8,7 +8,7 @@
 
         <div class="btn-group btn-group-toggle mx-1  row col-12 justify-content-center " data-toggle="buttons">
             <label id="new-schools" for="new-schools"
-                   class="btn btn-light-blue btn-group-item col-xs-6   active "
+                   class="btn btn-light-blue btn-group-item col-xs-6 left-border  active "
                    @click="by='~n';  $root.$emit('search')  ">
                 <input type="radio" name="options" autocomplete="off" class=" "> جدید ترین مدارس
             </label>
@@ -23,7 +23,7 @@
                 <input type="radio" name="options" autocomplete="off" class=" "> بیشترین دانش آموز
             </label>
             <label id="min-students" for="min-students"
-                   class="btn btn-light-blue btn-group-item col-xs-6   "
+                   class="btn btn-light-blue btn-group-item col-xs-6 right-border  "
                    @click="by='~mi';  $root.$emit('search')  ">
                 <input type="radio" name="options" autocomplete="off" class=" "> کمترین دانش آموز
             </label>
@@ -123,7 +123,7 @@
                            oninput="validity.valid" id="max_tedad"
                            class="price-range-field left-border"
                            @change="setSliders(2)" @paste="setSliders(2)" @keyup="setSliders(2)"/>
-                    <input type="number" v-model="min_tedad" min="1" max="10000"
+                    <input type="number" v-model="min_tedad" min="1" max="1000"
                            oninput="validity.valid" id="min_tedad"
                            class="price-range-field right-border d-inline"
                            @change="setSliders(2)" @paste="setSliders(2)" @keyup="setSliders(2)"/>
@@ -148,7 +148,8 @@
             </div>
 
 
-            <dropdown :hoozes-link="this.hoozesLink" class="col-md-6"></dropdown>
+            <dropdown :data-link="this.hoozesLink" :for="'hooze'" :newable="true" :multi="true"
+                      class="col-md-6 col-sm-6 "></dropdown>
         </div>
         <!--end  search-->
 
@@ -200,7 +201,7 @@
                 min_sal: 1300,
                 max_sal: 1500,
                 min_tedad: 0,
-                max_tedad: 10000,
+                max_tedad: 1000,
 
                 ready: $("#ready"),
                 reserved: $("#reserved"),
@@ -333,7 +334,7 @@
                     doore: doore,
                     vaziat: vaziat,
                     noe_fazaye_amoozeshi: noe_fazaye_amoozeshi,
-                    hooze_namayandegi_id: param['hoozes'],
+                    hooze_namayandegi_id: param['data'],
                     page: param['page'],
                     sale_tasis: {'min': this.min_sal, 'max': this.max_sal},
                     tedad_daneshamooz: {'min': this.min_tedad, 'max': this.max_tedad},

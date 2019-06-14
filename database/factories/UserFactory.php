@@ -39,7 +39,6 @@ $factory->define(School::class, function (\Faker\Generator $faker) {
         'tedad_hamkaran' => $faker->numberBetween(2, 10),
         'noe_fazaye_amoozeshi' => $faker->randomElement(['c', 's', 'k',]), //chador sakhteman kaneks
         'hooze_namayandegi_id' => $faker->numberBetween(1, 9),
-        'fasele_az_shahrestan' => $faker->randomNumber(2),
         'created_at' => $date,
         'updated_at' => $date,
     ];
@@ -49,6 +48,7 @@ $factory->define(Saabet::class, function (\Faker\Generator $faker) {
     return [
         'address' => $faker->address,
         'loc' => '30.28' . $faker->numberBetween(10, 50) . ',' . '57.05' . $faker->numberBetween(10, 50),
+        'fasele_az_shahrestan' => $faker->randomNumber(2),
         'created_at' => $date,
         'updated_at' => $date,
     ];
@@ -59,8 +59,10 @@ $factory->define(Koochro::class, function (\Faker\Generator $faker) {
         'type' => $faker->randomElement(['s', 'n',]),
         'address_yeylagh' => $faker->address,
         'loc_yeylagh' => '30.28' . $faker->numberBetween(10, 50) . ',' . '57.05' . $faker->numberBetween(10, 50),
+        'fasele_az_shahrestan_yeylagh' => $faker->randomNumber(2),
         'address_gheshlagh' => $faker->address,
         'loc_gheshlagh' => '30.28' . $faker->numberBetween(10, 50) . ',' . '57.05' . $faker->numberBetween(10, 50),
+        'fasele_az_shahrestan_gheshlagh' => $faker->randomNumber(2),
         'masire_kooch' => $faker->latitude . ',' . $faker->longitude . '$' . $faker->latitude . ',' . $faker->longitude,
         'masafate_kooch' => $faker->randomNumber(2),
         'created_at' => $date,

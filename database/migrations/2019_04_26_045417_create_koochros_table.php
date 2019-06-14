@@ -15,13 +15,17 @@ class CreateKoochrosTable extends Migration
     {
         Schema::create('koochros', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('type', 1); //s=sayyar n=nime sayyar
-            $table->string('address_yeylagh', 150);
-            $table->string('loc_yeylagh', 50);
-            $table->string('address_gheshlagh', 150);
-            $table->string('loc_gheshlagh', 50);
-            $table->text('masire_kooch');
-            $table->integer('masafate_kooch')->unsigned();
+            $table->string('type', 1)->default('-'); //s=sayyar n=nime sayyar
+            $table->string('address_yeylagh', 150)->nullable()->default('نامشخص');
+            $table->string('loc_yeylagh', 50)->nullable()->default(null);
+            $table->integer('fasele_az_shahrestan_yeylagh')->unsigned()->nullable()->default(null);
+
+            $table->string('address_gheshlagh', 150)->nullable()->default('نامشخص');
+            $table->string('loc_gheshlagh', 50)->nullable()->default(null);
+            $table->integer('fasele_az_shahrestan_gheshlagh')->unsigned()->nullable()->default(null);
+
+            $table->text('masire_kooch')->nullable()->default(null);
+            $table->integer('masafate_kooch')->unsigned()->nullable()->default(null);
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent();
         });

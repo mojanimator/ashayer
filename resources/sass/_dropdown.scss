@@ -86,3 +86,24 @@
     padding: .5rem;
   }
 }
+
+.add-btn {
+  margin-right: -3.5rem;
+  z-index: 5;
+  cursor: pointer;
+  height: 100%;
+  margin-top: .2rem;
+  //font-size: 1.5rem !important;
+  border-radius: 18px 1px 1px 1px !important;
+  @include media-breakpoint-down(lg) {
+    font-size: 1.3rem !important;
+    margin-right: -3.8rem;
+  }
+  @include media-breakpoint-down(md) {
+    margin-right: -3.6rem;
+    margin-top: .1rem;
+  }
+  @include media-breakpoint-down(sm) {
+    margin-right: -3.5rem;
+  }
+}

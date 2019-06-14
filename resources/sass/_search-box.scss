@@ -25,7 +25,7 @@ $background: white;
 
     .btn-group-item {
 
-      border-radius: $border-radius !important;
+      border-radius: $border-radius;
       margin-right: .5rem;
       margin-left: .5rem;
 
@@ -52,6 +52,11 @@ $background: white;
   .filters-container {
     label {
       margin-bottom: 0.2rem !important;
+      @include media-breakpoint-down(xs) {
+        font-size: .1rem !important;
+        padding-left: .2rem;
+        padding-right: .2rem;
+      }
       @include media-breakpoint-down(sm) {
         font-size: .5rem !important;
       }
@@ -116,10 +121,10 @@ $background: white;
   }
 
   &:after {
-    border-bottom: 4px solid black;
-    -webkit-box-shadow: 0 1px 0 0 black;
-    -moz-box-shadow: 0 1px 0 0 black;
-    box-shadow: 0 1px 0 0 black;
+    border-bottom: 1px solid $primary;
+    -webkit-box-shadow: 0 1px 0 0 $dark-blue;
+    -moz-box-shadow: 0 1px 0 0 $dark-blue;
+    box-shadow: 0 1px 0 0 $dark-blue;
     content: "";
     margin: 0 auto; /* this centers the line to the full width specified */
     position: absolute;

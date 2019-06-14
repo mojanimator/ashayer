@@ -1,18 +1,53 @@
+.border {
+  border-top-right-radius: 24px !important;
+  border-bottom-right-radius: 24px !important;
+
+  border-top-left-radius: 24px !important;
+  border-bottom-left-radius: 1px !important;
+}
+
 .left-border {
-  border-top-right-radius: 24px;
-  border-bottom-right-radius: 24px;
+  border-top-right-radius: 24px !important;
+  border-bottom-right-radius: 24px !important;
+
+  border-top-left-radius: 1px !important;
+  border-bottom-left-radius: 1px !important;
 }
 
 .right-border {
-  border-top-left-radius: 24px;
-  border-bottom-left-radius: 1px;
+  border-top-left-radius: 24px !important;
+  border-bottom-left-radius: 1px !important;
+
+  border-top-right-radius: 1px !important;
+  border-bottom-right-radius: 1px !important;
+}
+
+.no-radius {
+  border-top-left-radius: 1px !important;
+  border-bottom-left-radius: 1px !important;
+
+  border-top-right-radius: 1px !important;
+  border-bottom-right-radius: 1px !important;
+}
+
+.selected-item {
+  color: white;
+  background: $purple;
+  padding-left: .5rem;
+  padding-right: .5rem;
+  margin: .1rem;
+  border-radius: $border-radius;
+  display: inline-block;
 }
 
 #map {
-  height: 30rem;
+  max-height: 20rem;
   //width: 100%;
+  min-height: 20rem;
+  width: 100%;
+
   position: relative;
-  padding: 2rem;
+  //padding: 2rem;
   margin: 1rem;
   border-radius: 1rem;
 
@@ -26,14 +61,6 @@
 .map-modal {
   padding-right: -14px !important;
   padding-left: -14px !important;
-
-}
-
-#map {
-  min-height: 20rem;
-  width: 100%;
-  margin: 0;
-  padding: 0;
 
 }
 
@@ -85,7 +112,7 @@
 input[type=text] {
 
   width: 100%;
-  border-radius: $border-radius !important;
+  border-radius: $border-radius;
   padding-left: 1rem !important;
   &:focus {
     //outline: 3px solid $primary;

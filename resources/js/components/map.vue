@@ -124,7 +124,7 @@
                 let layer;
 //                layer = this.map.getLayers().getArray()[2];
 
-                layer = this.map.getLayers().getArray()[0].getLayers().getArray()[3];
+                layer = this.map.getLayers().getArray()[0].getLayers().getArray()[3]; //markers layer
 
 //                this.map.getLayers().forEach(function (tLayer) {
 //                    if (tLayer.get('name') !== undefined && tLayer.get('name') === 'markers') {

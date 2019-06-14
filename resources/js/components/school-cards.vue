@@ -42,11 +42,11 @@
                     <p class="text-purple mb-0 text-center"> {{s.name}}</p>
 
                     <div class="codes d-flex justify-content-center">
-                        <small class="  right-border badge-pill bg-gray text-white small d-inline-block   "
+                        <small class="  left-border badge-pill bg-gray text-white small d-inline-block   "
                                :class="[s.is_roozane ?'bg-success':'bg-dark-gray']">
                             کد مدرسه: {{ s.code_madrese }}
                         </small>
-                        <small class="  left-border badge-pill bg-dark-green text-white small d-inline-block  "
+                        <small class="  right-border badge-pill bg-dark-green text-white small d-inline-block   "
                                :class="[s.is_roozane ?'bg-success':'bg-dark-gray']">
                             کد فضا: {{ s.code_faza }}
                         </small>
@@ -134,9 +134,15 @@
                             </div>
                             <div v-else-if="selectedSchool.schoolable_type==='App\\Koochro'">
                                 <p class="small text-primary"> آدرس ییلاق <i class="fas fa-arrow-circle-left"></i>
-                                    {{selectedSchool.schoolable.address_yeylagh}}  </p>
+                                    {{selectedSchool.schoolable.address_yeylagh}}
+                                    <i class="fas fa-circle"></i> فاصله از شهرستان
+                                    <i class="fas fa-arrow-circle-left"></i>
+                                    {{selectedSchool.schoolable.fasele_az_shahrestan_yeylagh}} کیلومتر </p>
                                 <p class="small text-danger"> آدرس قشلاق <i class="fas fa-arrow-circle-left"></i>
-                                    {{selectedSchool.schoolable.address_gheshlagh}}  </p>
+                                    {{selectedSchool.schoolable.address_gheshlagh}}
+                                    <i class="fas fa-circle"></i> فاصله از شهرستان
+                                    <i class="fas fa-arrow-circle-left"></i>
+                                    {{selectedSchool.schoolable.fasele_az_shahrestan_gheshlagh}} کیلومتر </p>
                                 <p class="small text-dark"> مسافت کوچ <i class="fas fa-arrow-circle-left"></i>
                                     {{selectedSchool.schoolable.masafate_kooch}} کیلومتر  </p>
                             </div>
@@ -347,8 +353,12 @@
                 this.layer = new ol.layer.Tile({
                     source: new ol.source.OSM(
                         {
-//                            url: "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                            url: "http://mt.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&s=IR&hl=fa",
+//                            var urlTpl = 'https://{1-4}.{base}.maps.cit.api.here.com' +
+//                                '/{type}/2.1/maptile/newest/{scheme}/{z}/{x}/{y}/256/png' +
+//                                '?app_id={app_id}&app_code={app_code}';
+//                            url: "https://a.tile.openstreetmap.org/maptile/newest/hybrid.day/{z}/{x}/{y}/256/png",
+                            url: "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
+//                            url: "http://mt.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&s=IR&hl=fa",
 
                         }
                     ),

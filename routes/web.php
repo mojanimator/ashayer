@@ -16,8 +16,12 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('layouts.home');
 });
+Route::get('/school/create', function () {
+    return view('school.create');
+})->name('school.create');;
 
 Route::post('schools/search', 'SchoolController@search')->name('school.search');
+Route::post('schools/dropdown', 'SchoolController@dropdown')->name('school.dropdown');
 Route::get('/schools', 'SchoolController@view')->name('school.view');
 //Route::post('madrese/all', 'MadreseController@index')->name('madrese.all');
 

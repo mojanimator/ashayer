@@ -14,6 +14,47 @@ class SchoolController extends Controller
         return Hooze::all();
     }
 
+    public function dropdown(Request $request)
+    {
+        $hooze_namayandegi_id = $request->hooze_namayandegi_id;
+        $command = $request->command;
+        $name = $request->name;
+
+        if (!$name)
+            return ['data' =>School::get(['id', 'name'])];
+        if ($command == 'get')
+            if ($hooze_namayandegi_id)
+                return ['data' => School::get(['id', 'name'])->whereIn('hooze_namayandegi_id', $hooze_namayandegi_id)];
+            else return ['data' => School::get(['id', 'name'])];
+        else
+            if ($command == 'add')
+                if ($hooze_namayandegi_id)
+                    if (School:: where('name', $name)->whereIn('hooze_namayandegi_id', $hooze_namayandegi_id)->exists()) {
+                        return ['data' => School::get(['id', 'name'])->whereIn('hooze_namayandegi_id', $hooze_namayandegi_id),
+                            'message' => 'نام مدرسه تکراری است', 'type' => 'error'];
+                    } else {
+                        $school = new School();
+                        $school->name = $name;
+                        $school->save();
+                        return ['data' => School::get(['id', 'name'])->whereIn('hooze_namayandegi_id', $hooze_namayandegi_id),
+                            'message' => 'مدرسه با موفقیت اضافه شد!', 'type' => 'success'
+                        ];
+                    }
+                else {
+                    if (School:: where('name', $name)->exists()) {
+                        return ['data' => School::get(['id', 'name']),
+                            'message' => 'نام مدرسه تکراری است', 'type' => 'error'];
+                    } else {
+                        $school = new School();
+                        $school->name = $name;
+                        $school->save();
+                        return ['data' => School::get(['id', 'name']),
+                            'message' => 'مدرسه با موفقیت اضافه شد!', 'type' => 'success'
+                        ];
+                    }
+                }
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -93,7 +134,7 @@ class SchoolController extends Controller
 
     public function view()
     {
-        return view('schools');
+        return view('school.schools');
     }
 
     /**

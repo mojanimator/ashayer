@@ -15,8 +15,9 @@ class CreateSaabetsTable extends Migration
     {
         Schema::create('saabets', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('address', 150);
-            $table->string('loc', 50);
+            $table->string('address', 150)->nullable()->default('نامشخص');
+            $table->string('loc', 50)->nullable()->default(null);
+            $table->integer('fasele_az_shahrestan')->unsigned()->nullable()->default(null);
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent();
         });
