@@ -54,38 +54,16 @@
         },
         created() {
 
-        },
-        mounted() {
-
-
-            this.setEvents();
             $('#mapModal').on('shown.bs.modal', () => {
 //                console.log('modal');
                 this.addMarker();
             });
 
-//
-//
-//                this.map.renderSync();
-//                this.map.render();
-//                this.map.updateSize();
-//                this.map.changed();
+        },
+        mounted() {
 
-//            if (this.map) {
-//            this.map.renderSync();
-//            this.map.render();
-//            this.map.updateSize();
-//            this.map.changed();
-//            this.addMarker();
-//            }
-//            this.initialize_map();
-//            $('#mapModal').on('shown.bs.modal', () => {
-////                console.log('modal');
-////                this.initialize_map();
-//                this.map.updateSize();
-//            });
-//            map.updateSize();
-//            this.add_map_point(this.latLng[0], this.latLng[1]);
+            this.setEvents();
+
 
         },
         updated() {
@@ -119,6 +97,8 @@
             },
 
             addMarker() {
+                console.log("add marker");
+
                 let iconFeatures = [];
 
                 let layer;
@@ -200,19 +180,13 @@
                 }
                 layer.getSource().clear();
                 layer.getSource().addFeatures(iconFeatures);
+
 //                    layer.getSource().addFeature(iconFeatures[1]);
-                this.map.setTarget($("#map")[0]);
+
                 let extent = layer.getSource().getExtent();
                 extent = [extent[0] - 100, extent[1] - 50, extent[2] + 50, extent[3] + 100]; //add padding to borders
-
                 this.map.getView().fit(extent, this.map.getSize());
-
-//                this.map.addLayer(layer);
-//                this.map.renderSync();
-//                this.map.render();
-//                this.map.updateSize();
-//                this.map.changed();
-
+                this.map.setTarget($("#map")[0]);
 
             },
 

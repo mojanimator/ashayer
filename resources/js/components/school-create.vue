@@ -24,10 +24,10 @@
 
             <div class="col-md-6 col-sm-6 my-1">
                 <p class="divider text-center "><span>کد مدرسه</span></p>
-                <div class="input-container text-center my-1">
+                <div class="input-container text-center my-1 px-5">
                     <input type="number" v-model="code_madrese"
                            oninput="validity.valid" id="code-madrese-input"
-                           class="   badge-pill"
+                           class="form-control   badge-pill"
                     />
 
                 </div>
@@ -35,50 +35,50 @@
 
             <div class="col-md-6 col-sm-6 my-1">
                 <p class="divider text-center "><span>کد فضا</span></p>
-                <div class="input-container text-center my-1">
+                <div class="input-container text-center my-1 px-5">
                     <input type="number" v-model="code_faza"
                            oninput="validity.valid" id="code-faza-input"
-                           class="   badge-pill"
+                           class=" form-control  badge-pill"
                     />
                 </div>
             </div>
 
             <div class="col-md-6 col-sm-6 my-1">
                 <p class="divider text-center "><span>سال تاسیس</span></p>
-                <div class="input-container text-center my-1">
+                <div class="input-container text-center my-1 px-5">
                     <input type="number" v-model="sale_tasis" min="1300"
                            oninput="validity.valid" id="sal-input"
-                           class="   badge-pill"
+                           class="  form-control badge-pill"
                     />
                 </div>
             </div>
 
             <div class="col-md-6 col-sm-6 my-1">
                 <p class="divider text-center "><span>تعداد دانش آموز</span></p>
-                <div class="input-container text-center my-1">
+                <div class="input-container text-center my-1 px-5">
                     <input type="number" v-model="tedad_daneshamooz"
                            oninput="validity.valid" id="tedad-input"
-                           class="   badge-pill"
+                           class=" form-control  badge-pill"
                     />
                 </div>
             </div>
 
             <div class="col-md-6 col-sm-6 my-1">
                 <p class="divider text-center "><span>تعداد پایه تحصیلی</span></p>
-                <div class="input-container text-center my-1">
+                <div class="input-container text-center my-1 px-5">
                     <input type="number" v-model="tedad_paye_tahsili"
                            oninput="validity.valid" id="tedad-paye-input"
-                           class="   badge-pill"
+                           class=" form-control  badge-pill"
                     />
                 </div>
             </div>
 
             <div class="col-md-6 col-sm-6 my-1">
                 <p class="divider text-center "><span>تعداد همکاران</span></p>
-                <div class="input-container text-center my-1">
+                <div class="input-container text-center my-1 px-5">
                     <input type="number" v-model="tedad_hamkaran"
                            oninput="validity.valid" id="tedad-hamkaran-input"
-                           class="   badge-pill"
+                           class=" form-control  badge-pill "
                     />
                 </div>
             </div>
@@ -87,7 +87,7 @@
                 <div class="btn-group btn-group-toggle    col-md-6  justify-content-center   "
                      data-toggle="buttons">
                     <label id="roozane" for="roozane"
-                           class="btn btn-outline-success  col-xs-6   left-border   active"
+                           class="btn btn-outline-success  col-xs-6   left-border   "
                            @click="is_roozane=true;  ">
                         <input type="radio" name="options" autocomplete="off" class=" ">روزانه
                     </label>
@@ -125,109 +125,162 @@
                 <div class="btn-group btn-group-toggle    col-md-6  justify-content-center   "
                      data-toggle="buttons">
                     <label id="chador" for="chador"
-                           class="btn btn-outline-dark-green  col-xs-6   left-border   active"
-                           @click="noe_faza['c']=true; noe_faza['k']=false; noe_faza['s']=false;  ">
+                           class="btn btn-outline-dark-green  col-xs-6   left-border   "
+                           @click="noe_faza='c'; ">
                         <input type="radio" name="options" autocomplete="off" class=" ">چادر
                     </label>
                     <label id="kanex" for="kanex"
                            class="btn btn-outline-dark-red  col-xs-6   no-radius  "
-                           @click=" noe_faza['c']=false; noe_faza['k']=true; noe_faza['s']=false; ">
+                           @click=" noe_faza='k';">
                         <input type="radio" name="options" autocomplete="off" class=" ">کانکس
                     </label>
                     <label id="sakhteman" for="sakhteman"
                            class="btn btn-outline-dark-blue  col-xs-6   right-border  "
-                           @click=" noe_faza['c']=false; noe_faza['k']=false; noe_faza['s']=true; ">
+                           @click=" noe_faza='s'; ">
                         <input type="radio" name="options" autocomplete="off" class=" ">ساختمان
                     </label>
                 </div>
             </div>
 
             <!--mostaghel zamime-->
-            <div class="  filters-container col-12 row  mt-4">
-                <div class="btn-group btn-group-toggle     col-md-6  justify-content-center   "
-                     data-toggle="buttons">
-                    <label id="mostaghel" for="mostaghel"
-                           class="btn btn-outline-dark-green  col-xs-6   left-border   active"
-                           @click="vaziat['m']=true; vaziat['d']=false; vaziat['a']=false;  ">
-                        <input type="radio" name="options" autocomplete="off" class=" ">مستقل
-                    </label>
-                    <label id="zamd" for="zamd"
-                           class="btn btn-outline-dark-red  col-xs-6   no-radius  "
-                           @click=" vaziat['m']=false; vaziat['d']=true; vaziat['a']=false; ">
-                        <input type="radio" name="options" autocomplete="off" class=" ">ضمیمه دارد
-                    </label>
-                    <label id="zama" for="zama"
-                           class="btn btn-outline-dark-blue  col-xs-6   right-border  "
-                           @click=" vaziat['m']=false; vaziat['d']=false; vaziat['a']=true; ">
-                        <input type="radio" name="options" autocomplete="off" class=" ">ضمیمه است
-                    </label>
+            <div class="toggle-container filters-container col-12  rounded p-2 mx-2 border-1 border-primary mt-3  ">
+                <div class="  filters-container col-12 row  mt-4">
+                    <div class="btn-group btn-group-toggle     col-md-6  justify-content-center   "
+                         data-toggle="buttons">
+                        <label id="mostaghel" for="mostaghel"
+                               class="btn btn-outline-dark-green  col-xs-6   left-border   active"
+                               @click=" params.vaziat='m';  ">
+                            <input type="radio" name="options" autocomplete="off" class=" ">مستقل
+                        </label>
+                        <label id="zamd" for="zamd"
+                               class="btn btn-outline-dark-red  col-xs-6   no-radius  "
+                               @click=" params.vaziat='d' ;  ">
+                            <input type="radio" name="options" autocomplete="off" class=" ">ضمیمه دارد
+                        </label>
+                        <label id="zama" for="zama"
+                               class="btn btn-outline-dark-blue  col-xs-6   right-border  "
+                               @click=" params.vaziat='a' ;   ">
+                            <input type="radio" name="options" autocomplete="off" class=" ">ضمیمه است
+                        </label>
+                    </div>
+                </div>
+                <div class=" "
+                     v-if="params.vaziat=='d' || params.vaziat=='a'">
+                    <!--schools-->
+                    <selector :data-link="this.schoolsLink" :for="'school'" :newable="true"
+                              class=" "></selector>
                 </div>
             </div>
-            <div class="toggle-container filters-container col-12 row   rounded p-2 mx-2 border-1 border-primary mt-3"
-                 v-if="vaziat['d'] || vaziat['a']">
-                <!--schools-->
-                <selector :data-link="this.schoolsLink" :for="'school'" :newable="true"
-                          class=""></selector>
-            </div>
 
-
-            <div class="toggle-container filters-container col-12 row   rounded p-2 mx-2 border-1 border-primary">
+            <div class="toggle-container filters-container col-12 row   rounded p-2 mt-2 mx-2 border-1 border-primary">
 
                 <!--saabet koochroo-->
-                <div class=" btn-group btn-group-toggle    col-md-6  justify-content-center mt-4  "
+                <div class=" btn-group btn-group-toggle    col-12  justify-content-center mt-4  px-5 "
                      data-toggle="buttons">
                     <label id="saabet" for="roozane"
-                           class="btn btn-outline-success  col-xs-6   left-border   active"
-                           @click=" schoolable_type= 'App\\Saabet'  ">
+                           class="btn btn-outline-success    col-md-6    left-border   active"
+                           @click=" schoolable_type= 'App\\Saabet' ;marker('del',2); ">
                         <input type="radio" name="options" autocomplete="off" class=" ">ثابت
                     </label>
                     <label id="koochroo" for="shabane"
-                           class="btn btn-outline-dark  col-xs-6   right-border  "
-                           @click=" schoolable_type= 'App\\Koochroo'">
+                           class="btn btn-outline-dark    col-md-6    right-border  "
+                           @click=" schoolable_type= 'App\\Koochroo'; marker('add',2);">
                         <input type="radio" name="options" autocomplete="off" class=" ">کوچ رو
                     </label>
                 </div>
 
-                <div id="map" class="map"></div>
+
+                <div id="map" class="map container-fluid "></div>
+
+                <!--sayyar nimesayyar-->
+                <div v-if="schoolable_type== 'App\\Koochroo'"
+                     class=" btn-group btn-group-toggle    col-12  justify-content-center mt-4  px-5 "
+                     data-toggle="buttons">
+                    <label id="sayyar" for="sayyar"
+                           class="btn btn-outline-success    col-md-6    left-border   active"
+                           @click=" sayyar_type= 's' ;  ">
+                        <input type="radio" name="options" autocomplete="off" class=" ">سیار
+                    </label>
+                    <label id="nime-sayyar" for="nime-sayyar"
+                           class="btn btn-outline-dark    col-md-6    right-border  "
+                           @click=" sayyar_type= 'n';  ">
+                        <input type="radio" name="options" autocomplete="off" class=" ">نیمه سیار
+                    </label>
+                </div>
 
                 <div class="row col-12">
                     <div class="loc-container   col-md-6 col-sm-6">
                         <p class="divider   ">
-                            <span> {{schoolable_type == 'App\\Saabet' ? 'مکان' : 'مکان ییلاق'}} </span></p>
-                        <div class="input-group col-md-6 col-sm-12 pt-1 ">
+                            <span class="text-primary"> {{schoolable_type == 'App\\Saabet' ? 'مکان' : 'مکان ییلاق'}} </span>
+                        </p>
+                        <div class="input-group   pt-1 ">
                             <div class="input-group-prepend   btn-group-vertical p-1">
                                 <i class="fa fa-map-marker  text-primary  "></i>
                             </div>
-                            <input type="text" placeholder="طول" v-model="loc1.lat" id="loc1-lat-input"
-                                   class="my-1 py-1 pr-1 form-control  " aria-label="SearchName">
+                            <input type="text" placeholder="طول" id="loc1-lat-input" v-model="loc1_lat_input"
+                                   class="my-1 py-1 pr-1 form-control border " aria-label="">
 
                         </div>
-                        <div class="input-group col-md-6 col-sm-12 pt-1 ">
+                        <div class="input-group  pt-1 ">
                             <div class="input-group-prepend   btn-group-vertical p-1">
                                 <i class="fa fa-map-marker  text-primary  "></i>
                             </div>
-                            <input type="text" placeholder="عرض" v-model="loc1.lon" id="loc1-lon-input"
-                                   class="my-1 py-1 pr-1 form-control right-border " aria-label="SearchName">
+                            <input type="text" placeholder="عرض" id="loc1-lon-input" v-model="loc1_lon_input"
+                                   class="my-1 py-1 pr-1 form-control right-bottom-border " aria-label="">
+                        </div>
+                        <div class="input-group  pt-1 ">
+                            <div class="input-group-prepend   btn-group-vertical p-1">
+                                <i class="fa fa-address-book  text-primary  "></i>
+                            </div>
+                            <textarea rows="2" placeholder="آدرس" id="loc1-address-input"
+                                      v-model="loc1_address"
+                                      class="my-1 py-1 pr-1 form-control rounded " aria-label=""></textarea>
+                        </div>
+                        <div class="input-group  pt-1 ">
+                            <div class="input-group-prepend   btn-group-vertical p-1">
+                                <i class="fa fa-road  text-primary  "></i>
+                            </div>
+                            <input type="number" placeholder="فاصله از شهرستان (کیلومتر)" id="loc1-fasele-input"
+                                   v-model="loc1_fasele_az_shahrestan" oninput="validity.valid" min="0"
+                                   class="my-1 py-1 pr-1 form-control badge-pill " aria-label="">
+
+
                         </div>
                     </div>
 
                     <div v-if="schoolable_type== 'App\\Koochroo'" class="loc-container   col-md-6 col-sm-6">
                         <p class="divider  ">
-                            <span>    مکان قشلاق   </span></p>
-                        <div class="input-group col-md-6 col-sm-12 pt-1 ">
+                            <span class="text-danger">    مکان قشلاق   </span></p>
+                        <div class="input-group  pt-1 ">
                             <div class="input-group-prepend   btn-group-vertical p-1">
-                                <i class="fa fa-map-marker  text-primary  "></i>
+                                <i class="fa fa-map-marker  text-primary text-danger "></i>
                             </div>
-                            <input type="text" placeholder="طول" v-model="loc2.lat" id="loc2-lat-input"
+                            <input type="text" placeholder="طول" id="loc2-lat-input" v-model="loc2_lat_input"
                                    class="my-1 py-1 pr-1 form-control  " aria-label="SearchName">
 
                         </div>
-                        <div class="input-group col-md-6 col-sm-12 pt-1 ">
+                        <div class="input-group  pt-1 ">
                             <div class="input-group-prepend   btn-group-vertical p-1">
-                                <i class="fa fa-map-marker  text-primary  "></i>
+                                <i class="fa fa-map-marker  text-primary text-danger "></i>
                             </div>
-                            <input type="text" placeholder="عرض" v-model="loc2.lon" id="loc2-lon-input"
-                                   class="my-1 py-1 pr-1 form-control right-border " aria-label="SearchName">
+                            <input type="text" placeholder="عرض" id="loc2-lon-input" v-model="loc2_lon_input"
+                                   class="my-1 py-1 pr-1 form-control right-border   " aria-label="SearchName">
+                        </div>
+                        <div class="input-group  pt-1 ">
+                            <div class="input-group-prepend   btn-group-vertical p-1">
+                                <i class="fa fa-address-book  text-danger  "></i>
+                            </div>
+                            <textarea rows="2" placeholder="آدرس" id="loc2-address-input"
+                                      v-model="loc2_address"
+                                      class="my-1 py-1 pr-1 form-control rounded " aria-label=""></textarea>
+                        </div>
+                        <div class="input-group  pt-1 ">
+                            <div class="input-group-prepend   btn-group-vertical p-1">
+                                <i class="fa fa-road  text-danger  "></i>
+                            </div>
+                            <input type="Number" placeholder="فاصله از شهرستان (کیلومتر)" id="loc2-fasele-input"
+                                   v-model="loc2_fasele_az_shahrestan" oninput="validity.valid" min="0"
+                                   class="my-1 py-1 pr-1 form-control badge-pill " aria-label="">
                         </div>
                     </div>
 
@@ -235,6 +288,52 @@
             </div>
 
 
+            <div class="img-container  w-100">
+                <form id="uploader" enctype="multipart/form-data" class="uploader-container mx-2 mt-2 p-2 flex-column"
+                      role="form" method="post"
+                      @drop="uploader.removeClass('hover');filePreview($event,'img-input') "
+                      @click="openFileChooser($event,'img-input')">
+
+                    <h5 class="uploader-message p-2 text-center  ">
+                        تصاویر مدرسه...
+                    </h5>
+                    <h6 class="uploader-message  text-center  "> حداکثر 3 عکس </h6>
+                    <h6 class="uploader-message  text-center  "> حجم عکس زیر 2MB </h6>
+                    <h6 class="uploader-message  text-center  "> فرمت jpg یا  png </h6>
+                    <div class="progress w-100 justify-content-end hide">
+                        <div class="p-2 w-auto progress-bar  progress-bar-striped bg-success "
+                             role="progressbar"
+                             :style="'width:'+ percentCompleted+'%'">{{percentCompleted}}%
+                        </div>
+                    </div>
+
+                </form>
+                <input id="img-input" class="col-12" accept=".png, .jpg, .jpeg" type="file" name="images[]"
+                       style="opacity: 0" multiple
+                       @change="filePreview($event,'img-input')"/>
+
+                <div class="img-container row   mx-2 mt-2 p-2   ">
+                    <div v-for="(doc,index) in docs" class="thumb-container col-md-4 col-sm-6 ">
+                        <a :href="doc" data-lity>
+                            <img :id="'img-'+index" class="img-thumbnail "
+                                 :src="doc"
+                                 alt="">
+                        </a>
+
+                        <button :id="'del-'+index" class="btn close-btn bg-danger text-white"
+                                @click="removeImage(index,'img-input')">
+                            <i class="fa fa-window-close text-white" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!--footer-->
+            <div class="modal-footer justify-content-center col-12">
+                <button type="button" class="btn btn-primary mx-1  btn-block  "
+                        @click="   $root.$emit('hoozeRequest', params);">ذخیره
+                </button>
+
+            </div>
         </div>
     </div>
 
@@ -246,6 +345,8 @@
     import dropdown from './dropdown.vue';
     import selector from './selector.vue';
     import LayerSwitcher from 'ol-layerswitcher/dist/ol-layerswitcher';
+    import swal from 'sweetalert2';
+
     //    import 'ol/ol.css';
     //    import Feature from 'ol/Feature.js';
     //    import Map from 'ol/Map.js';
@@ -256,11 +357,21 @@
     //    import TileJSON from 'ol/source/TileJSON.js';
     //    import VectorSource from 'ol/source/Vector.js';
     //    import {Icon, Style} from 'ol/style.js';
-
+    let regOnlyNumber = new RegExp('^[0-9]+$');
+    let regIsLatLong = new RegExp("^[-+]?[0-9]{1,7}(\\.[0-9]+)?$");
+    let regIsZamime = new RegExp("^(a|d)\\$\\d+(\\$\\d+)*$"); //a or d and
     let map;
-    let marker1, marker2;
+    let marker1, marker2, vectorSource, lineMarker;
     let layer;
     let kerman = [57.0532, 30.2880];
+
+    let input_loc1_lat;
+    let input_loc1_lon;
+    let input_loc2_lat;
+    let input_loc2_lon;
+    let coordMarker1, coordMarker2;
+    let tmpCoord1, tmpCoord2;
+    let docs = [];
     export default {
 
         props: ['schoolsLink', 'hoozesLink'],
@@ -272,10 +383,10 @@
         data() {
             return {
                 sName: '',
-                is_roozane: true,
+                is_roozane: '',
                 doore: {'ebte': false, 'mote1': false, 'mote2': false},
                 jensiat: {'b': false, 'g': false,},
-                noe_faza: {'c': false, 'k': false, 's': false},
+
                 sale_tasis: '',
                 tedad_daneshamooz: '',
                 tedad_paye_tahsili: '',
@@ -283,29 +394,328 @@
                 code_madrese: '',
                 code_faza: '',
                 schoolable_type: 'App\\Saabet',
-                vaziat: {'m': true, 'd': false, 'a': false},
+                vaziat: 'm',
                 loc1: {lat: null, lon: null},
                 loc2: {lat: null, lon: null},
                 marker1: '', marker2: '',
-
+                uploader: $('#uploader'),
+                percentCompleted: 0,
+                docs: [],
+                IMG_LIMIT: 3,
+                SIZE_LIMIT: 2, //MB
+                params: {doore: '', jensiat: '', hooze: [], zamime: [], vaziat: 'm'},
+                noe_faza: '',
+                loc1_lat_input: "",
+                loc1_lon_input: "",
+                loc2_lat_input: "",
+                loc2_lon_input: "",
+                loc1_fasele_az_shahrestan: "",
+                loc2_fasele_az_shahrestan: "",
+                loc1_address: "",
+                loc2_address: "",
+                koochroo_type: "s",
             }
+        },
+        watch: {
+//            noe_faza: () => {
+//                return Vue.noe_faza;
+//            }
+        },
+        computed: {
+//            get_noe_faza: () => {
+//                return Vue.noe_faza;
+//            }
         },
         mounted() {
 //            this.getSchools();
 
-            this.initialize_map();
 
+            this.initialize_map();
             this.setEvents();
 //            this.setSliders(0);
+            this.uploader = $('#uploader');
         },
         created() {
 
         },
         updated() {
+            //add listeners to input loc 2 after showing
+            if (this.schoolable_type === 'App\\Koochroo') {
 
+                input_loc1_lat = $('#loc1-lat-input');
+                input_loc1_lon = $('#loc1-lon-input');
+
+                input_loc2_lat = $('#loc2-lat-input');
+                input_loc2_lon = $('#loc2-lon-input');
+
+                coordMarker2 = marker2.getGeometry().getCoordinates();
+//                input_loc2_lon.val(coordMarker2[0]);
+//                input_loc2_lat.val(coordMarker2[1]);
+
+                $(input_loc2_lon).keyup(() => {
+                    marker2.getGeometry().setCoordinates([Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]);
+                    lineMarker.getGeometry().setCoordinates
+                    ([[Number(input_loc1_lon.val()), Number(input_loc1_lat.val())],
+                        [Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]]);
+                });
+                $(input_loc2_lat).keyup(() => {
+                    marker2.getGeometry().setCoordinates([Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]);
+                    lineMarker.getGeometry().setCoordinates
+                    ([[Number(input_loc1_lon.val()), Number(input_loc1_lat.val())],
+                        [Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]]);
+                });
+            }
         },
         methods: {
+            removeImage(idx, from) {
+                if (from === 'img-input')
+                    this.docs.splice(idx, 1);
+            },
+            openFileChooser(event, from) {
+//                send fake click for browser file
+                let image_input = document.getElementById(from);
+                if (document.createEvent) {
+                    let evt = document.createEvent("MouseEvents");
+                    evt.initEvent("click", false, true);
+                    image_input.dispatchEvent(evt);
 
+                } else {
+                    let evt = new Event("click", {"bubbles": false, "cancelable": true});
+                    image_input.dispatchEvent(evt);
+                }
+            },
+            filePreview(e, from) {
+                let files;
+                if (event.dataTransfer) {
+                    files = event.dataTransfer.files;
+                }
+                else if (event.target.files) {
+                    files = event.target.files;
+                }
+                if (this.checkDocs(files, from))
+//                    console.log(files.length);
+                    if (files && files.length > 0) {
+                        if (from === 'img-input') {
+                            for (let i = 0; i < files.length; i++) {
+//                        console.log(files.length);
+                                let reader = new FileReader();
+                                reader.onload = function (e) {
+                                    docs.push(e.target.result);
+                                };
+                                reader.readAsDataURL(files[i]);
+                            }
+                            this.docs = docs;
+                        }
+                    }
+            },
+            checkInputs(params) {
+                console.log(params);
+                //check all inputs
+                this.errors = '';
+                // name input -> required -> not only space
+                if (!this.sName.replace(/\s/g, '').length)
+                    this.errors += ('<br>' + 'نام مدرسه نمی تواند خالی باشد');
+                if (this.sName.length > 100)
+                    this.errors += ('<br>' + 'نام مدرسه نمی تواند بیشتر از 100 حرف باشد');
+
+                if (this.code_madrese > 4294967295 || (this.code_madrese.length > 0 && !regOnlyNumber.test(this.code_madrese)))
+                    this.errors += ('<br>' + 'کد مدرسه عدد و حداکثر 10 رقم باشد');
+
+                if (this.code_faza > 4294967295 || (this.code_faza.length > 0 && !regOnlyNumber.test(this.code_faza)))
+                    this.errors += ('<br>' + 'کد فضا عدد و حداکثر 10 رقم باشد');
+
+                if (this.sale_tasis !== "" && (this.sale_tasis > 1500 || this.sale_tasis < 1300) || (this.sale_tasis.length > 0 && !regOnlyNumber.test(this.sale_tasis)))
+                    this.errors += ('<br>' + 'سال تاسیس نامعتبر است');
+
+                if (this.tedad_daneshamooz > 4294967295 || (this.tedad_daneshamooz.length > 0 && !regOnlyNumber.test(this.tedad_daneshamooz)))
+                    this.errors += ('<br>' + 'تعداد دانش آموز عدد و حداکثر 10 رقم باشد');
+
+                if (this.tedad_paye_tahsili > 65535 || (this.tedad_paye_tahsili.length > 0 && !regOnlyNumber.test(this.tedad_paye_tahsili)))
+                    this.errors += ('<br>' + 'تعداد پایه تحصیلی عدد و حداکثر 5 رقم باشد');
+
+                if (this.tedad_hamkaran > 16777215 || (this.tedad_hamkaran.length > 0 && !regOnlyNumber.test(this.tedad_hamkaran)))
+                    this.errors += ('<br>' + 'تعداد همکاران عدد و حداکثر 8 رقم باشد');
+
+                if (this.is_roozane !== "" && typeof this.is_roozane !== "boolean")
+                    this.errors += ('<br>' + 'روزانه شبانه نامعتبر است');
+
+                for (let i in params.zamime)
+                    params.vaziat += "$" + params.zamime[i].id;
+
+                if (params.vaziat !== 'm' && !regIsZamime.test(params.vaziat))
+                    this.errors += ('<br>' + 'وضعیت مدرسه نامعتبر است');
+             
+
+                this.params.doore = '';
+                if (this.doore['ebte']) {
+                    this.params.doore = '0';
+                    if (this.doore['mote1'])
+                        this.params.doore += '$1';
+                    if (this.doore['mote2'])
+                        this.params.doore += '$2';
+                } else if (this.doore['mote1']) {
+                    this.params.doore = '1';
+                    if (this.doore['mote2'])
+                        this.params.doore += '$2';
+                } else if (this.doore['mote2']) {
+                    this.params.doore = '2';
+                }
+
+                this.params.jensiat = '';
+                if (this.jensiat['b']) {
+                    this.params.jensiat = 'b';
+                    if (this.jensiat['g'])
+                        this.params.jensiat = 'a';
+                }
+                else if (this.jensiat['g'])
+                    this.params.jensiat = 'g';
+
+                if (!['c', 'k', 's', ''].includes(this.noe_faza))
+                    this.errors += ('<br>' + 'نوع فضای آموزشی نا معتبر است');
+
+                if (this.schoolable_type !== "App\\Saabet" && this.schoolable_type !== "App\\Koochroo")
+                    this.errors += ('<br>' + 'نوع مدرسه معتبر نیست');
+
+
+                if (this.loc1_lat_input.length > 22 || !regIsLatLong.test(this.loc1_lat_input) && this.loc1_lat_input !== "")
+                    this.errors += ('<br>' + 'طول جغرافیایی مکان ۱ معتبر نیست');
+                if (this.loc1_lon_input.length > 22 || !regIsLatLong.test(this.loc1_lon_input) && this.loc1_lon_input !== "")
+                    this.errors += ('<br>' + 'عرض جغرافیایی مکان ۱ معتبر نیست');
+
+                if (this.loc2_lat_input.length > 22 || !regIsLatLong.test(this.loc2_lat_input) && this.loc2_lat_input !== "")
+                    this.errors += ('<br>' + 'طول جغرافیایی مکان ۲ معتبر نیست');
+                if (this.loc2_lon_input.length > 22 || !regIsLatLong.test(this.loc2_lon_input) && this.loc2_lon_input !== "")
+                    this.errors += ('<br>' + 'عرض جغرافیایی مکان ۲ معتبر نیست');
+
+                if (this.loc1_address.length > 150)
+                    this.errors += ('<br>' + 'آدرس مکان ۱ نمی تواند بیشتر از 150 حرف باشد');
+                if (this.loc2_address.length > 150)
+                    this.errors += ('<br>' + 'آدرس مکان ۲ نمی تواند بیشتر از 150 حرف باشد');
+
+                if (this.loc1_fasele_az_shahrestan > 4294967295 || (this.loc1_fasele_az_shahrestan.length > 0 && !regOnlyNumber.test(this.loc1_fasele_az_shahrestan)))
+                    this.errors += ('<br>' + 'فاصله از شهرستان عدد و حداکثر 10 رقم باشد');
+                if (this.loc2_fasele_az_shahrestan > 4294967295 || (this.loc2_fasele_az_shahrestan.length > 0 && !regOnlyNumber.test(this.loc2_fasele_az_shahrestan)))
+                    this.errors += ('<br>' + 'فاصله از شهرستان عدد و حداکثر 10 رقم باشد');
+//
+
+
+                if (this.errors === '')
+                    this.showDialog(0);
+                else
+                    this.showDialog(); //errors
+
+            }
+            ,
+            checkDocs(files, from) {
+//                return true;
+                // from certs-input 3 files 4 mb
+                // from agent-input 2 files 4mb
+                let message = '';
+                let sizeMessage = ' حجم هر عکس زیر' + this.SIZE_LIMIT + 'مگابایت باشد';
+                let numMessage = 'تعداد عکس، بیش از حد مجاز است';
+                for (let i = 0; i < files.length; i++)
+                    if (files[i].size / 1024 / 1024 > this.SIZE_LIMIT) {
+                        message = sizeMessage;
+                        break;
+                    }
+
+                if (from === 'img-input' && this.docs.length + files.length > this.IMG_LIMIT)
+
+                    message = numMessage;
+                if (message !== '') {
+                    swal.fire({
+                        title: 'توجه',
+                        text: message,
+                        type: 'error',
+                        showCancelButton: true,
+                        showConfirmButton: false,
+                        showCloseButton: true,
+                        cancelButtonText: 'باشه',
+                        cancelButtonColor: '#d33',
+
+                    });
+                    return false;
+                }
+                else
+                    return true;
+
+            }
+            ,
+            showDialog(type, data) {
+                // 0  ready for save
+                // 1  success  save
+                // else show errors
+                if (type === 0)
+                    swal.fire({
+                        title: 'توجه',
+                        text: 'تغییرات ذخیره شوند؟',
+                        type: 'warning',
+                        showCancelButton: true,
+                        showCloseButton: true,
+                        cancelButtonText: 'خیر',
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: ' بله',
+                    }).then((result) => {
+                        if (result.value) {
+                            this.saveChanges();
+                        }
+                    });
+                else if (type === 1) {
+                    swal.fire({
+                        title: 'توجه',
+                        text: ' با موفقیت ذخیره شد!',
+                        confirmButtonColor: '#60aa2f',
+                        type: 'success',
+                        confirmButtonText: ' باشه',
+                    }).then((result) => {
+                        if (result.value) {
+                            location.reload();
+                        }
+                    });
+
+                } else {
+                    swal.fire({
+                        title: 'خطاهای زیر را اصلاح نمایید',
+                        html: ` <p   class="text-danger">` + this.errors + `</p>`,
+//                        text: this.errors,
+                        confirmButtonColor: '#d33',
+                        type: 'error',
+                        confirmButtonText: ' باشه',
+                    });
+                }
+            }
+            ,
+
+            saveChanges() {
+
+                this.params['cert_docs'] = this.cert_docs;
+                this.params['agent_docs'] = this.agent_docs;
+                this.params['is_agent'] = this.hasRule('Agent'); //for agent docs
+
+//                console.log(this.params);
+                axios.post(this.createAdvLink, this.params)
+                    .then((response) => {
+                        console.log(response);
+                        if (response.status === 200) {
+                            this.$root.$emit('updateMessageBox'); //update messages in panel
+                            this.showDialog(1);
+
+                        }
+                    }).catch((error) => {
+                    this.errors += '<br>'; // maybe is not empty from javascript validate
+                    if (error.response && error.response.status === 422)
+                        for (let idx in error.response.data.errors)
+                            this.errors += error.response.data.errors[idx] + '<br>';
+                    else {
+                        this.errors = error;
+                    }
+                    this.showDialog();
+//                    console.log(error);
+//                    console.log(error.response);
+                });
+            }
+            ,
             setSliders(type) {
 
 
@@ -348,7 +758,8 @@
                         value: this.tedad_daneshamooz
                     });
                 }
-            },
+            }
+            ,
             initialize_map() {
                 console.log('init');
                 let iconFeatures = [];
@@ -385,35 +796,37 @@
                     name: this.sName,
 
                 });
+                marker1.setId('marker1');
                 marker2 = new ol.Feature({
-                    geometry: new ol.geom.Point(ol.proj.transform(kerman, 'EPSG:4326', 'EPSG:3857')),
+                    geometry: new ol.geom.Point(ol.proj.transform([kerman[0] - .002, kerman[1]], 'EPSG:4326', 'EPSG:3857')),
                     name: this.sName,
 
                 });
-
+                marker2.setId('marker2');
 
                 let startPt = ol.proj.fromLonLat(kerman);
-                let endPt = ol.proj.fromLonLat(kerman);
+                let endPt = ol.proj.fromLonLat([kerman[0] - .002, kerman[1]]);
 
-                let lineMarker = new ol.Feature({
+                lineMarker = new ol.Feature({
                     geometry: new ol.geom.LineString([startPt, endPt]),
                     name: 'Line',
-                });
 
+                });
+                lineMarker.setId('line');
 
                 marker1.setStyle(iconStyle1);
                 marker2.setStyle(iconStyle2);
                 lineMarker.setStyle(lineStyle);
 
                 iconFeatures.push(marker1);
-                iconFeatures.push(marker2);
-                iconFeatures.push(lineMarker);
+//                iconFeatures.push(marker2);
+//                iconFeatures.push(lineMarker);
 
                 if (this.map) {
                     this.map.setTarget(null);
                     this.map = null;
                 }
-                let vectorSource = new ol.source.Vector({
+                vectorSource = new ol.source.Vector({
                     features: iconFeatures
 
                 });
@@ -478,6 +891,7 @@
 
 //                drag features
 
+
                 let translate1 = new ol.interaction.Translate({
                     features: new ol.Collection([marker1])
                 });
@@ -487,21 +901,75 @@
                 this.map.addInteraction(translate1);
                 this.map.addInteraction(translate2);
 
-                let coordMarker1, coordMarker2;
+
+                input_loc1_lat = $('#loc1-lat-input');
+                input_loc1_lon = $('#loc1-lon-input');
+                input_loc2_lat = $('#loc2-lat-input');
+                input_loc2_lon = $('#loc2-lon-input');
+
                 translate1.on('translatestart', function (evt) {
                     coordMarker2 = marker2.getGeometry().getCoordinates();
+
                 });
                 translate1.on('translating', function (evt) {
-                    lineMarker.getGeometry().setCoordinates([coordMarker2, evt.coordinate]);
+                    tmpCoord1 = marker1.getGeometry().getCoordinates();
+                    lineMarker.getGeometry().setCoordinates([coordMarker2, tmpCoord1]);
+                    input_loc1_lon.val(tmpCoord1[0]);
+                    input_loc1_lat.val(tmpCoord1[1]);
                 });
                 translate2.on('translatestart', function (evt) {
                     coordMarker1 = marker1.getGeometry().getCoordinates();
                 });
                 translate2.on('translating', function (evt) {
-                    lineMarker.getGeometry().setCoordinates([coordMarker1, evt.coordinate]);
+                    tmpCoord2 = marker2.getGeometry().getCoordinates();
+                    lineMarker.getGeometry().setCoordinates([coordMarker1, tmpCoord2]);
+                    input_loc2_lon.val(tmpCoord2[0]);
+                    input_loc2_lat.val(tmpCoord2[1]);
+
                 });
 
-                let map = this.map;
+                $(input_loc1_lon).keyup(() => {
+                    marker1.getGeometry().setCoordinates([Number(input_loc1_lon.val()), Number(input_loc1_lat.val())]);
+                    lineMarker.getGeometry().setCoordinates
+                    ([[Number(input_loc1_lon.val()), Number(input_loc1_lat.val())],
+                        [Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]]);
+                });
+                $(input_loc1_lat).keyup(() => {
+                    marker1.getGeometry().setCoordinates([Number(input_loc1_lon.val()), Number(input_loc1_lat.val())]);
+                    lineMarker.getGeometry().setCoordinates
+                    ([[Number(input_loc1_lon.val()), Number(input_loc1_lat.val())],
+                        [Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]]);
+
+                });
+                $(input_loc2_lon).keyup(() => {
+                    marker2.getGeometry().setCoordinates([Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]);
+                    lineMarker.getGeometry().setCoordinates
+                    ([[Number(input_loc1_lon.val()), Number(input_loc1_lat.val())],
+                        [Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]]);
+                });
+                $(input_loc2_lat).keyup(() => {
+                    marker2.getGeometry().setCoordinates([Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]);
+                    lineMarker.getGeometry().setCoordinates
+                    ([[Number(input_loc1_lon.val()), Number(input_loc1_lat.val())],
+                        [Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]]);
+                });
+
+
+                //first lat lon input values
+                coordMarker1 = marker1.getGeometry().getCoordinates();
+                coordMarker2 = marker2.getGeometry().getCoordinates();
+
+//                input_loc1_lon.val(coordMarker1[0]);
+//                input_loc1_lat.val(coordMarker1[1]);
+//                input_loc2_lon.val(coordMarker2[0]);
+//                input_loc2_lat.val(coordMarker2[1]);
+
+//                this.loc1_lon_input = coordMarker1[0];
+//                this.loc1_lat_input = coordMarker1[1];
+//                this.loc2_lon_input = coordMarker2[0];
+//                this.loc2_lat_input = coordMarker2[1];
+
+                map = this.map;
                 map.on('pointermove', function (e) {
                     if (e.dragging) return;
                     let hit = map.hasFeatureAtPixel(map.getEventPixel(e.originalEvent));
@@ -512,13 +980,28 @@
                 lineMarker.style = {display: 'none'};
                 this.layer.getSource().changed();
                 map.render();
-            },
 
+            }
+            ,
+
+            marker(command, marker) {
+
+                if (command === 'add' && marker === 2 && vectorSource.getFeatureById('marker2') === null) {
+                    vectorSource.addFeature(lineMarker);
+                    vectorSource.addFeature(marker2);
+
+                } else if (command === 'del' && marker === 2 && vectorSource.getFeatureById('marker2') !== null) {
+                    vectorSource.removeFeature(lineMarker);
+                    vectorSource.removeFeature(marker2);
+                }
+            }
+            ,
 
 //                this.layer = layer;
             cancel() {
                 $("#mapModal").removeClass('show');
-            },
+            }
+            ,
 
             getType(school, _for) {
                 let text = '';
@@ -567,13 +1050,15 @@
                 }
                 return text;
 
-            },
+            }
+            ,
             getImage(doc) {
                 if (doc.length !== 0)
                     return doc[0].path;
                 else
                     return "img/school-no.png";
-            },
+            }
+            ,
             getSchools() {
                 axios.post(this.schoolsLink, this.params)
                     .then((response) => {
@@ -610,41 +1095,36 @@
 ////                    console.log(error);
 ////                    console.log(error.response);
                 });
-            },
+            }
+            ,
 
             setEvents() {
 
 
                 this.$root.$on('schoolsChange', data => {
-//                    console.log(data);
                     this.schools = data;
-//                    this.initialize_map();
-//                    this.addMarker();
+                });
+
+
+                //hoozeRequest->hoozeResponse->selectorResponse
+                this.$root.$on('selectorResponse', params => {
+                    this.checkInputs(params);
                 });
 //            console.log(this.data);
 //            console.log(this.banners);
-                //ids that start with img-
-                $("img[id^='img-']").each((i, el) => {
 
-                    let imgTag = el;
-                    let img = new Image();
-                    img.src = imgTag.src;
-//                    imgTag.src = '';
-                    $(imgTag).addClass('loading');
-                    img.onload = () => {
-                        imgTag.src = img.src;
-                        $(imgTag).removeClass('loading');
-//                imgTag.setAttribute('src', img.src);
-                        // Fade out and hide the loading image.
-//                $('.loading').fadeOut(100); // Time in milliseconds.
-                    };
-                    img.onerror = (e) => {
-//                console.log(e);
-                        $(imgTag).removeClass('loading');
-                        $(imgTag).prop('src', './img/noimage.png');
-                    };
 
-                });
+                this.uploader
+                    .on('dragenter',
+                        (e) => {
+                            this.uploader.addClass('hover');
+                            return false;
+                        })
+                    .on('dragleave',
+                        (e) => {
+                            this.uploader.removeClass('hover');
+                            return false;
+                        });
 
 
             }

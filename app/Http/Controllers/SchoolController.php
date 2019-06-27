@@ -21,7 +21,7 @@ class SchoolController extends Controller
         $name = $request->name;
 
         if (!$name)
-            return ['data' =>School::get(['id', 'name'])];
+            return ['data' => School::get(['id', 'name'])];
         if ($command == 'get')
             if ($hooze_namayandegi_id)
                 return ['data' => School::get(['id', 'name'])->whereIn('hooze_namayandegi_id', $hooze_namayandegi_id)];
@@ -60,8 +60,23 @@ class SchoolController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+    public function all(Request $request)
+    {
+        $paginate = $request->paginate;
+        $page = $request->page;
+        if (!$paginate) {
+            $paginate = 24;
+        }
+        if (!$page) {
+            $page = 1;
+        }
+        return School::with('hooze')->with('schoolable')->paginate($paginate, ['*'], 'page', $page);
+    }
+
     public function search(Request $request)
     {
+
         $ids = $request->ids;
         $paginate = $request->paginate;
         $page = $request->page;

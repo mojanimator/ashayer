@@ -6129,10 +6129,28 @@ __webpack_require__.r(__webpack_exports__);
     });
   },
   created: function created() {},
+  beforeDestroy: function beforeDestroy() {
+    this.$root.$off('hoozeRequest');
+  },
   methods: {
     setEvents: function setEvents() {
       var _this2 = this;
 
+      //hoozeRequest->hoozeResponse->selectorResponse
+      this.$root.$on('hoozeRequest', function (params) {
+        var i = 0;
+        params.hooze = [];
+
+        _this2.activeData.find(function (t, index) {
+          if (t) {
+            i++;
+            params.hooze.push(index);
+          }
+        });
+
+        if (params.vaziat !== 'm') //school selector is not available
+          _this2.$root.$emit('hoozeResponse', params);else _this2.$root.$emit('selectorResponse', params);
+      });
       this.$root.$on('search', function (params) {
         _this2.params['data'] = [];
         if (params !== undefined) _this2.params['page'] = params['page'];
@@ -6484,35 +6502,16 @@ var EventBus = new Vue(); //    let map;
 
     };
   },
-  created: function created() {},
-  mounted: function mounted() {
+  created: function created() {
     var _this = this;
 
-    this.setEvents();
     $('#mapModal').on('shown.bs.modal', function () {
       //                console.log('modal');
       _this.addMarker();
-    }); //
-    //
-    //                this.map.renderSync();
-    //                this.map.render();
-    //                this.map.updateSize();
-    //                this.map.changed();
-    //            if (this.map) {
-    //            this.map.renderSync();
-    //            this.map.render();
-    //            this.map.updateSize();
-    //            this.map.changed();
-    //            this.addMarker();
-    //            }
-    //            this.initialize_map();
-    //            $('#mapModal').on('shown.bs.modal', () => {
-    ////                console.log('modal');
-    ////                this.initialize_map();
-    //                this.map.updateSize();
-    //            });
-    //            map.updateSize();
-    //            this.add_map_point(this.latLng[0], this.latLng[1]);
+    });
+  },
+  mounted: function mounted() {
+    this.setEvents();
   },
   updated: function updated() {},
   methods: {
@@ -6539,6 +6538,7 @@ var EventBus = new Vue(); //    let map;
       }
     },
     addMarker: function addMarker() {
+      console.log("add marker");
       var iconFeatures = [];
       var layer; //                layer = this.map.getLayers().getArray()[2];
 
@@ -6610,15 +6610,11 @@ var EventBus = new Vue(); //    let map;
       layer.getSource().clear();
       layer.getSource().addFeatures(iconFeatures); //                    layer.getSource().addFeature(iconFeatures[1]);
 
-      this.map.setTarget($("#map")[0]);
       var extent = layer.getSource().getExtent();
       extent = [extent[0] - 100, extent[1] - 50, extent[2] + 50, extent[3] + 100]; //add padding to borders
 
-      this.map.getView().fit(extent, this.map.getSize()); //                this.map.addLayer(layer);
-      //                this.map.renderSync();
-      //                this.map.render();
-      //                this.map.updateSize();
-      //                this.map.changed();
+      this.map.getView().fit(extent, this.map.getSize());
+      this.map.setTarget($("#map")[0]);
     },
     initialize_map: function initialize_map() {
       console.log('hi2');
@@ -7091,6 +7087,13 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
 
  //    import 'ol/ol.css';
 //    import Feature from 'ol/Feature.js';
@@ -7113,7 +7116,7 @@ var kerman = [57.0532, 30.2880];
   },
   data: function data() {
     return {
-      schools: null,
+      schools: [],
       params: null,
       selectedSchool: null,
       map: null,
@@ -7123,99 +7126,42 @@ var kerman = [57.0532, 30.2880];
   },
   mounted: function mounted() {
     //            this.getSchools();
+    this.setEvents();
     this.initialize_map();
-    this.setEvents(); //            $('#mapModal').on('shown.bs.modal', () => {
-    ////                console.log('modal');
-    //
-    //
-    ////                this.layer.getSource().refresh({force: true});
-    ////
-    //                this.map.renderSync();
-    //                this.map.render();
-    //                this.map.updateSize();
-    //                this.map.changed();
-    //            });
-    //            this.initialize_map();
-    //            this.addMarker();
-    //            $(window).on('hidden.bs.modal', function() {
-    //                $('#code').modal('hide');
-    //                alert('hidden');
-    //            });
+    this.add_marker(); //
   },
   created: function created() {},
   updated: function updated() {},
   methods: {
-    addMarker: function addMarker() {
-      this.selectedSchool = this.schools[0];
+    add_marker: function add_marker() {
+      console.log("add marker");
       var iconFeatures = [];
-      var layer; //                console.log(this.map.getLayers().getArray());
+      var layer; //                layer = this.map.getLayers().getArray()[2];
 
-      this.map.getLayers().forEach(function (tLayer) {
-        if (tLayer.get('name') !== undefined && tLayer.get('name') === 'main') {
-          //                        layersToRemove.push(layer);
-          layer = tLayer;
-        }
+      layer = this.map.getLayers().getArray()[0].getLayers().getArray()[3]; //markers layer
+
+      var marker1 = new ol.Feature({
+        geometry: new ol.geom.Point(ol.proj.transform(kerman, 'EPSG:4326', 'EPSG:3857')),
+        name: "kerman"
       });
+      iconFeatures.push(marker1);
+      this.map.getView().setCenter(ol.proj.fromLonLat(kerman), 4);
+      layer.getSource().clear();
+      layer.getSource().addFeatures(iconFeatures); //                    layer.getSource().addFeature(iconFeatures[1]);
 
-      if (this.selectedSchool.schoolable.loc) {
-        // sabet have one marker
-        //                    console.log(this.s.schoolable);
-        this.latLng = this.selectedSchool.schoolable.loc.split(',');
-        var marker1 = new ol.Feature({
-          geometry: new ol.geom.Point(ol.proj.transform([this.latLng[0], this.latLng[1]], 'EPSG:4326', 'EPSG:3857')),
-          name: this.selectedSchool.name,
-          population: this.selectedSchool.hooze.name
-        });
-        iconFeatures.push(marker1);
-      } else {
-        //                    console.log(this.s.schoolable);
-        this.latLng = this.selectedSchool.schoolable.loc_yeylagh.split(',');
+      this.map.setTarget($("#map")[0]);
+      var extent = layer.getSource().getExtent();
+      extent = [extent[0] - 100, extent[1] - 50, extent[2] + 50, extent[3] + 100]; //add padding to borders
 
-        var _marker = new ol.Feature({
-          geometry: new ol.geom.Point(ol.proj.transform([this.latLng[1], this.latLng[0]], 'EPSG:4326', 'EPSG:3857')),
-          name: this.selectedSchool.name,
-          population: this.selectedSchool.hooze.name
-        });
-
-        var marker2 = new ol.Feature({
-          geometry: new ol.geom.Point(ol.proj.transform([this.latLng[1], this.latLng[0]], 'EPSG:4326', 'EPSG:3857')),
-          name: this.selectedSchool.name,
-          population: selectedSchool.hooze.name
-        });
-        this.latLng = this.selectedSchool.schoolable.loc_gheshlagh.split(',');
-        iconFeatures.push(_marker);
-        iconFeatures.push(marker2);
-      } //                var s = layer.getSource();
-      ////                s.clear();
-      //                var f = s.getFeatures();
-      //                console.log(f);
-      //
-      //                layer.getSource().addFeature(iconFeatures[0]);
-
-
-      var vectorSource = new ol.source.Vector({
-        features: iconFeatures //add an array of features
-
-      });
-      var iconStyle = new ol.style.Style({
-        image: new ol.style.Icon(
-        /** @type {olx.style.IconOptions} */
-        {
-          anchor: [0.5, 46],
-          anchorXUnits: 'fraction',
-          anchorYUnits: 'pixels',
-          opacity: 0.75,
-          src: 'img/school-marker.png'
-        })
-      });
-      layer = new ol.layer.Vector({
-        source: vectorSource,
-        style: iconStyle
-      });
-      this.map.addLayer(layer);
+      this.map.getView().fit(extent, this.map.getSize());
+      this.map.getView().setZoom(15); //                this.map.addLayer(layer);
+      //                this.map.renderSync();
+      //                this.map.render();
+      //                this.map.updateSize();
+      //                this.map.changed();
     },
     initialize_map: function initialize_map() {
-      console.log('init');
+      console.log('init map');
       var iconFeatures = [];
       var iconStyle = new ol.style.Style({
         image: new ol.style.Icon(
@@ -7225,7 +7171,7 @@ var kerman = [57.0532, 30.2880];
           anchorXUnits: 'fraction',
           anchorYUnits: 'fraction',
           opacity: .9,
-          src: 'img/marker-school-blue.png'
+          src: '/img/marker-school-blue.png'
         })
       });
       var marker1 = new ol.Feature({
@@ -7306,9 +7252,11 @@ var kerman = [57.0532, 30.2880];
       //                this.map.addControl(new ol.control.KeyboardDefaults());
 
       this.map.addControl(new ol.control.OverviewMap());
-      this.map.addControl(new ol_layerswitcher_dist_ol_layerswitcher__WEBPACK_IMPORTED_MODULE_1___default.a()); //                });
-      //                this.map = map;
-      //                this.layer = layer;
+      this.map.addControl(new ol_layerswitcher_dist_ol_layerswitcher__WEBPACK_IMPORTED_MODULE_1___default.a());
+      var extent = vectorSource.getExtent();
+      extent = [extent[0] - 100, extent[1] - 50, extent[2] + 50, extent[3] + 100]; //add padding to borders
+
+      this.map.getView().fit(extent, this.map.getSize());
     },
     cancel: function cancel() {
       $("#mapModal").removeClass('show');
@@ -7335,7 +7283,7 @@ var kerman = [57.0532, 30.2880];
       return text;
     },
     getImage: function getImage(doc) {
-      if (doc.length !== 0) return doc[0].path;else return "img/school-no.png";
+      if (doc.length !== 0) return doc[0].path;else return "/img/school-no.png";
     },
     getSchools: function getSchools() {
       var _this = this;
@@ -7422,6 +7370,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _selector_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./selector.vue */ "./resources/js/components/selector.vue");
 /* harmony import */ var ol_layerswitcher_dist_ol_layerswitcher__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ol-layerswitcher/dist/ol-layerswitcher */ "./node_modules/ol-layerswitcher/dist/ol-layerswitcher.js");
 /* harmony import */ var ol_layerswitcher_dist_ol_layerswitcher__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(ol_layerswitcher_dist_ol_layerswitcher__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var sweetalert2__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! sweetalert2 */ "./node_modules/sweetalert2/dist/sweetalert2.all.js");
+/* harmony import */ var sweetalert2__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(sweetalert2__WEBPACK_IMPORTED_MODULE_4__);
 //
 //
 //
@@ -7665,6 +7615,106 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
 
 
 
@@ -7679,10 +7729,21 @@ __webpack_require__.r(__webpack_exports__);
 //    import VectorSource from 'ol/source/Vector.js';
 //    import {Icon, Style} from 'ol/style.js';
 
+var regOnlyNumber = new RegExp('^[0-9]+$');
+var regIsLatLong = new RegExp("^[-+]?[0-9]{1,7}(\\.[0-9]+)?$");
+var regIsZamime = new RegExp("^(a|d)\\$\\d+(\\$\\d+)*$"); //a or d and
+
 var map;
-var marker1, marker2;
+var marker1, marker2, vectorSource, lineMarker;
 var layer;
 var kerman = [57.0532, 30.2880];
+var input_loc1_lat;
+var input_loc1_lon;
+var input_loc2_lat;
+var input_loc2_lon;
+var coordMarker1, coordMarker2;
+var tmpCoord1, tmpCoord2;
+var docs = [];
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['schoolsLink', 'hoozesLink'],
   components: {
@@ -7693,7 +7754,7 @@ var kerman = [57.0532, 30.2880];
   data: function data() {
     return {
       sName: '',
-      is_roozane: true,
+      is_roozane: '',
       doore: {
         'ebte': false,
         'mote1': false,
@@ -7703,11 +7764,6 @@ var kerman = [57.0532, 30.2880];
         'b': false,
         'g': false
       },
-      noe_faza: {
-        'c': false,
-        'k': false,
-        's': false
-      },
       sale_tasis: '',
       tedad_daneshamooz: '',
       tedad_paye_tahsili: '',
@@ -7715,11 +7771,7 @@ var kerman = [57.0532, 30.2880];
       code_madrese: '',
       code_faza: '',
       schoolable_type: 'App\\Saabet',
-      vaziat: {
-        'm': true,
-        'd': false,
-        'a': false
-      },
+      vaziat: 'm',
       loc1: {
         lat: null,
         lon: null
@@ -7729,19 +7781,276 @@ var kerman = [57.0532, 30.2880];
         lon: null
       },
       marker1: '',
-      marker2: ''
+      marker2: '',
+      uploader: $('#uploader'),
+      percentCompleted: 0,
+      docs: [],
+      IMG_LIMIT: 3,
+      SIZE_LIMIT: 2,
+      //MB
+      params: {
+        doore: '',
+        jensiat: '',
+        hooze: [],
+        zamime: [],
+        vaziat: 'm'
+      },
+      noe_faza: '',
+      loc1_lat_input: "",
+      loc1_lon_input: "",
+      loc2_lat_input: "",
+      loc2_lon_input: "",
+      loc1_fasele_az_shahrestan: "",
+      loc2_fasele_az_shahrestan: "",
+      loc1_address: "",
+      loc2_address: "",
+      koochroo_type: "s"
     };
+  },
+  watch: {//            noe_faza: () => {
+    //                return Vue.noe_faza;
+    //            }
+  },
+  computed: {//            get_noe_faza: () => {
+    //                return Vue.noe_faza;
+    //            }
   },
   mounted: function mounted() {
     //            this.getSchools();
     this.initialize_map();
     this.setEvents(); //            this.setSliders(0);
+
+    this.uploader = $('#uploader');
   },
   created: function created() {},
-  updated: function updated() {},
+  updated: function updated() {
+    //add listeners to input loc 2 after showing
+    if (this.schoolable_type === 'App\\Koochroo') {
+      input_loc1_lat = $('#loc1-lat-input');
+      input_loc1_lon = $('#loc1-lon-input');
+      input_loc2_lat = $('#loc2-lat-input');
+      input_loc2_lon = $('#loc2-lon-input');
+      coordMarker2 = marker2.getGeometry().getCoordinates(); //                input_loc2_lon.val(coordMarker2[0]);
+      //                input_loc2_lat.val(coordMarker2[1]);
+
+      $(input_loc2_lon).keyup(function () {
+        marker2.getGeometry().setCoordinates([Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]);
+        lineMarker.getGeometry().setCoordinates([[Number(input_loc1_lon.val()), Number(input_loc1_lat.val())], [Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]]);
+      });
+      $(input_loc2_lat).keyup(function () {
+        marker2.getGeometry().setCoordinates([Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]);
+        lineMarker.getGeometry().setCoordinates([[Number(input_loc1_lon.val()), Number(input_loc1_lat.val())], [Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]]);
+      });
+    }
+  },
   methods: {
-    setSliders: function setSliders(type) {
+    removeImage: function removeImage(idx, from) {
+      if (from === 'img-input') this.docs.splice(idx, 1);
+    },
+    openFileChooser: function openFileChooser(event, from) {
+      //                send fake click for browser file
+      var image_input = document.getElementById(from);
+
+      if (document.createEvent) {
+        var evt = document.createEvent("MouseEvents");
+        evt.initEvent("click", false, true);
+        image_input.dispatchEvent(evt);
+      } else {
+        var _evt = new Event("click", {
+          "bubbles": false,
+          "cancelable": true
+        });
+
+        image_input.dispatchEvent(_evt);
+      }
+    },
+    filePreview: function filePreview(e, from) {
+      var files;
+
+      if (event.dataTransfer) {
+        files = event.dataTransfer.files;
+      } else if (event.target.files) {
+        files = event.target.files;
+      }
+
+      if (this.checkDocs(files, from)) //                    console.log(files.length);
+        if (files && files.length > 0) {
+          if (from === 'img-input') {
+            for (var i = 0; i < files.length; i++) {
+              //                        console.log(files.length);
+              var reader = new FileReader();
+
+              reader.onload = function (e) {
+                docs.push(e.target.result);
+              };
+
+              reader.readAsDataURL(files[i]);
+            }
+
+            this.docs = docs;
+          }
+        }
+    },
+    checkInputs: function checkInputs(params) {
+      console.log(params); //check all inputs
+
+      this.errors = ''; // name input -> required -> not only space
+
+      if (!this.sName.replace(/\s/g, '').length) this.errors += '<br>' + 'نام مدرسه نمی تواند خالی باشد';
+      if (this.sName.length > 100) this.errors += '<br>' + 'نام مدرسه نمی تواند بیشتر از 100 حرف باشد';
+      if (this.code_madrese > 4294967295 || this.code_madrese.length > 0 && !regOnlyNumber.test(this.code_madrese)) this.errors += '<br>' + 'کد مدرسه عدد و حداکثر 10 رقم باشد';
+      if (this.code_faza > 4294967295 || this.code_faza.length > 0 && !regOnlyNumber.test(this.code_faza)) this.errors += '<br>' + 'کد فضا عدد و حداکثر 10 رقم باشد';
+      if (this.sale_tasis !== "" && (this.sale_tasis > 1500 || this.sale_tasis < 1300) || this.sale_tasis.length > 0 && !regOnlyNumber.test(this.sale_tasis)) this.errors += '<br>' + 'سال تاسیس نامعتبر است';
+      if (this.tedad_daneshamooz > 4294967295 || this.tedad_daneshamooz.length > 0 && !regOnlyNumber.test(this.tedad_daneshamooz)) this.errors += '<br>' + 'تعداد دانش آموز عدد و حداکثر 10 رقم باشد';
+      if (this.tedad_paye_tahsili > 65535 || this.tedad_paye_tahsili.length > 0 && !regOnlyNumber.test(this.tedad_paye_tahsili)) this.errors += '<br>' + 'تعداد پایه تحصیلی عدد و حداکثر 5 رقم باشد';
+      if (this.tedad_hamkaran > 16777215 || this.tedad_hamkaran.length > 0 && !regOnlyNumber.test(this.tedad_hamkaran)) this.errors += '<br>' + 'تعداد همکاران عدد و حداکثر 8 رقم باشد';
+      if (this.is_roozane !== "" && typeof this.is_roozane !== "boolean") this.errors += '<br>' + 'روزانه شبانه نامعتبر است';
+
+      for (var i in params.zamime) {
+        params.vaziat += "$" + params.zamime[i].id;
+      }
+
+      if (params.vaziat !== 'm' && !regIsZamime.test(params.vaziat)) this.errors += '<br>' + 'وضعیت مدرسه نامعتبر است';
+      this.params.doore = '';
+
+      if (this.doore['ebte']) {
+        this.params.doore = '0';
+        if (this.doore['mote1']) this.params.doore += '$1';
+        if (this.doore['mote2']) this.params.doore += '$2';
+      } else if (this.doore['mote1']) {
+        this.params.doore = '1';
+        if (this.doore['mote2']) this.params.doore += '$2';
+      } else if (this.doore['mote2']) {
+        this.params.doore = '2';
+      }
+
+      this.params.jensiat = '';
+
+      if (this.jensiat['b']) {
+        this.params.jensiat = 'b';
+        if (this.jensiat['g']) this.params.jensiat = 'a';
+      } else if (this.jensiat['g']) this.params.jensiat = 'g';
+
+      if (!['c', 'k', 's', ''].includes(this.noe_faza)) this.errors += '<br>' + 'نوع فضای آموزشی نا معتبر است';
+      if (this.schoolable_type !== "App\\Saabet" && this.schoolable_type !== "App\\Koochroo") this.errors += '<br>' + 'نوع مدرسه معتبر نیست';
+      if (this.loc1_lat_input.length > 22 || !regIsLatLong.test(this.loc1_lat_input) && this.loc1_lat_input !== "") this.errors += '<br>' + 'طول جغرافیایی مکان ۱ معتبر نیست';
+      if (this.loc1_lon_input.length > 22 || !regIsLatLong.test(this.loc1_lon_input) && this.loc1_lon_input !== "") this.errors += '<br>' + 'عرض جغرافیایی مکان ۱ معتبر نیست';
+      if (this.loc2_lat_input.length > 22 || !regIsLatLong.test(this.loc2_lat_input) && this.loc2_lat_input !== "") this.errors += '<br>' + 'طول جغرافیایی مکان ۲ معتبر نیست';
+      if (this.loc2_lon_input.length > 22 || !regIsLatLong.test(this.loc2_lon_input) && this.loc2_lon_input !== "") this.errors += '<br>' + 'عرض جغرافیایی مکان ۲ معتبر نیست';
+      if (this.loc1_address.length > 150) this.errors += '<br>' + 'آدرس مکان ۱ نمی تواند بیشتر از 150 حرف باشد';
+      if (this.loc2_address.length > 150) this.errors += '<br>' + 'آدرس مکان ۲ نمی تواند بیشتر از 150 حرف باشد';
+      if (this.loc1_fasele_az_shahrestan > 4294967295 || this.loc1_fasele_az_shahrestan.length > 0 && !regOnlyNumber.test(this.loc1_fasele_az_shahrestan)) this.errors += '<br>' + 'فاصله از شهرستان عدد و حداکثر 10 رقم باشد';
+      if (this.loc2_fasele_az_shahrestan > 4294967295 || this.loc2_fasele_az_shahrestan.length > 0 && !regOnlyNumber.test(this.loc2_fasele_az_shahrestan)) this.errors += '<br>' + 'فاصله از شهرستان عدد و حداکثر 10 رقم باشد'; //
+
+      if (this.errors === '') this.showDialog(0);else this.showDialog(); //errors
+    },
+    checkDocs: function checkDocs(files, from) {
+      //                return true;
+      // from certs-input 3 files 4 mb
+      // from agent-input 2 files 4mb
+      var message = '';
+      var sizeMessage = ' حجم هر عکس زیر' + this.SIZE_LIMIT + 'مگابایت باشد';
+      var numMessage = 'تعداد عکس، بیش از حد مجاز است';
+
+      for (var i = 0; i < files.length; i++) {
+        if (files[i].size / 1024 / 1024 > this.SIZE_LIMIT) {
+          message = sizeMessage;
+          break;
+        }
+      }
+
+      if (from === 'img-input' && this.docs.length + files.length > this.IMG_LIMIT) message = numMessage;
+
+      if (message !== '') {
+        sweetalert2__WEBPACK_IMPORTED_MODULE_4___default.a.fire({
+          title: 'توجه',
+          text: message,
+          type: 'error',
+          showCancelButton: true,
+          showConfirmButton: false,
+          showCloseButton: true,
+          cancelButtonText: 'باشه',
+          cancelButtonColor: '#d33'
+        });
+        return false;
+      } else return true;
+    },
+    showDialog: function showDialog(type, data) {
       var _this = this;
+
+      // 0  ready for save
+      // 1  success  save
+      // else show errors
+      if (type === 0) sweetalert2__WEBPACK_IMPORTED_MODULE_4___default.a.fire({
+        title: 'توجه',
+        text: 'تغییرات ذخیره شوند؟',
+        type: 'warning',
+        showCancelButton: true,
+        showCloseButton: true,
+        cancelButtonText: 'خیر',
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: ' بله'
+      }).then(function (result) {
+        if (result.value) {
+          _this.saveChanges();
+        }
+      });else if (type === 1) {
+        sweetalert2__WEBPACK_IMPORTED_MODULE_4___default.a.fire({
+          title: 'توجه',
+          text: ' با موفقیت ذخیره شد!',
+          confirmButtonColor: '#60aa2f',
+          type: 'success',
+          confirmButtonText: ' باشه'
+        }).then(function (result) {
+          if (result.value) {
+            location.reload();
+          }
+        });
+      } else {
+        sweetalert2__WEBPACK_IMPORTED_MODULE_4___default.a.fire({
+          title: 'خطاهای زیر را اصلاح نمایید',
+          html: " <p   class=\"text-danger\">" + this.errors + "</p>",
+          //                        text: this.errors,
+          confirmButtonColor: '#d33',
+          type: 'error',
+          confirmButtonText: ' باشه'
+        });
+      }
+    },
+    saveChanges: function saveChanges() {
+      var _this2 = this;
+
+      this.params['cert_docs'] = this.cert_docs;
+      this.params['agent_docs'] = this.agent_docs;
+      this.params['is_agent'] = this.hasRule('Agent'); //for agent docs
+      //                console.log(this.params);
+
+      axios.post(this.createAdvLink, this.params).then(function (response) {
+        console.log(response);
+
+        if (response.status === 200) {
+          _this2.$root.$emit('updateMessageBox'); //update messages in panel
+
+
+          _this2.showDialog(1);
+        }
+      })["catch"](function (error) {
+        _this2.errors += '<br>'; // maybe is not empty from javascript validate
+
+        if (error.response && error.response.status === 422) for (var idx in error.response.data.errors) {
+          _this2.errors += error.response.data.errors[idx] + '<br>';
+        } else {
+          _this2.errors = error;
+        }
+
+        _this2.showDialog(); //                    console.log(error);
+        //                    console.log(error.response);
+
+      });
+    },
+    setSliders: function setSliders(type) {
+      var _this3 = this;
 
       if (type === 0) {
         //init sliders
@@ -7754,7 +8063,7 @@ var kerman = [57.0532, 30.2880];
             max: 1500,
             step: 1,
             slide: function slide(event, ui) {
-              _this.sale_tasis = ui.value;
+              _this3.sale_tasis = ui.value;
             }
           });
           $("#slider-tedad").slider({
@@ -7765,7 +8074,7 @@ var kerman = [57.0532, 30.2880];
             max: 1000,
             step: 1,
             slide: function slide(event, ui) {
-              _this.tedad_daneshamooz = ui.value;
+              _this3.tedad_daneshamooz = ui.value;
             }
           });
         });
@@ -7818,29 +8127,31 @@ var kerman = [57.0532, 30.2880];
         geometry: new ol.geom.Point(ol.proj.transform(kerman, 'EPSG:4326', 'EPSG:3857')),
         name: this.sName
       });
+      marker1.setId('marker1');
       marker2 = new ol.Feature({
-        geometry: new ol.geom.Point(ol.proj.transform(kerman, 'EPSG:4326', 'EPSG:3857')),
+        geometry: new ol.geom.Point(ol.proj.transform([kerman[0] - .002, kerman[1]], 'EPSG:4326', 'EPSG:3857')),
         name: this.sName
       });
+      marker2.setId('marker2');
       var startPt = ol.proj.fromLonLat(kerman);
-      var endPt = ol.proj.fromLonLat(kerman);
-      var lineMarker = new ol.Feature({
+      var endPt = ol.proj.fromLonLat([kerman[0] - .002, kerman[1]]);
+      lineMarker = new ol.Feature({
         geometry: new ol.geom.LineString([startPt, endPt]),
         name: 'Line'
       });
+      lineMarker.setId('line');
       marker1.setStyle(iconStyle1);
       marker2.setStyle(iconStyle2);
       lineMarker.setStyle(lineStyle);
-      iconFeatures.push(marker1);
-      iconFeatures.push(marker2);
-      iconFeatures.push(lineMarker);
+      iconFeatures.push(marker1); //                iconFeatures.push(marker2);
+      //                iconFeatures.push(lineMarker);
 
       if (this.map) {
         this.map.setTarget(null);
         this.map = null;
       }
 
-      var vectorSource = new ol.source.Vector({
+      vectorSource = new ol.source.Vector({
         features: iconFeatures
       });
       var markersLayer = new ol.layer.Vector({
@@ -7897,20 +8208,56 @@ var kerman = [57.0532, 30.2880];
       });
       this.map.addInteraction(translate1);
       this.map.addInteraction(translate2);
-      var coordMarker1, coordMarker2;
+      input_loc1_lat = $('#loc1-lat-input');
+      input_loc1_lon = $('#loc1-lon-input');
+      input_loc2_lat = $('#loc2-lat-input');
+      input_loc2_lon = $('#loc2-lon-input');
       translate1.on('translatestart', function (evt) {
         coordMarker2 = marker2.getGeometry().getCoordinates();
       });
       translate1.on('translating', function (evt) {
-        lineMarker.getGeometry().setCoordinates([coordMarker2, evt.coordinate]);
+        tmpCoord1 = marker1.getGeometry().getCoordinates();
+        lineMarker.getGeometry().setCoordinates([coordMarker2, tmpCoord1]);
+        input_loc1_lon.val(tmpCoord1[0]);
+        input_loc1_lat.val(tmpCoord1[1]);
       });
       translate2.on('translatestart', function (evt) {
         coordMarker1 = marker1.getGeometry().getCoordinates();
       });
       translate2.on('translating', function (evt) {
-        lineMarker.getGeometry().setCoordinates([coordMarker1, evt.coordinate]);
+        tmpCoord2 = marker2.getGeometry().getCoordinates();
+        lineMarker.getGeometry().setCoordinates([coordMarker1, tmpCoord2]);
+        input_loc2_lon.val(tmpCoord2[0]);
+        input_loc2_lat.val(tmpCoord2[1]);
       });
-      var map = this.map;
+      $(input_loc1_lon).keyup(function () {
+        marker1.getGeometry().setCoordinates([Number(input_loc1_lon.val()), Number(input_loc1_lat.val())]);
+        lineMarker.getGeometry().setCoordinates([[Number(input_loc1_lon.val()), Number(input_loc1_lat.val())], [Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]]);
+      });
+      $(input_loc1_lat).keyup(function () {
+        marker1.getGeometry().setCoordinates([Number(input_loc1_lon.val()), Number(input_loc1_lat.val())]);
+        lineMarker.getGeometry().setCoordinates([[Number(input_loc1_lon.val()), Number(input_loc1_lat.val())], [Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]]);
+      });
+      $(input_loc2_lon).keyup(function () {
+        marker2.getGeometry().setCoordinates([Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]);
+        lineMarker.getGeometry().setCoordinates([[Number(input_loc1_lon.val()), Number(input_loc1_lat.val())], [Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]]);
+      });
+      $(input_loc2_lat).keyup(function () {
+        marker2.getGeometry().setCoordinates([Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]);
+        lineMarker.getGeometry().setCoordinates([[Number(input_loc1_lon.val()), Number(input_loc1_lat.val())], [Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]]);
+      }); //first lat lon input values
+
+      coordMarker1 = marker1.getGeometry().getCoordinates();
+      coordMarker2 = marker2.getGeometry().getCoordinates(); //                input_loc1_lon.val(coordMarker1[0]);
+      //                input_loc1_lat.val(coordMarker1[1]);
+      //                input_loc2_lon.val(coordMarker2[0]);
+      //                input_loc2_lat.val(coordMarker2[1]);
+      //                this.loc1_lon_input = coordMarker1[0];
+      //                this.loc1_lat_input = coordMarker1[1];
+      //                this.loc2_lon_input = coordMarker2[0];
+      //                this.loc2_lat_input = coordMarker2[1];
+
+      map = this.map;
       map.on('pointermove', function (e) {
         if (e.dragging) return;
         var hit = map.hasFeatureAtPixel(map.getEventPixel(e.originalEvent));
@@ -7924,6 +8271,15 @@ var kerman = [57.0532, 30.2880];
       };
       this.layer.getSource().changed();
       map.render();
+    },
+    marker: function marker(command, _marker) {
+      if (command === 'add' && _marker === 2 && vectorSource.getFeatureById('marker2') === null) {
+        vectorSource.addFeature(lineMarker);
+        vectorSource.addFeature(marker2);
+      } else if (command === 'del' && _marker === 2 && vectorSource.getFeatureById('marker2') !== null) {
+        vectorSource.removeFeature(lineMarker);
+        vectorSource.removeFeature(marker2);
+      }
     },
     //                this.layer = layer;
     cancel: function cancel() {
@@ -7954,14 +8310,14 @@ var kerman = [57.0532, 30.2880];
       if (doc.length !== 0) return doc[0].path;else return "img/school-no.png";
     },
     getSchools: function getSchools() {
-      var _this2 = this;
+      var _this4 = this;
 
       axios.post(this.schoolsLink, this.params).then(function (response) {
         //                        console.log(response);
         if (response.status === 200) {
           //
-          _this2.schools = response.data;
-          _this2.paginator = {
+          _this4.schools = response.data;
+          _this4.paginator = {
             current_page: response.data['current_page'],
             first_page_url: response.data['first_page_url'],
             next_page_url: response.data['next_page_url'],
@@ -7973,7 +8329,7 @@ var kerman = [57.0532, 30.2880];
             total: response.data['total']
           };
 
-          _this2.$root.$emit('paginationChange', _this2.paginator);
+          _this4.$root.$emit('paginationChange', _this4.paginator);
         }
       })["catch"](function (error) {//                    this.errors += '<br>'; // maybe is not empty from javascript validate
         //                    if (error.response && error.response.status === 422)
@@ -7988,35 +8344,25 @@ var kerman = [57.0532, 30.2880];
       });
     },
     setEvents: function setEvents() {
-      var _this3 = this;
+      var _this5 = this;
 
       this.$root.$on('schoolsChange', function (data) {
-        //                    console.log(data);
-        _this3.schools = data; //                    this.initialize_map();
-        //                    this.addMarker();
+        _this5.schools = data;
+      }); //hoozeRequest->hoozeResponse->selectorResponse
+
+      this.$root.$on('selectorResponse', function (params) {
+        _this5.checkInputs(params);
       }); //            console.log(this.data);
       //            console.log(this.banners);
-      //ids that start with img-
 
-      $("img[id^='img-']").each(function (i, el) {
-        var imgTag = el;
-        var img = new Image();
-        img.src = imgTag.src; //                    imgTag.src = '';
+      this.uploader.on('dragenter', function (e) {
+        _this5.uploader.addClass('hover');
 
-        $(imgTag).addClass('loading');
+        return false;
+      }).on('dragleave', function (e) {
+        _this5.uploader.removeClass('hover');
 
-        img.onload = function () {
-          imgTag.src = img.src;
-          $(imgTag).removeClass('loading'); //                imgTag.setAttribute('src', img.src);
-          // Fade out and hide the loading image.
-          //                $('.loading').fadeOut(100); // Time in milliseconds.
-        };
-
-        img.onerror = function (e) {
-          //                console.log(e);
-          $(imgTag).removeClass('loading');
-          $(imgTag).prop('src', './img/noimage.png');
-        };
+        return false;
       });
     }
   }
@@ -8578,7 +8924,20 @@ __webpack_require__.r(__webpack_exports__);
       }
     });
   },
-  created: function created() {},
+  created: function created() {
+    var _this2 = this;
+
+    //hoozeRequest->hoozeResponse->selectorResponse
+    this.$root.$on('hoozeResponse', function (params) {
+      params.zamime = _this2.selected;
+
+      _this2.$root.$emit('selectorResponse', params);
+    });
+  },
+  beforeDestroy: function beforeDestroy() {
+    this.$root.$off('hoozeResponse');
+  },
+  updated: function updated() {},
   methods: {
     unselect: function unselect(id) {
       for (var i in this.selected) {
@@ -8588,20 +8947,26 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     setEvents: function setEvents() {
-      var _this2 = this;
+      var _this3 = this;
 
       this.$root.$on('search', function (params) {
-        _this2.params['data'] = [];
-        if (params !== undefined) _this2.params['page'] = params['page'];
-        if (_this2.multi && !_this2.activeData[0] || !_this2.multi) for (var i in _this2.activeData) {
-          if (_this2.activeData[i]) _this2.params['data'].push(i);
+        _this3.params['data'] = [];
+        if (params !== undefined) _this3.params['page'] = params['page'];
+        if (_this3.multi && !_this3.activeData[0] || !_this3.multi) for (var i in _this3.activeData) {
+          if (_this3.activeData[i]) _this3.params['data'].push(i);
         } //                    console.log(this.params);
 
-        _this2.$root.$emit('dropdownResponse', _this2.params);
+        _this3.$root.$emit('dropdownResponse', _this3.params);
+      }); //hoozeRequest->hoozeResponse->selectorResponse
+
+      this.$root.$on('hoozeResponse', function (params) {
+        params.zamime = _this3.selected;
+
+        _this3.$root.$emit('selectorResponse', params);
       });
     },
     getData: function getData(type) {
-      var _this3 = this;
+      var _this4 = this;
 
       this.loading = true;
       var params = {};
@@ -8621,18 +8986,18 @@ __webpack_require__.r(__webpack_exports__);
 
       axios.post(this.dataLink, params).then(function (response) {
         //                        console.log(response);
-        if (response.data.message) _this3.showDialog({
+        if (response.data.message) _this4.showDialog({
           type: response.data.type,
           message: response.data.message,
           title: ''
         });
-        if (response.data.type === 'success') _this3.sData = '';
-        _this3.data = response.data.data;
-        _this3.filteredData = _this3.data; //
+        if (response.data.type === 'success') _this4.sData = '';
+        _this4.data = response.data.data;
+        _this4.filteredData = _this4.data; //
 
-        _this3.loading = false;
+        _this4.loading = false;
       })["catch"](function (error) {
-        _this3.loading = false;
+        _this4.loading = false;
         console.log(' error:');
         console.log(error);
       });
@@ -8647,12 +9012,12 @@ __webpack_require__.r(__webpack_exports__);
       this.data_dropdown.addClass('hide');
     },
     selectData: function selectData(h, hId) {
-      var _this4 = this;
+      var _this5 = this;
 
       //                console.log(hId);
       if (hId === 'clr') {} else if (hId === 'key') {
         this.filteredData = this.data.filter(function (entry) {
-          return entry['name'].includes(_this4.sData);
+          return entry['name'].includes(_this5.sData);
         });
         if (this.multi && this.filteredData[0]['name'].includes('همه')) this.filteredData.shift(); //remove first item (همه نمایندگی ها)
 
@@ -29249,6 +29614,652 @@ return jQuery;
 
 /***/ }),
 
+/***/ "./node_modules/lity/dist/lity.js":
+/*!****************************************!*\
+  !*** ./node_modules/lity/dist/lity.js ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*! Lity - v2.3.1 - 2018-04-20
+* http://sorgalla.com/lity/
+* Copyright (c) 2015-2018 Jan Sorgalla; Licensed MIT */
+(function(window, factory) {
+    if (true) {
+        !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js")], __WEBPACK_AMD_DEFINE_RESULT__ = (function($) {
+            return factory(window, $);
+        }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+    } else {}
+}(typeof window !== "undefined" ? window : this, function(window, $) {
+    'use strict';
+
+    var document = window.document;
+
+    var _win = $(window);
+    var _deferred = $.Deferred;
+    var _html = $('html');
+    var _instances = [];
+
+    var _attrAriaHidden = 'aria-hidden';
+    var _dataAriaHidden = 'lity-' + _attrAriaHidden;
+
+    var _focusableElementsSelector = 'a[href],area[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),button:not([disabled]),iframe,object,embed,[contenteditable],[tabindex]:not([tabindex^="-"])';
+
+    var _defaultOptions = {
+        esc: true,
+        handler: null,
+        handlers: {
+            image: imageHandler,
+            inline: inlineHandler,
+            youtube: youtubeHandler,
+            vimeo: vimeoHandler,
+            googlemaps: googlemapsHandler,
+            facebookvideo: facebookvideoHandler,
+            iframe: iframeHandler
+        },
+        template: '<div class="lity" role="dialog" aria-label="Dialog Window (Press escape to close)" tabindex="-1"><div class="lity-wrap" data-lity-close role="document"><div class="lity-loader" aria-hidden="true">Loading...</div><div class="lity-container"><div class="lity-content"></div><button class="lity-close" type="button" aria-label="Close (Press escape to close)" data-lity-close>&times;</button></div></div></div>'
+    };
+
+    var _imageRegexp = /(^data:image\/)|(\.(png|jpe?g|gif|svg|webp|bmp|ico|tiff?)(\?\S*)?$)/i;
+    var _youtubeRegex = /(youtube(-nocookie)?\.com|youtu\.be)\/(watch\?v=|v\/|u\/|embed\/?)?([\w-]{11})(.*)?/i;
+    var _vimeoRegex =  /(vimeo(pro)?.com)\/(?:[^\d]+)?(\d+)\??(.*)?$/;
+    var _googlemapsRegex = /((maps|www)\.)?google\.([^\/\?]+)\/?((maps\/?)?\?)(.*)/i;
+    var _facebookvideoRegex = /(facebook\.com)\/([a-z0-9_-]*)\/videos\/([0-9]*)(.*)?$/i;
+
+    var _transitionEndEvent = (function() {
+        var el = document.createElement('div');
+
+        var transEndEventNames = {
+            WebkitTransition: 'webkitTransitionEnd',
+            MozTransition: 'transitionend',
+            OTransition: 'oTransitionEnd otransitionend',
+            transition: 'transitionend'
+        };
+
+        for (var name in transEndEventNames) {
+            if (el.style[name] !== undefined) {
+                return transEndEventNames[name];
+            }
+        }
+
+        return false;
+    })();
+
+    function transitionEnd(element) {
+        var deferred = _deferred();
+
+        if (!_transitionEndEvent || !element.length) {
+            deferred.resolve();
+        } else {
+            element.one(_transitionEndEvent, deferred.resolve);
+            setTimeout(deferred.resolve, 500);
+        }
+
+        return deferred.promise();
+    }
+
+    function settings(currSettings, key, value) {
+        if (arguments.length === 1) {
+            return $.extend({}, currSettings);
+        }
+
+        if (typeof key === 'string') {
+            if (typeof value === 'undefined') {
+                return typeof currSettings[key] === 'undefined'
+                    ? null
+                    : currSettings[key];
+            }
+
+            currSettings[key] = value;
+        } else {
+            $.extend(currSettings, key);
+        }
+
+        return this;
+    }
+
+    function parseQueryParams(params) {
+        var pairs = decodeURI(params.split('#')[0]).split('&');
+        var obj = {}, p;
+
+        for (var i = 0, n = pairs.length; i < n; i++) {
+            if (!pairs[i]) {
+                continue;
+            }
+
+            p = pairs[i].split('=');
+            obj[p[0]] = p[1];
+        }
+
+        return obj;
+    }
+
+    function appendQueryParams(url, params) {
+        return url + (url.indexOf('?') > -1 ? '&' : '?') + $.param(params);
+    }
+
+    function transferHash(originalUrl, newUrl) {
+        var pos = originalUrl.indexOf('#');
+
+        if (-1 === pos) {
+            return newUrl;
+        }
+
+        if (pos > 0) {
+            originalUrl = originalUrl.substr(pos);
+        }
+
+        return newUrl + originalUrl;
+    }
+
+    function error(msg) {
+        return $('<span class="lity-error"/>').append(msg);
+    }
+
+    function imageHandler(target, instance) {
+        var desc = (instance.opener() && instance.opener().data('lity-desc')) || 'Image with no description';
+        var img = $('<img src="' + target + '" alt="' + desc + '"/>');
+        var deferred = _deferred();
+        var failed = function() {
+            deferred.reject(error('Failed loading image'));
+        };
+
+        img
+            .on('load', function() {
+                if (this.naturalWidth === 0) {
+                    return failed();
+                }
+
+                deferred.resolve(img);
+            })
+            .on('error', failed)
+        ;
+
+        return deferred.promise();
+    }
+
+    imageHandler.test = function(target) {
+        return _imageRegexp.test(target);
+    };
+
+    function inlineHandler(target, instance) {
+        var el, placeholder, hasHideClass;
+
+        try {
+            el = $(target);
+        } catch (e) {
+            return false;
+        }
+
+        if (!el.length) {
+            return false;
+        }
+
+        placeholder = $('<i style="display:none !important"/>');
+        hasHideClass = el.hasClass('lity-hide');
+
+        instance
+            .element()
+            .one('lity:remove', function() {
+                placeholder
+                    .before(el)
+                    .remove()
+                ;
+
+                if (hasHideClass && !el.closest('.lity-content').length) {
+                    el.addClass('lity-hide');
+                }
+            })
+        ;
+
+        return el
+            .removeClass('lity-hide')
+            .after(placeholder)
+        ;
+    }
+
+    function youtubeHandler(target) {
+        var matches = _youtubeRegex.exec(target);
+
+        if (!matches) {
+            return false;
+        }
+
+        return iframeHandler(
+            transferHash(
+                target,
+                appendQueryParams(
+                    'https://www.youtube' + (matches[2] || '') + '.com/embed/' + matches[4],
+                    $.extend(
+                        {
+                            autoplay: 1
+                        },
+                        parseQueryParams(matches[5] || '')
+                    )
+                )
+            )
+        );
+    }
+
+    function vimeoHandler(target) {
+        var matches = _vimeoRegex.exec(target);
+
+        if (!matches) {
+            return false;
+        }
+
+        return iframeHandler(
+            transferHash(
+                target,
+                appendQueryParams(
+                    'https://player.vimeo.com/video/' + matches[3],
+                    $.extend(
+                        {
+                            autoplay: 1
+                        },
+                        parseQueryParams(matches[4] || '')
+                    )
+                )
+            )
+        );
+    }
+
+    function facebookvideoHandler(target) {
+        var matches = _facebookvideoRegex.exec(target);
+
+        if (!matches) {
+            return false;
+        }
+
+        if (0 !== target.indexOf('http')) {
+            target = 'https:' + target;
+        }
+
+        return iframeHandler(
+            transferHash(
+                target,
+                appendQueryParams(
+                    'https://www.facebook.com/plugins/video.php?href=' + target,
+                    $.extend(
+                        {
+                            autoplay: 1
+                        },
+                        parseQueryParams(matches[4] || '')
+                    )
+                )
+            )
+        );
+    }
+
+    function googlemapsHandler(target) {
+        var matches = _googlemapsRegex.exec(target);
+
+        if (!matches) {
+            return false;
+        }
+
+        return iframeHandler(
+            transferHash(
+                target,
+                appendQueryParams(
+                    'https://www.google.' + matches[3] + '/maps?' + matches[6],
+                    {
+                        output: matches[6].indexOf('layer=c') > 0 ? 'svembed' : 'embed'
+                    }
+                )
+            )
+        );
+    }
+
+    function iframeHandler(target) {
+        return '<div class="lity-iframe-container"><iframe frameborder="0" allowfullscreen src="' + target + '"/></div>';
+    }
+
+    function winHeight() {
+        return document.documentElement.clientHeight
+            ? document.documentElement.clientHeight
+            : Math.round(_win.height());
+    }
+
+    function keydown(e) {
+        var current = currentInstance();
+
+        if (!current) {
+            return;
+        }
+
+        // ESC key
+        if (e.keyCode === 27 && !!current.options('esc')) {
+            current.close();
+        }
+
+        // TAB key
+        if (e.keyCode === 9) {
+            handleTabKey(e, current);
+        }
+    }
+
+    function handleTabKey(e, instance) {
+        var focusableElements = instance.element().find(_focusableElementsSelector);
+        var focusedIndex = focusableElements.index(document.activeElement);
+
+        if (e.shiftKey && focusedIndex <= 0) {
+            focusableElements.get(focusableElements.length - 1).focus();
+            e.preventDefault();
+        } else if (!e.shiftKey && focusedIndex === focusableElements.length - 1) {
+            focusableElements.get(0).focus();
+            e.preventDefault();
+        }
+    }
+
+    function resize() {
+        $.each(_instances, function(i, instance) {
+            instance.resize();
+        });
+    }
+
+    function registerInstance(instanceToRegister) {
+        if (1 === _instances.unshift(instanceToRegister)) {
+            _html.addClass('lity-active');
+
+            _win
+                .on({
+                    resize: resize,
+                    keydown: keydown
+                })
+            ;
+        }
+
+        $('body > *').not(instanceToRegister.element())
+            .addClass('lity-hidden')
+            .each(function() {
+                var el = $(this);
+
+                if (undefined !== el.data(_dataAriaHidden)) {
+                    return;
+                }
+
+                el.data(_dataAriaHidden, el.attr(_attrAriaHidden) || null);
+            })
+            .attr(_attrAriaHidden, 'true')
+        ;
+    }
+
+    function removeInstance(instanceToRemove) {
+        var show;
+
+        instanceToRemove
+            .element()
+            .attr(_attrAriaHidden, 'true')
+        ;
+
+        if (1 === _instances.length) {
+            _html.removeClass('lity-active');
+
+            _win
+                .off({
+                    resize: resize,
+                    keydown: keydown
+                })
+            ;
+        }
+
+        _instances = $.grep(_instances, function(instance) {
+            return instanceToRemove !== instance;
+        });
+
+        if (!!_instances.length) {
+            show = _instances[0].element();
+        } else {
+            show = $('.lity-hidden');
+        }
+
+        show
+            .removeClass('lity-hidden')
+            .each(function() {
+                var el = $(this), oldAttr = el.data(_dataAriaHidden);
+
+                if (!oldAttr) {
+                    el.removeAttr(_attrAriaHidden);
+                } else {
+                    el.attr(_attrAriaHidden, oldAttr);
+                }
+
+                el.removeData(_dataAriaHidden);
+            })
+        ;
+    }
+
+    function currentInstance() {
+        if (0 === _instances.length) {
+            return null;
+        }
+
+        return _instances[0];
+    }
+
+    function factory(target, instance, handlers, preferredHandler) {
+        var handler = 'inline', content;
+
+        var currentHandlers = $.extend({}, handlers);
+
+        if (preferredHandler && currentHandlers[preferredHandler]) {
+            content = currentHandlers[preferredHandler](target, instance);
+            handler = preferredHandler;
+        } else {
+            // Run inline and iframe handlers after all other handlers
+            $.each(['inline', 'iframe'], function(i, name) {
+                delete currentHandlers[name];
+
+                currentHandlers[name] = handlers[name];
+            });
+
+            $.each(currentHandlers, function(name, currentHandler) {
+                // Handler might be "removed" by setting callback to null
+                if (!currentHandler) {
+                    return true;
+                }
+
+                if (
+                    currentHandler.test &&
+                    !currentHandler.test(target, instance)
+                ) {
+                    return true;
+                }
+
+                content = currentHandler(target, instance);
+
+                if (false !== content) {
+                    handler = name;
+                    return false;
+                }
+            });
+        }
+
+        return {handler: handler, content: content || ''};
+    }
+
+    function Lity(target, options, opener, activeElement) {
+        var self = this;
+        var result;
+        var isReady = false;
+        var isClosed = false;
+        var element;
+        var content;
+
+        options = $.extend(
+            {},
+            _defaultOptions,
+            options
+        );
+
+        element = $(options.template);
+
+        // -- API --
+
+        self.element = function() {
+            return element;
+        };
+
+        self.opener = function() {
+            return opener;
+        };
+
+        self.options  = $.proxy(settings, self, options);
+        self.handlers = $.proxy(settings, self, options.handlers);
+
+        self.resize = function() {
+            if (!isReady || isClosed) {
+                return;
+            }
+
+            content
+                .css('max-height', winHeight() + 'px')
+                .trigger('lity:resize', [self])
+            ;
+        };
+
+        self.close = function() {
+            if (!isReady || isClosed) {
+                return;
+            }
+
+            isClosed = true;
+
+            removeInstance(self);
+
+            var deferred = _deferred();
+
+            // We return focus only if the current focus is inside this instance
+            if (
+                activeElement &&
+                (
+                    document.activeElement === element[0] ||
+                    $.contains(element[0], document.activeElement)
+                )
+            ) {
+                try {
+                    activeElement.focus();
+                } catch (e) {
+                    // Ignore exceptions, eg. for SVG elements which can't be
+                    // focused in IE11
+                }
+            }
+
+            content.trigger('lity:close', [self]);
+
+            element
+                .removeClass('lity-opened')
+                .addClass('lity-closed')
+            ;
+
+            transitionEnd(content.add(element))
+                .always(function() {
+                    content.trigger('lity:remove', [self]);
+                    element.remove();
+                    element = undefined;
+                    deferred.resolve();
+                })
+            ;
+
+            return deferred.promise();
+        };
+
+        // -- Initialization --
+
+        result = factory(target, self, options.handlers, options.handler);
+
+        element
+            .attr(_attrAriaHidden, 'false')
+            .addClass('lity-loading lity-opened lity-' + result.handler)
+            .appendTo('body')
+            .focus()
+            .on('click', '[data-lity-close]', function(e) {
+                if ($(e.target).is('[data-lity-close]')) {
+                    self.close();
+                }
+            })
+            .trigger('lity:open', [self])
+        ;
+
+        registerInstance(self);
+
+        $.when(result.content)
+            .always(ready)
+        ;
+
+        function ready(result) {
+            content = $(result)
+                .css('max-height', winHeight() + 'px')
+            ;
+
+            element
+                .find('.lity-loader')
+                .each(function() {
+                    var loader = $(this);
+
+                    transitionEnd(loader)
+                        .always(function() {
+                            loader.remove();
+                        })
+                    ;
+                })
+            ;
+
+            element
+                .removeClass('lity-loading')
+                .find('.lity-content')
+                .empty()
+                .append(content)
+            ;
+
+            isReady = true;
+
+            content
+                .trigger('lity:ready', [self])
+            ;
+        }
+    }
+
+    function lity(target, options, opener) {
+        if (!target.preventDefault) {
+            opener = $(opener);
+        } else {
+            target.preventDefault();
+            opener = $(this);
+            target = opener.data('lity-target') || opener.attr('href') || opener.attr('src');
+        }
+
+        var instance = new Lity(
+            target,
+            $.extend(
+                {},
+                opener.data('lity-options') || opener.data('lity'),
+                options
+            ),
+            opener,
+            document.activeElement
+        );
+
+        if (!target.preventDefault) {
+            return instance;
+        }
+    }
+
+    lity.version  = '2.3.1';
+    lity.options  = $.proxy(settings, lity, _defaultOptions);
+    lity.handlers = $.proxy(settings, lity, _defaultOptions.handlers);
+    lity.current  = currentInstance;
+
+    $(document).on('click.lity', '[data-lity]', lity);
+
+    return lity;
+}));
+
+
+/***/ }),
+
 /***/ "./node_modules/ol-layerswitcher/dist/ol-layerswitcher.js":
 /*!****************************************************************!*\
   !*** ./node_modules/ol-layerswitcher/dist/ol-layerswitcher.js ***!
@@ -41144,7 +42155,7 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c(
     "div",
-    { staticClass: "row gallery" },
+    { staticClass: "row  mx-1  gallery" },
     [
       _vm._l(_vm.schools, function(s, idx) {
         return _c(
@@ -41155,7 +42166,8 @@ var render = function() {
               "div",
               {
                 key: s.id,
-                staticClass: "m-card  ",
+                staticClass:
+                  "m-card h-100 d-flex align-items-end flex-column  ",
                 attrs: { "data-toggle": "modal", "data-target": "#mapModal" },
                 on: {
                   click: function($event) {
@@ -41164,7 +42176,7 @@ var render = function() {
                 }
               },
               [
-                _c("div", { staticClass: "m-card-header bg-transparent" }, [
+                _c("div", { staticClass: "m-card-header bg-transparent   " }, [
                   _c(
                     "div",
                     {
@@ -41193,54 +42205,62 @@ var render = function() {
                   ),
                   _vm._v(" "),
                   _c(
-                    "span",
-                    {
-                      staticClass:
-                        "left-border  px-2 badge-pill bg-primary float-left small-1",
-                      attrs: {
-                        "data-toggle": "tooltip",
-                        "data-placement": "top",
-                        title: "تعداد دانش آموز"
-                      }
-                    },
+                    "div",
+                    { staticClass: "header-left  d-inline-block float-left  " },
                     [
-                      _vm._v(
-                        "\n                    " + _vm._s(s.tedad_daneshamooz)
-                      )
-                    ]
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "span",
-                    {
-                      staticClass: "px-1   text-white float-left small-1",
-                      class: [s.is_roozane ? "bg-success" : "bg-dark-gray"]
-                    },
-                    [
-                      _vm._v(
-                        "\n                    " +
-                          _vm._s(s.is_roozane ? "روزانه" : "شبانه") +
-                          "\n                "
-                      )
-                    ]
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "span",
-                    {
-                      staticClass:
-                        "right-border badge-pill text-white float-left small-1 bg-light-red",
-                      attrs: {
-                        "data-toggle": "tooltip",
-                        "data-placement": "top",
-                        title: "نوع فضا"
-                      }
-                    },
-                    [
-                      _vm._v(
-                        "\n                    " +
-                          _vm._s(_vm.getType(s, "faza")) +
-                          "\n                "
+                      _c(
+                        "span",
+                        {
+                          staticClass:
+                            "right-border px-2 float-left  badge-pill bg-primary   small-1",
+                          attrs: {
+                            "data-toggle": "tooltip",
+                            "data-placement": "top",
+                            title: "تعداد دانش آموز"
+                          }
+                        },
+                        [
+                          _vm._v(
+                            "\n                    " +
+                              _vm._s(s.tedad_daneshamooz) +
+                              "\n                "
+                          )
+                        ]
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "span",
+                        {
+                          staticClass: "  float-left px-1 text-white   small-1",
+                          class: [s.is_roozane ? "bg-success" : "bg-dark-gray"]
+                        },
+                        [
+                          _vm._v(
+                            "\n                    " +
+                              _vm._s(s.is_roozane ? "روزانه" : "شبانه") +
+                              "\n                "
+                          )
+                        ]
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "span",
+                        {
+                          staticClass:
+                            "left-border px-2 float-left  badge-pill text-white   small-1 bg-light-red",
+                          attrs: {
+                            "data-toggle": "tooltip",
+                            "data-placement": "top",
+                            title: "نوع فضا"
+                          }
+                        },
+                        [
+                          _vm._v(
+                            "\n                    " +
+                              _vm._s(_vm.getType(s, "faza")) +
+                              "\n                "
+                          )
+                        ]
                       )
                     ]
                   ),
@@ -41256,165 +42276,190 @@ var render = function() {
                   })
                 ]),
                 _vm._v(" "),
-                _c("div", { staticClass: "card-body" }, [
-                  _c("p", { staticClass: "text-purple mb-0 text-center" }, [
-                    _vm._v(" " + _vm._s(s.name))
-                  ]),
-                  _vm._v(" "),
-                  _c(
-                    "div",
-                    { staticClass: "codes d-flex justify-content-center" },
-                    [
-                      _c(
-                        "small",
-                        {
-                          staticClass:
-                            "  left-border badge-pill bg-gray text-white small d-inline-block   ",
-                          class: [s.is_roozane ? "bg-success" : "bg-dark-gray"]
-                        },
-                        [
-                          _vm._v(
-                            "\n                        کد مدرسه: " +
-                              _vm._s(s.code_madrese) +
-                              "\n                    "
-                          )
-                        ]
-                      ),
-                      _vm._v(" "),
-                      _c(
-                        "small",
-                        {
-                          staticClass:
-                            "  right-border badge-pill bg-dark-green text-white small d-inline-block   ",
-                          class: [s.is_roozane ? "bg-success" : "bg-dark-gray"]
-                        },
-                        [
-                          _vm._v(
-                            "\n                        کد فضا: " +
-                              _vm._s(s.code_faza) +
-                              "\n                    "
-                          )
-                        ]
-                      )
-                    ]
-                  ),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "card-divider" }),
-                  _vm._v(" "),
-                  _c("p", { staticClass: "card-text text-dark-blue" }, [
-                    _c("i", { staticClass: "fas  fa-arrow-circle-left" }),
-                    _vm._v(
-                      " تاسیس: " + _vm._s(s.sale_tasis) + "\n                "
-                    )
-                  ]),
-                  _vm._v(" "),
-                  _c("p", { staticClass: "card-text text-dark-blue" }, [
-                    _c("i", { staticClass: "fas  fa-arrow-circle-left" }),
-                    _vm._v(
-                      " حوزه نمایندگی: " +
-                        _vm._s(s.hooze.name) +
-                        "\n                "
-                    )
-                  ]),
-                  _vm._v(" "),
-                  _c("p", { staticClass: "card-text text-dark-blue p-type" }, [
-                    _c("i", { staticClass: "fas  fa-arrow-circle-left" }),
-                    _vm._v(
-                      " " +
-                        _vm._s(_vm.getType(s, "kooch")) +
-                        "\n                    "
+                _c(
+                  "div",
+                  {
+                    staticClass:
+                      "m-card-body  px-2   flex-column align-self-stretch"
+                  },
+                  [
+                    _c("p", { staticClass: "text-purple mb-0 text-center" }, [
+                      _vm._v(" " + _vm._s(s.name))
+                    ]),
+                    _vm._v(" "),
+                    _c(
+                      "div",
+                      { staticClass: "codes d-flex justify-content-center" },
+                      [
+                        _c(
+                          "small",
+                          {
+                            staticClass:
+                              "  left-border badge-pill bg-gray text-white small d-inline-block   ",
+                            class: [
+                              s.is_roozane ? "bg-success" : "bg-dark-gray"
+                            ]
+                          },
+                          [
+                            _vm._v(
+                              "\n                        کد مدرسه: " +
+                                _vm._s(s.code_madrese) +
+                                "\n                    "
+                            )
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "small",
+                          {
+                            staticClass:
+                              "  right-border badge-pill bg-dark-green text-white small d-inline-block   ",
+                            class: [
+                              s.is_roozane ? "bg-success" : "bg-dark-gray"
+                            ]
+                          },
+                          [
+                            _vm._v(
+                              "\n                        کد فضا: " +
+                                _vm._s(s.code_faza) +
+                                "\n                    "
+                            )
+                          ]
+                        )
+                      ]
                     ),
-                    s.schoolable_type === "App\\Koochro"
-                      ? _c("i", {
-                          staticClass: "fas  fa-arrow-circle-left text-dark-red"
-                        })
-                      : _vm._e(),
-                    _vm._v(
-                      _vm._s(_vm.getType(s, "sayyar")) + "\n                "
-                    )
-                  ]),
-                  _vm._v(" "),
-                  _c("p", { staticClass: "card-text text-dark-blue p-type" }, [
-                    _c("i", { staticClass: "fas  fa-arrow-circle-left" }),
-                    _vm._v(
-                      " تعداد همکاران: " +
-                        _vm._s(s.tedad_hamkaran) +
-                        "\n\n                "
-                    )
-                  ]),
-                  _vm._v(" "),
-                  _c("p", { staticClass: "card-text text-dark-blue p-type" }, [
-                    _c("i", { staticClass: "fas  fa-arrow-circle-left" }),
-                    _vm._v(
-                      " تعداد پایه تحصیلی: " +
-                        _vm._s(s.tedad_paye_tahsili) +
-                        "\n\n                "
-                    )
-                  ]),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "card-divider" }),
-                  _vm._v(" "),
-                  _c(
-                    "div",
-                    { staticClass: "doore" },
-                    _vm._l(s.doore.split("$"), function(d) {
-                      return _c(
-                        "span",
-                        {
-                          staticClass:
-                            "card-text badge-pill bg-purple text-white px-2  mx-1 d-inline-block"
-                        },
-                        [_vm._v(_vm._s(_vm.getType(d, "doore")))]
+                    _vm._v(" "),
+                    _c("div", { staticClass: "card-divider" }),
+                    _vm._v(" "),
+                    _c("p", { staticClass: "card-text text-dark-blue" }, [
+                      _c("i", { staticClass: "fas  fa-arrow-circle-left" }),
+                      _vm._v(
+                        " تاسیس: " + _vm._s(s.sale_tasis) + "\n                "
                       )
-                    }),
-                    0
-                  ),
-                  _vm._v(" "),
-                  s.vaziat != "m"
-                    ? _c(
-                        "p",
+                    ]),
+                    _vm._v(" "),
+                    _c("p", { staticClass: "card-text text-dark-blue" }, [
+                      _c("i", { staticClass: "fas  fa-arrow-circle-left" }),
+                      _vm._v(
+                        " حوزه نمایندگی: " +
+                          _vm._s(s.hooze.name) +
+                          "\n                "
+                      )
+                    ]),
+                    _vm._v(" "),
+                    _c(
+                      "p",
+                      { staticClass: "card-text text-dark-blue p-type" },
+                      [
+                        _c("i", { staticClass: "fas  fa-arrow-circle-left" }),
+                        _vm._v(
+                          " " +
+                            _vm._s(_vm.getType(s, "kooch")) +
+                            "\n                    "
+                        ),
+                        s.schoolable_type === "App\\Koochro"
+                          ? _c("i", {
+                              staticClass:
+                                "fas  fa-arrow-circle-left text-dark-red"
+                            })
+                          : _vm._e(),
+                        _vm._v(
+                          _vm._s(_vm.getType(s, "sayyar")) +
+                            "\n                "
+                        )
+                      ]
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "p",
+                      { staticClass: "card-text text-dark-blue p-type" },
+                      [
+                        _c("i", { staticClass: "fas  fa-arrow-circle-left" }),
+                        _vm._v(
+                          " تعداد همکاران: " +
+                            _vm._s(s.tedad_hamkaran) +
+                            "\n\n                "
+                        )
+                      ]
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "p",
+                      { staticClass: "card-text text-dark-blue p-type" },
+                      [
+                        _c("i", { staticClass: "fas  fa-arrow-circle-left" }),
+                        _vm._v(
+                          " تعداد پایه تحصیلی: " +
+                            _vm._s(s.tedad_paye_tahsili) +
+                            "\n\n                "
+                        )
+                      ]
+                    ),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "card-divider" }),
+                    _vm._v(" "),
+                    _c(
+                      "div",
+                      { staticClass: "doore" },
+                      _vm._l(s.doore.split("$"), function(d) {
+                        return _c(
+                          "span",
+                          {
+                            staticClass:
+                              "card-text badge-pill bg-purple text-white px-2  mx-1 d-inline-block"
+                          },
+                          [_vm._v(_vm._s(_vm.getType(d, "doore")))]
+                        )
+                      }),
+                      0
+                    ),
+                    _vm._v(" "),
+                    s.vaziat != "m"
+                      ? _c(
+                          "p",
+                          {
+                            staticClass:
+                              "vaziat card-text badge-pill text-dark-blue text-center  mt-2 ",
+                            on: {
+                              click: function($event) {
+                                $event.stopPropagation()
+                                _vm.$root.$emit("dropdownResponse", {
+                                  ids: _vm.getType(s, "zamime_ids")
+                                })
+                              }
+                            }
+                          },
+                          [
+                            _c("i", { staticClass: "fas  fa-eye " }),
+                            _vm._v(
+                              _vm._s(_vm.getType(s, "zamime")) +
+                                "\n\n\n                "
+                            )
+                          ]
+                        )
+                      : _vm._e(),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "  m-1 mt-4 d-block " }, [
+                      _c(
+                        "label",
                         {
-                          staticClass:
-                            "vaziat card-text badge-pill text-dark-blue text-center  mt-2 ",
+                          staticClass: "btn bg-gradient-blue   btn-block",
+                          attrs: { id: "search", for: "search" },
                           on: {
                             click: function($event) {
                               $event.stopPropagation()
-                              _vm.$root.$emit("dropdownResponse", {
-                                ids: _vm.getType(s, "zamime_ids")
-                              })
+                              return _vm.$root.$emit("search")
                             }
                           }
                         },
                         [
-                          _c("i", { staticClass: "fas  fa-eye " }),
-                          _vm._v(
-                            _vm._s(_vm.getType(s, "zamime")) +
-                              "\n\n\n                "
-                          )
+                          _c("i", { staticClass: "fa fa-edit" }),
+                          _vm._v(" ویرایش\n                    ")
                         ]
                       )
-                    : _vm._e(),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "  m-1 mt-4 d-block " }, [
-                    _c(
-                      "label",
-                      {
-                        staticClass: "btn bg-gradient-blue   btn-block",
-                        attrs: { id: "search", for: "search" },
-                        on: {
-                          click: function($event) {
-                            $event.stopPropagation()
-                            return _vm.$root.$emit("search")
-                          }
-                        }
-                      },
-                      [
-                        _c("i", { staticClass: "fa fa-edit" }),
-                        _vm._v(" ویرایش\n                    ")
-                      ]
-                    )
-                  ])
-                ]),
+                    ])
+                  ]
+                ),
                 _vm._v(" "),
                 _vm._m(0, true)
               ]
@@ -41470,7 +42515,6 @@ var render = function() {
                       { staticClass: "modal-body   " },
                       [
                         _c("school_map", {
-                          key: _vm.selectedSchool.id,
                           attrs: {
                             id: "map_card",
                             map: _vm.map,
@@ -41482,6 +42526,7 @@ var render = function() {
                         _c(
                           "div",
                           {
+                            key: _vm.selectedSchool.id + "-modal",
                             staticClass:
                               "modal-footer justify-content-start text-dark-blue"
                           },
@@ -41502,11 +42547,22 @@ var render = function() {
                                             _vm.selectedSchool.schoolable
                                               .address
                                           ) +
-                                          " -> " +
-                                          _vm._s(_vm.selectedSchool.name) +
-                                          " -> " +
-                                          _vm._s(_vm.selectedSchool.doore) +
-                                          "\n                            "
+                                          "\n                                "
+                                      ),
+                                      _c("i", { staticClass: "fas fa-circle" }),
+                                      _vm._v(
+                                        " فاصله از شهرستان\n                                "
+                                      ),
+                                      _c("i", {
+                                        staticClass: "fas fa-arrow-circle-left"
+                                      }),
+                                      _vm._v(
+                                        "\n                                " +
+                                          _vm._s(
+                                            _vm.selectedSchool.schoolable
+                                              .fasele_az_shahrestan
+                                          ) +
+                                          " کیلومتر\n                            "
                                       )
                                     ]
                                   )
@@ -41618,10 +42674,10 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "m-card-footer bg-transparent" }, [
+    return _c("div", { staticClass: "m-card-footer  bg-transparent      " }, [
       _c("img", {
-        staticClass: "back-footer-img",
-        attrs: { src: "img/card-footer.png", alt: "" }
+        staticClass: "mb-auto  back-footer-img",
+        attrs: { src: "/img/card-footer.png", alt: "" }
       })
     ])
   }
@@ -41712,7 +42768,7 @@ var render = function() {
         _c("div", { staticClass: "col-md-6 col-sm-6 my-1" }, [
           _vm._m(1),
           _vm._v(" "),
-          _c("div", { staticClass: "input-container text-center my-1" }, [
+          _c("div", { staticClass: "input-container text-center my-1 px-5" }, [
             _c("input", {
               directives: [
                 {
@@ -41722,7 +42778,7 @@ var render = function() {
                   expression: "code_madrese"
                 }
               ],
-              staticClass: "   badge-pill",
+              staticClass: "form-control   badge-pill",
               attrs: {
                 type: "number",
                 oninput: "validity.valid",
@@ -41744,7 +42800,7 @@ var render = function() {
         _c("div", { staticClass: "col-md-6 col-sm-6 my-1" }, [
           _vm._m(2),
           _vm._v(" "),
-          _c("div", { staticClass: "input-container text-center my-1" }, [
+          _c("div", { staticClass: "input-container text-center my-1 px-5" }, [
             _c("input", {
               directives: [
                 {
@@ -41754,7 +42810,7 @@ var render = function() {
                   expression: "code_faza"
                 }
               ],
-              staticClass: "   badge-pill",
+              staticClass: " form-control  badge-pill",
               attrs: {
                 type: "number",
                 oninput: "validity.valid",
@@ -41776,7 +42832,7 @@ var render = function() {
         _c("div", { staticClass: "col-md-6 col-sm-6 my-1" }, [
           _vm._m(3),
           _vm._v(" "),
-          _c("div", { staticClass: "input-container text-center my-1" }, [
+          _c("div", { staticClass: "input-container text-center my-1 px-5" }, [
             _c("input", {
               directives: [
                 {
@@ -41786,7 +42842,7 @@ var render = function() {
                   expression: "sale_tasis"
                 }
               ],
-              staticClass: "   badge-pill",
+              staticClass: "  form-control badge-pill",
               attrs: {
                 type: "number",
                 min: "1300",
@@ -41809,7 +42865,7 @@ var render = function() {
         _c("div", { staticClass: "col-md-6 col-sm-6 my-1" }, [
           _vm._m(4),
           _vm._v(" "),
-          _c("div", { staticClass: "input-container text-center my-1" }, [
+          _c("div", { staticClass: "input-container text-center my-1 px-5" }, [
             _c("input", {
               directives: [
                 {
@@ -41819,7 +42875,7 @@ var render = function() {
                   expression: "tedad_daneshamooz"
                 }
               ],
-              staticClass: "   badge-pill",
+              staticClass: " form-control  badge-pill",
               attrs: {
                 type: "number",
                 oninput: "validity.valid",
@@ -41841,7 +42897,7 @@ var render = function() {
         _c("div", { staticClass: "col-md-6 col-sm-6 my-1" }, [
           _vm._m(5),
           _vm._v(" "),
-          _c("div", { staticClass: "input-container text-center my-1" }, [
+          _c("div", { staticClass: "input-container text-center my-1 px-5" }, [
             _c("input", {
               directives: [
                 {
@@ -41851,7 +42907,7 @@ var render = function() {
                   expression: "tedad_paye_tahsili"
                 }
               ],
-              staticClass: "   badge-pill",
+              staticClass: " form-control  badge-pill",
               attrs: {
                 type: "number",
                 oninput: "validity.valid",
@@ -41873,7 +42929,7 @@ var render = function() {
         _c("div", { staticClass: "col-md-6 col-sm-6 my-1" }, [
           _vm._m(6),
           _vm._v(" "),
-          _c("div", { staticClass: "input-container text-center my-1" }, [
+          _c("div", { staticClass: "input-container text-center my-1 px-5" }, [
             _c("input", {
               directives: [
                 {
@@ -41883,7 +42939,7 @@ var render = function() {
                   expression: "tedad_hamkaran"
                 }
               ],
-              staticClass: "   badge-pill",
+              staticClass: " form-control  badge-pill ",
               attrs: {
                 type: "number",
                 oninput: "validity.valid",
@@ -41921,7 +42977,7 @@ var render = function() {
                   "label",
                   {
                     staticClass:
-                      "btn btn-outline-success  col-xs-6   left-border   active",
+                      "btn btn-outline-success  col-xs-6   left-border   ",
                     attrs: { id: "roozane", for: "roozane" },
                     on: {
                       click: function($event) {
@@ -42069,13 +43125,11 @@ var render = function() {
                   "label",
                   {
                     staticClass:
-                      "btn btn-outline-dark-green  col-xs-6   left-border   active",
+                      "btn btn-outline-dark-green  col-xs-6   left-border   ",
                     attrs: { id: "chador", for: "chador" },
                     on: {
                       click: function($event) {
-                        _vm.noe_faza["c"] = true
-                        _vm.noe_faza["k"] = false
-                        _vm.noe_faza["s"] = false
+                        _vm.noe_faza = "c"
                       }
                     }
                   },
@@ -42100,9 +43154,7 @@ var render = function() {
                     attrs: { id: "kanex", for: "kanex" },
                     on: {
                       click: function($event) {
-                        _vm.noe_faza["c"] = false
-                        _vm.noe_faza["k"] = true
-                        _vm.noe_faza["s"] = false
+                        _vm.noe_faza = "k"
                       }
                     }
                   },
@@ -42127,9 +43179,7 @@ var render = function() {
                     attrs: { id: "sakhteman", for: "sakhteman" },
                     on: {
                       click: function($event) {
-                        _vm.noe_faza["c"] = false
-                        _vm.noe_faza["k"] = false
-                        _vm.noe_faza["s"] = true
+                        _vm.noe_faza = "s"
                       }
                     }
                   },
@@ -42150,131 +43200,132 @@ var render = function() {
           ]
         ),
         _vm._v(" "),
-        _c("div", { staticClass: "  filters-container col-12 row  mt-4" }, [
-          _c(
-            "div",
-            {
-              staticClass:
-                "btn-group btn-group-toggle     col-md-6  justify-content-center   ",
-              attrs: { "data-toggle": "buttons" }
-            },
-            [
+        _c(
+          "div",
+          {
+            staticClass:
+              "toggle-container filters-container col-12  rounded p-2 mx-2 border-1 border-primary mt-3  "
+          },
+          [
+            _c("div", { staticClass: "  filters-container col-12 row  mt-4" }, [
               _c(
-                "label",
+                "div",
                 {
                   staticClass:
-                    "btn btn-outline-dark-green  col-xs-6   left-border   active",
-                  attrs: { id: "mostaghel", for: "mostaghel" },
-                  on: {
-                    click: function($event) {
-                      _vm.vaziat["m"] = true
-                      _vm.vaziat["d"] = false
-                      _vm.vaziat["a"] = false
-                    }
-                  }
+                    "btn-group btn-group-toggle     col-md-6  justify-content-center   ",
+                  attrs: { "data-toggle": "buttons" }
                 },
                 [
-                  _c("input", {
-                    staticClass: " ",
-                    attrs: {
-                      type: "radio",
-                      name: "options",
-                      autocomplete: "off"
-                    }
-                  }),
-                  _vm._v("مستقل\n                ")
-                ]
-              ),
-              _vm._v(" "),
-              _c(
-                "label",
-                {
-                  staticClass:
-                    "btn btn-outline-dark-red  col-xs-6   no-radius  ",
-                  attrs: { id: "zamd", for: "zamd" },
-                  on: {
-                    click: function($event) {
-                      _vm.vaziat["m"] = false
-                      _vm.vaziat["d"] = true
-                      _vm.vaziat["a"] = false
-                    }
-                  }
-                },
-                [
-                  _c("input", {
-                    staticClass: " ",
-                    attrs: {
-                      type: "radio",
-                      name: "options",
-                      autocomplete: "off"
-                    }
-                  }),
-                  _vm._v("ضمیمه دارد\n                ")
-                ]
-              ),
-              _vm._v(" "),
-              _c(
-                "label",
-                {
-                  staticClass:
-                    "btn btn-outline-dark-blue  col-xs-6   right-border  ",
-                  attrs: { id: "zama", for: "zama" },
-                  on: {
-                    click: function($event) {
-                      _vm.vaziat["m"] = false
-                      _vm.vaziat["d"] = false
-                      _vm.vaziat["a"] = true
-                    }
-                  }
-                },
-                [
-                  _c("input", {
-                    staticClass: " ",
-                    attrs: {
-                      type: "radio",
-                      name: "options",
-                      autocomplete: "off"
-                    }
-                  }),
-                  _vm._v("ضمیمه است\n                ")
+                  _c(
+                    "label",
+                    {
+                      staticClass:
+                        "btn btn-outline-dark-green  col-xs-6   left-border   active",
+                      attrs: { id: "mostaghel", for: "mostaghel" },
+                      on: {
+                        click: function($event) {
+                          _vm.params.vaziat = "m"
+                        }
+                      }
+                    },
+                    [
+                      _c("input", {
+                        staticClass: " ",
+                        attrs: {
+                          type: "radio",
+                          name: "options",
+                          autocomplete: "off"
+                        }
+                      }),
+                      _vm._v("مستقل\n                    ")
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "label",
+                    {
+                      staticClass:
+                        "btn btn-outline-dark-red  col-xs-6   no-radius  ",
+                      attrs: { id: "zamd", for: "zamd" },
+                      on: {
+                        click: function($event) {
+                          _vm.params.vaziat = "d"
+                        }
+                      }
+                    },
+                    [
+                      _c("input", {
+                        staticClass: " ",
+                        attrs: {
+                          type: "radio",
+                          name: "options",
+                          autocomplete: "off"
+                        }
+                      }),
+                      _vm._v("ضمیمه دارد\n                    ")
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "label",
+                    {
+                      staticClass:
+                        "btn btn-outline-dark-blue  col-xs-6   right-border  ",
+                      attrs: { id: "zama", for: "zama" },
+                      on: {
+                        click: function($event) {
+                          _vm.params.vaziat = "a"
+                        }
+                      }
+                    },
+                    [
+                      _c("input", {
+                        staticClass: " ",
+                        attrs: {
+                          type: "radio",
+                          name: "options",
+                          autocomplete: "off"
+                        }
+                      }),
+                      _vm._v("ضمیمه است\n                    ")
+                    ]
+                  )
                 ]
               )
-            ]
-          )
-        ]),
-        _vm._v(" "),
-        _vm.vaziat["d"] || _vm.vaziat["a"]
-          ? _c(
-              "div",
-              {
-                staticClass:
-                  "toggle-container filters-container col-12 row   rounded p-2 mx-2 border-1 border-primary mt-3"
-              },
-              [
-                _c("selector", {
-                  attrs: {
-                    "data-link": this.schoolsLink,
-                    for: "school",
-                    newable: true
-                  }
-                })
-              ],
-              1
-            )
-          : _vm._e(),
+            ]),
+            _vm._v(" "),
+            _vm.params.vaziat == "d" || _vm.params.vaziat == "a"
+              ? _c(
+                  "div",
+                  { staticClass: " " },
+                  [
+                    _c("selector", {
+                      staticClass: " ",
+                      attrs: {
+                        "data-link": this.schoolsLink,
+                        for: "school",
+                        newable: true
+                      }
+                    })
+                  ],
+                  1
+                )
+              : _vm._e()
+          ]
+        ),
         _vm._v(" "),
         _c(
           "div",
           {
             staticClass:
-              "toggle-container filters-container col-12 row   rounded p-2 mx-2 border-1 border-primary"
+              "toggle-container filters-container col-12 row   rounded p-2 mt-2 mx-2 border-1 border-primary"
           },
           [
             _c(
               "div",
               {
                 staticClass:
-                  " btn-group btn-group-toggle    col-md-6  justify-content-center mt-4  ",
+                  " btn-group btn-group-toggle    col-12  justify-content-center mt-4  px-5 ",
                 attrs: { "data-toggle": "buttons" }
               },
               [
@@ -42282,11 +43333,12 @@ var render = function() {
                   "label",
                   {
                     staticClass:
-                      "btn btn-outline-success  col-xs-6   left-border   active",
+                      "btn btn-outline-success    col-md-6    left-border   active",
                     attrs: { id: "saabet", for: "roozane" },
                     on: {
                       click: function($event) {
                         _vm.schoolable_type = "App\\Saabet"
+                        _vm.marker("del", 2)
                       }
                     }
                   },
@@ -42307,11 +43359,12 @@ var render = function() {
                   "label",
                   {
                     staticClass:
-                      "btn btn-outline-dark  col-xs-6   right-border  ",
+                      "btn btn-outline-dark    col-md-6    right-border  ",
                     attrs: { id: "koochroo", for: "shabane" },
                     on: {
                       click: function($event) {
                         _vm.schoolable_type = "App\\Koochroo"
+                        _vm.marker("add", 2)
                       }
                     }
                   },
@@ -42330,12 +43383,77 @@ var render = function() {
               ]
             ),
             _vm._v(" "),
-            _c("div", { staticClass: "map", attrs: { id: "map" } }),
+            _c("div", {
+              staticClass: "map container-fluid ",
+              attrs: { id: "map" }
+            }),
+            _vm._v(" "),
+            _vm.schoolable_type == "App\\Koochroo"
+              ? _c(
+                  "div",
+                  {
+                    staticClass:
+                      " btn-group btn-group-toggle    col-12  justify-content-center mt-4  px-5 ",
+                    attrs: { "data-toggle": "buttons" }
+                  },
+                  [
+                    _c(
+                      "label",
+                      {
+                        staticClass:
+                          "btn btn-outline-success    col-md-6    left-border   active",
+                        attrs: { id: "sayyar", for: "sayyar" },
+                        on: {
+                          click: function($event) {
+                            _vm.sayyar_type = "s"
+                          }
+                        }
+                      },
+                      [
+                        _c("input", {
+                          staticClass: " ",
+                          attrs: {
+                            type: "radio",
+                            name: "options",
+                            autocomplete: "off"
+                          }
+                        }),
+                        _vm._v("سیار\n                ")
+                      ]
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "label",
+                      {
+                        staticClass:
+                          "btn btn-outline-dark    col-md-6    right-border  ",
+                        attrs: { id: "nime-sayyar", for: "nime-sayyar" },
+                        on: {
+                          click: function($event) {
+                            _vm.sayyar_type = "n"
+                          }
+                        }
+                      },
+                      [
+                        _c("input", {
+                          staticClass: " ",
+                          attrs: {
+                            type: "radio",
+                            name: "options",
+                            autocomplete: "off"
+                          }
+                        }),
+                        _vm._v("نیمه سیار\n                ")
+                      ]
+                    )
+                  ]
+                )
+              : _vm._e(),
             _vm._v(" "),
             _c("div", { staticClass: "row col-12" }, [
               _c("div", { staticClass: "loc-container   col-md-6 col-sm-6" }, [
                 _c("p", { staticClass: "divider   " }, [
-                  _c("span", [
+                  _c("span", { staticClass: "text-primary" }, [
                     _vm._v(
                       " " +
                         _vm._s(
@@ -42348,75 +43466,132 @@ var render = function() {
                   ])
                 ]),
                 _vm._v(" "),
-                _c(
-                  "div",
-                  { staticClass: "input-group col-md-6 col-sm-12 pt-1 " },
-                  [
-                    _vm._m(7),
-                    _vm._v(" "),
-                    _c("input", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: _vm.loc1.lat,
-                          expression: "loc1.lat"
-                        }
-                      ],
-                      staticClass: "my-1 py-1 pr-1 form-control  ",
-                      attrs: {
-                        type: "text",
-                        placeholder: "طول",
-                        id: "loc1-lat-input",
-                        "aria-label": "SearchName"
-                      },
-                      domProps: { value: _vm.loc1.lat },
-                      on: {
-                        input: function($event) {
-                          if ($event.target.composing) {
-                            return
-                          }
-                          _vm.$set(_vm.loc1, "lat", $event.target.value)
-                        }
+                _c("div", { staticClass: "input-group   pt-1 " }, [
+                  _vm._m(7),
+                  _vm._v(" "),
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.loc1_lat_input,
+                        expression: "loc1_lat_input"
                       }
-                    })
-                  ]
-                ),
+                    ],
+                    staticClass: "my-1 py-1 pr-1 form-control border ",
+                    attrs: {
+                      type: "text",
+                      placeholder: "طول",
+                      id: "loc1-lat-input",
+                      "aria-label": ""
+                    },
+                    domProps: { value: _vm.loc1_lat_input },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.loc1_lat_input = $event.target.value
+                      }
+                    }
+                  })
+                ]),
                 _vm._v(" "),
-                _c(
-                  "div",
-                  { staticClass: "input-group col-md-6 col-sm-12 pt-1 " },
-                  [
-                    _vm._m(8),
-                    _vm._v(" "),
-                    _c("input", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: _vm.loc1.lon,
-                          expression: "loc1.lon"
-                        }
-                      ],
-                      staticClass: "my-1 py-1 pr-1 form-control right-border ",
-                      attrs: {
-                        type: "text",
-                        placeholder: "عرض",
-                        id: "loc1-lon-input",
-                        "aria-label": "SearchName"
-                      },
-                      domProps: { value: _vm.loc1.lon },
-                      on: {
-                        input: function($event) {
-                          if ($event.target.composing) {
-                            return
-                          }
-                          _vm.$set(_vm.loc1, "lon", $event.target.value)
-                        }
+                _c("div", { staticClass: "input-group  pt-1 " }, [
+                  _vm._m(8),
+                  _vm._v(" "),
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.loc1_lon_input,
+                        expression: "loc1_lon_input"
                       }
-                    })
-                  ]
-                )
+                    ],
+                    staticClass:
+                      "my-1 py-1 pr-1 form-control right-bottom-border ",
+                    attrs: {
+                      type: "text",
+                      placeholder: "عرض",
+                      id: "loc1-lon-input",
+                      "aria-label": ""
+                    },
+                    domProps: { value: _vm.loc1_lon_input },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.loc1_lon_input = $event.target.value
+                      }
+                    }
+                  })
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "input-group  pt-1 " }, [
+                  _vm._m(9),
+                  _vm._v(" "),
+                  _c("textarea", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.loc1_address,
+                        expression: "loc1_address"
+                      }
+                    ],
+                    staticClass: "my-1 py-1 pr-1 form-control rounded ",
+                    attrs: {
+                      rows: "2",
+                      placeholder: "آدرس",
+                      id: "loc1-address-input",
+                      "aria-label": ""
+                    },
+                    domProps: { value: _vm.loc1_address },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.loc1_address = $event.target.value
+                      }
+                    }
+                  })
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "input-group  pt-1 " }, [
+                  _vm._m(10),
+                  _vm._v(" "),
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.loc1_fasele_az_shahrestan,
+                        expression: "loc1_fasele_az_shahrestan"
+                      }
+                    ],
+                    staticClass: "my-1 py-1 pr-1 form-control badge-pill ",
+                    attrs: {
+                      type: "number",
+                      placeholder: "فاصله از شهرستان (کیلومتر)",
+                      id: "loc1-fasele-input",
+                      oninput: "validity.valid",
+                      min: "0",
+                      "aria-label": ""
+                    },
+                    domProps: { value: _vm.loc1_fasele_az_shahrestan },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.loc1_fasele_az_shahrestan = $event.target.value
+                      }
+                    }
+                  })
+                ])
               ]),
               _vm._v(" "),
               _vm.schoolable_type == "App\\Koochroo"
@@ -42424,82 +43599,280 @@ var render = function() {
                     "div",
                     { staticClass: "loc-container   col-md-6 col-sm-6" },
                     [
-                      _vm._m(9),
+                      _vm._m(11),
                       _vm._v(" "),
-                      _c(
-                        "div",
-                        { staticClass: "input-group col-md-6 col-sm-12 pt-1 " },
-                        [
-                          _vm._m(10),
-                          _vm._v(" "),
-                          _c("input", {
-                            directives: [
-                              {
-                                name: "model",
-                                rawName: "v-model",
-                                value: _vm.loc2.lat,
-                                expression: "loc2.lat"
-                              }
-                            ],
-                            staticClass: "my-1 py-1 pr-1 form-control  ",
-                            attrs: {
-                              type: "text",
-                              placeholder: "طول",
-                              id: "loc2-lat-input",
-                              "aria-label": "SearchName"
-                            },
-                            domProps: { value: _vm.loc2.lat },
-                            on: {
-                              input: function($event) {
-                                if ($event.target.composing) {
-                                  return
-                                }
-                                _vm.$set(_vm.loc2, "lat", $event.target.value)
-                              }
+                      _c("div", { staticClass: "input-group  pt-1 " }, [
+                        _vm._m(12),
+                        _vm._v(" "),
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.loc2_lat_input,
+                              expression: "loc2_lat_input"
                             }
-                          })
-                        ]
-                      ),
+                          ],
+                          staticClass: "my-1 py-1 pr-1 form-control  ",
+                          attrs: {
+                            type: "text",
+                            placeholder: "طول",
+                            id: "loc2-lat-input",
+                            "aria-label": "SearchName"
+                          },
+                          domProps: { value: _vm.loc2_lat_input },
+                          on: {
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.loc2_lat_input = $event.target.value
+                            }
+                          }
+                        })
+                      ]),
                       _vm._v(" "),
-                      _c(
-                        "div",
-                        { staticClass: "input-group col-md-6 col-sm-12 pt-1 " },
-                        [
-                          _vm._m(11),
-                          _vm._v(" "),
-                          _c("input", {
-                            directives: [
-                              {
-                                name: "model",
-                                rawName: "v-model",
-                                value: _vm.loc2.lon,
-                                expression: "loc2.lon"
-                              }
-                            ],
-                            staticClass:
-                              "my-1 py-1 pr-1 form-control right-border ",
-                            attrs: {
-                              type: "text",
-                              placeholder: "عرض",
-                              id: "loc2-lon-input",
-                              "aria-label": "SearchName"
-                            },
-                            domProps: { value: _vm.loc2.lon },
-                            on: {
-                              input: function($event) {
-                                if ($event.target.composing) {
-                                  return
-                                }
-                                _vm.$set(_vm.loc2, "lon", $event.target.value)
-                              }
+                      _c("div", { staticClass: "input-group  pt-1 " }, [
+                        _vm._m(13),
+                        _vm._v(" "),
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.loc2_lon_input,
+                              expression: "loc2_lon_input"
                             }
-                          })
-                        ]
-                      )
+                          ],
+                          staticClass:
+                            "my-1 py-1 pr-1 form-control right-border   ",
+                          attrs: {
+                            type: "text",
+                            placeholder: "عرض",
+                            id: "loc2-lon-input",
+                            "aria-label": "SearchName"
+                          },
+                          domProps: { value: _vm.loc2_lon_input },
+                          on: {
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.loc2_lon_input = $event.target.value
+                            }
+                          }
+                        })
+                      ]),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "input-group  pt-1 " }, [
+                        _vm._m(14),
+                        _vm._v(" "),
+                        _c("textarea", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.loc2_address,
+                              expression: "loc2_address"
+                            }
+                          ],
+                          staticClass: "my-1 py-1 pr-1 form-control rounded ",
+                          attrs: {
+                            rows: "2",
+                            placeholder: "آدرس",
+                            id: "loc2-address-input",
+                            "aria-label": ""
+                          },
+                          domProps: { value: _vm.loc2_address },
+                          on: {
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.loc2_address = $event.target.value
+                            }
+                          }
+                        })
+                      ]),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "input-group  pt-1 " }, [
+                        _vm._m(15),
+                        _vm._v(" "),
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.loc2_fasele_az_shahrestan,
+                              expression: "loc2_fasele_az_shahrestan"
+                            }
+                          ],
+                          staticClass:
+                            "my-1 py-1 pr-1 form-control badge-pill ",
+                          attrs: {
+                            type: "Number",
+                            placeholder: "فاصله از شهرستان (کیلومتر)",
+                            id: "loc2-fasele-input",
+                            oninput: "validity.valid",
+                            min: "0",
+                            "aria-label": ""
+                          },
+                          domProps: { value: _vm.loc2_fasele_az_shahrestan },
+                          on: {
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.loc2_fasele_az_shahrestan =
+                                $event.target.value
+                            }
+                          }
+                        })
+                      ])
                     ]
                   )
                 : _vm._e()
             ])
+          ]
+        ),
+        _vm._v(" "),
+        _c("div", { staticClass: "img-container  w-100" }, [
+          _c(
+            "form",
+            {
+              staticClass: "uploader-container mx-2 mt-2 p-2 flex-column",
+              attrs: {
+                id: "uploader",
+                enctype: "multipart/form-data",
+                role: "form",
+                method: "post"
+              },
+              on: {
+                drop: function($event) {
+                  _vm.uploader.removeClass("hover")
+                  _vm.filePreview($event, "img-input")
+                },
+                click: function($event) {
+                  return _vm.openFileChooser($event, "img-input")
+                }
+              }
+            },
+            [
+              _c("h5", { staticClass: "uploader-message p-2 text-center  " }, [
+                _vm._v(
+                  "\n                    تصاویر مدرسه...\n                "
+                )
+              ]),
+              _vm._v(" "),
+              _c("h6", { staticClass: "uploader-message  text-center  " }, [
+                _vm._v(" حداکثر 3 عکس ")
+              ]),
+              _vm._v(" "),
+              _c("h6", { staticClass: "uploader-message  text-center  " }, [
+                _vm._v(" حجم عکس زیر 2MB ")
+              ]),
+              _vm._v(" "),
+              _c("h6", { staticClass: "uploader-message  text-center  " }, [
+                _vm._v(" فرمت jpg یا  png ")
+              ]),
+              _vm._v(" "),
+              _c(
+                "div",
+                { staticClass: "progress w-100 justify-content-end hide" },
+                [
+                  _c(
+                    "div",
+                    {
+                      staticClass:
+                        "p-2 w-auto progress-bar  progress-bar-striped bg-success ",
+                      style: "width:" + _vm.percentCompleted + "%",
+                      attrs: { role: "progressbar" }
+                    },
+                    [
+                      _vm._v(
+                        _vm._s(_vm.percentCompleted) + "%\n                    "
+                      )
+                    ]
+                  )
+                ]
+              )
+            ]
+          ),
+          _vm._v(" "),
+          _c("input", {
+            staticClass: "col-12",
+            staticStyle: { opacity: "0" },
+            attrs: {
+              id: "img-input",
+              accept: ".png, .jpg, .jpeg",
+              type: "file",
+              name: "images[]",
+              multiple: ""
+            },
+            on: {
+              change: function($event) {
+                return _vm.filePreview($event, "img-input")
+              }
+            }
+          }),
+          _vm._v(" "),
+          _c(
+            "div",
+            { staticClass: "img-container row   mx-2 mt-2 p-2   " },
+            _vm._l(_vm.docs, function(doc, index) {
+              return _c(
+                "div",
+                { staticClass: "thumb-container col-md-4 col-sm-6 " },
+                [
+                  _c("a", { attrs: { href: doc, "data-lity": "" } }, [
+                    _c("img", {
+                      staticClass: "img-thumbnail ",
+                      attrs: { id: "img-" + index, src: doc, alt: "" }
+                    })
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "button",
+                    {
+                      staticClass: "btn close-btn bg-danger text-white",
+                      attrs: { id: "del-" + index },
+                      on: {
+                        click: function($event) {
+                          return _vm.removeImage(index, "img-input")
+                        }
+                      }
+                    },
+                    [
+                      _c("i", {
+                        staticClass: "fa fa-window-close text-white",
+                        attrs: { "aria-hidden": "true" }
+                      })
+                    ]
+                  )
+                ]
+              )
+            }),
+            0
+          )
+        ]),
+        _vm._v(" "),
+        _c(
+          "div",
+          { staticClass: "modal-footer justify-content-center col-12" },
+          [
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-primary mx-1  btn-block  ",
+                attrs: { type: "button" },
+                on: {
+                  click: function($event) {
+                    return _vm.$root.$emit("hoozeRequest", _vm.params)
+                  }
+                }
+              },
+              [_vm._v("ذخیره\n            ")]
+            )
           ]
         )
       ],
@@ -42590,18 +43963,10 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("p", { staticClass: "divider  " }, [
-      _c("span", [_vm._v("    مکان قشلاق   ")])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
     return _c(
       "div",
       { staticClass: "input-group-prepend   btn-group-vertical p-1" },
-      [_c("i", { staticClass: "fa fa-map-marker  text-primary  " })]
+      [_c("i", { staticClass: "fa fa-address-book  text-primary  " })]
     )
   },
   function() {
@@ -42611,7 +43976,55 @@ var staticRenderFns = [
     return _c(
       "div",
       { staticClass: "input-group-prepend   btn-group-vertical p-1" },
-      [_c("i", { staticClass: "fa fa-map-marker  text-primary  " })]
+      [_c("i", { staticClass: "fa fa-road  text-primary  " })]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("p", { staticClass: "divider  " }, [
+      _c("span", { staticClass: "text-danger" }, [_vm._v("    مکان قشلاق   ")])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      { staticClass: "input-group-prepend   btn-group-vertical p-1" },
+      [_c("i", { staticClass: "fa fa-map-marker  text-primary text-danger " })]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      { staticClass: "input-group-prepend   btn-group-vertical p-1" },
+      [_c("i", { staticClass: "fa fa-map-marker  text-primary text-danger " })]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      { staticClass: "input-group-prepend   btn-group-vertical p-1" },
+      [_c("i", { staticClass: "fa fa-address-book  text-danger  " })]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      { staticClass: "input-group-prepend   btn-group-vertical p-1" },
+      [_c("i", { staticClass: "fa fa-road  text-danger  " })]
     )
   }
 ]
@@ -42636,609 +44049,613 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "search-container " }, [
-    _vm._m(0),
-    _vm._v(" "),
-    _c(
-      "div",
-      {
-        staticClass:
-          "btn-group btn-group-toggle mx-1  row col-12 justify-content-center ",
-        attrs: { "data-toggle": "buttons" }
-      },
-      [
-        _c(
-          "label",
-          {
-            staticClass:
-              "btn btn-light-blue btn-group-item col-xs-6 left-border  active ",
-            attrs: { id: "new-schools", for: "new-schools" },
-            on: {
-              click: function($event) {
-                _vm.by = "~n"
-                _vm.$root.$emit("search")
-              }
-            }
-          },
-          [
-            _c("input", {
-              staticClass: " ",
-              attrs: { type: "radio", name: "options", autocomplete: "off" }
-            }),
-            _vm._v(" جدید ترین مدارس\n        ")
-          ]
-        ),
-        _vm._v(" "),
-        _c(
-          "label",
-          {
-            staticClass:
-              "btn btn-togg btn-light-blue btn-group-item col-xs-6    ",
-            attrs: { id: "old-schools", for: "old-schools" },
-            on: {
-              click: function($event) {
-                _vm.by = "~o"
-                _vm.$root.$emit("search")
-              }
-            }
-          },
-          [
-            _c("input", {
-              staticClass: " ",
-              attrs: { type: "radio", name: "options", autocomplete: "off" }
-            }),
-            _vm._v(" قدیمی ترین مدارس\n        ")
-          ]
-        ),
-        _vm._v(" "),
-        _c(
-          "label",
-          {
-            staticClass: "btn btn-light-blue btn-group-item col-xs-6   ",
-            attrs: { id: "max-students", for: "max-students" },
-            on: {
-              click: function($event) {
-                _vm.by = "~ma"
-                _vm.$root.$emit("search")
-              }
-            }
-          },
-          [
-            _c("input", {
-              staticClass: " ",
-              attrs: { type: "radio", name: "options", autocomplete: "off" }
-            }),
-            _vm._v(" بیشترین دانش آموز\n        ")
-          ]
-        ),
-        _vm._v(" "),
-        _c(
-          "label",
-          {
-            staticClass:
-              "btn btn-light-blue btn-group-item col-xs-6 right-border  ",
-            attrs: { id: "min-students", for: "min-students" },
-            on: {
-              click: function($event) {
-                _vm.by = "~mi"
-                _vm.$root.$emit("search")
-              }
-            }
-          },
-          [
-            _c("input", {
-              staticClass: " ",
-              attrs: { type: "radio", name: "options", autocomplete: "off" }
-            }),
-            _vm._v(" کمترین دانش آموز\n        ")
-          ]
-        )
-      ]
-    ),
-    _vm._v(" "),
-    _vm._m(1),
-    _vm._v(" "),
-    _c(
-      "div",
-      {
-        staticClass:
-          "filters-container btn-group btn-group-toggle row  col-md-12 justify-content-center",
-        attrs: { "data-toggle": "buttons" }
-      },
-      [
-        _c("div", { staticClass: " px-2  " }, [
-          _c(
-            "label",
-            {
-              staticClass: "btn   btn-outline-success  ",
-              on: {
-                click: function($event) {
-                  _vm.status["koochro"] = !_vm.status["koochro"]
-                  _vm.$root.$emit("search")
-                }
-              }
-            },
-            [_vm._v(" کوچ رو\n            ")]
-          ),
-          _vm._v(" "),
-          _c(
-            "label",
-            {
-              staticClass: "btn   btn-outline-danger   ",
-              on: {
-                click: function($event) {
-                  _vm.status["saabet"] = !_vm.status["saabet"]
-                  _vm.$root.$emit("search")
-                }
-              }
-            },
-            [_vm._v(" ثابت\n            ")]
-          )
-        ]),
-        _vm._v(" "),
-        _c("div", { staticClass: "  px-2 " }, [
-          _c(
-            "label",
-            {
-              staticClass: "btn btn-outline-dark-blue ",
-              on: {
-                click: function($event) {
-                  _vm.status["roozane"] = !_vm.status["roozane"]
-                  _vm.$root.$emit("search")
-                }
-              }
-            },
-            [_vm._v("روزانه\n            ")]
-          ),
-          _vm._v(" "),
-          _c(
-            "label",
-            {
-              staticClass: "btn btn-outline-dark-gray ",
-              on: {
-                click: function($event) {
-                  _vm.status["shabane"] = !_vm.status["shabane"]
-                  _vm.$root.$emit("search")
-                }
-              }
-            },
-            [_vm._v("شبانه\n            ")]
-          )
-        ]),
-        _vm._v(" "),
-        _c("div", { staticClass: "  px-2 " }, [
-          _c(
-            "label",
-            {
-              staticClass: "btn btn-outline-dark-blue ",
-              on: {
-                click: function($event) {
-                  _vm.status["boy"] = !_vm.status["boy"]
-                  _vm.$root.$emit("search")
-                }
-              }
-            },
-            [_vm._v("پسرانه\n            ")]
-          ),
-          _vm._v(" "),
-          _c(
-            "label",
-            {
-              staticClass: "btn btn-outline-dark-gray ",
-              on: {
-                click: function($event) {
-                  _vm.status["girl"] = !_vm.status["girl"]
-                  _vm.$root.$emit("search")
-                }
-              }
-            },
-            [_vm._v("دخترانه\n            ")]
-          )
-        ]),
-        _vm._v(" "),
-        _c("div", { staticClass: "  px-2 " }, [
-          _c(
-            "label",
-            {
-              staticClass: "btn btn-outline-dark-green ",
-              on: {
-                click: function($event) {
-                  _vm.status["ebte"] = !_vm.status["ebte"]
-                  _vm.$root.$emit("search")
-                }
-              }
-            },
-            [_vm._v("ابتدایی\n            ")]
-          ),
-          _vm._v(" "),
-          _c(
-            "label",
-            {
-              staticClass: "btn btn-outline-success ",
-              on: {
-                click: function($event) {
-                  _vm.status["mote1"] = !_vm.status["mote1"]
-                  _vm.$root.$emit("search")
-                }
-              }
-            },
-            [_vm._v("متوسطه 1\n            ")]
-          ),
-          _vm._v(" "),
-          _c(
-            "label",
-            {
-              staticClass: "btn btn-outline-light-green ",
-              on: {
-                click: function($event) {
-                  _vm.status["mote2"] = !_vm.status["mote2"]
-                  _vm.$root.$emit("search")
-                }
-              }
-            },
-            [_vm._v("متوسطه 2\n            ")]
-          )
-        ]),
-        _vm._v(" "),
-        _c("div", { staticClass: " px-2  " }, [
-          _c(
-            "label",
-            {
-              staticClass: "btn btn-outline-dark ",
-              on: {
-                click: function($event) {
-                  _vm.status["mosta"] = !_vm.status["mosta"]
-                  _vm.$root.$emit("search")
-                }
-              }
-            },
-            [_vm._v("مستقل\n            ")]
-          ),
-          _vm._v(" "),
-          _c(
-            "label",
-            {
-              staticClass: "btn btn-outline-dark-gray ",
-              on: {
-                click: function($event) {
-                  _vm.status["zama"] = !_vm.status["zama"]
-                  _vm.$root.$emit("search")
-                }
-              }
-            },
-            [_vm._v("ضمیمه است\n            ")]
-          ),
-          _vm._v(" "),
-          _c(
-            "label",
-            {
-              staticClass: "btn btn-outline-gray ",
-              on: {
-                click: function($event) {
-                  _vm.status["zamd"] = !_vm.status["zamd"]
-                  _vm.$root.$emit("search")
-                }
-              }
-            },
-            [_vm._v("ضمیمه دارد\n            ")]
-          )
-        ]),
-        _vm._v(" "),
-        _c("div", { staticClass: "  px-2 " }, [
-          _c(
-            "label",
-            {
-              staticClass: "btn btn-outline-light-red ",
-              on: {
-                click: function($event) {
-                  _vm.status["kanex"] = !_vm.status["kanex"]
-                  _vm.$root.$emit("search")
-                }
-              }
-            },
-            [_vm._v("کانکس\n            ")]
-          ),
-          _vm._v(" "),
-          _c(
-            "label",
-            {
-              staticClass: "btn btn-outline-flame-start ",
-              on: {
-                click: function($event) {
-                  _vm.status["sakhteman"] = !_vm.status["sakhteman"]
-                  _vm.$root.$emit("search")
-                }
-              }
-            },
-            [_vm._v("ساختمان\n            ")]
-          ),
-          _vm._v(" "),
-          _c(
-            "label",
-            {
-              staticClass: "btn btn-outline-cream ",
-              on: {
-                click: function($event) {
-                  _vm.status["chador"] = !_vm.status["chador"]
-                  _vm.$root.$emit("search")
-                }
-              }
-            },
-            [_vm._v("چادر\n            ")]
-          )
-        ])
-      ]
-    ),
-    _vm._v(" "),
-    _c("div", { staticClass: "row px-5" }, [
-      _c(
-        "div",
-        {
-          staticClass:
-            "slider-container col-md-6 col-sm-8  offset-sm-2 offset-md-0"
-        },
-        [
-          _vm._m(2),
-          _vm._v(" "),
-          _c("div", {
-            staticClass: "slider d-block ",
-            attrs: { id: "slider-sal" }
-          }),
-          _vm._v(" "),
-          _c("div", { staticClass: "input-container text-center my-1" }, [
-            _c("input", {
-              directives: [
-                {
-                  name: "model",
-                  rawName: "v-model",
-                  value: _vm.max_sal,
-                  expression: "max_sal"
-                }
-              ],
-              staticClass: "price-range-field left-border",
-              attrs: {
-                type: "number",
-                min: "1300",
-                max: "1500",
-                oninput: "validity.valid",
-                id: "max_sal"
-              },
-              domProps: { value: _vm.max_sal },
-              on: {
-                change: function($event) {
-                  return _vm.setSliders(1)
-                },
-                paste: function($event) {
-                  return _vm.setSliders(1)
-                },
-                keyup: function($event) {
-                  return _vm.setSliders(1)
-                },
-                input: function($event) {
-                  if ($event.target.composing) {
-                    return
-                  }
-                  _vm.max_sal = $event.target.value
-                }
-              }
-            }),
-            _vm._v(" "),
-            _c("input", {
-              directives: [
-                {
-                  name: "model",
-                  rawName: "v-model",
-                  value: _vm.min_sal,
-                  expression: "min_sal"
-                }
-              ],
-              staticClass: "price-range-field right-border ",
-              attrs: {
-                type: "number",
-                min: "1300",
-                max: "1500",
-                oninput: "validity.valid",
-                id: "min_sal"
-              },
-              domProps: { value: _vm.min_sal },
-              on: {
-                change: function($event) {
-                  return _vm.setSliders(1)
-                },
-                paste: function($event) {
-                  return _vm.setSliders(1)
-                },
-                keyup: function($event) {
-                  return _vm.setSliders(1)
-                },
-                input: function($event) {
-                  if ($event.target.composing) {
-                    return
-                  }
-                  _vm.min_sal = $event.target.value
-                }
-              }
-            })
-          ])
-        ]
-      ),
+  return _c(
+    "div",
+    { staticClass: "search-container d-inline-block col-md-4" },
+    [
+      _vm._m(0),
       _vm._v(" "),
       _c(
         "div",
         {
           staticClass:
-            "slider-container col-md-6 col-sm-8 offset-sm-2 offset-md-0 "
+            "btn-group btn-group-toggle mx-1  row col-12 justify-content-center ",
+          attrs: { "data-toggle": "buttons" }
         },
         [
-          _vm._m(3),
-          _vm._v(" "),
-          _c("div", {
-            staticClass: "slider d-block ",
-            attrs: { id: "slider-tedad" }
-          }),
-          _vm._v(" "),
-          _c("div", { staticClass: "input-container text-center my-1" }, [
-            _c("input", {
-              directives: [
-                {
-                  name: "model",
-                  rawName: "v-model",
-                  value: _vm.max_tedad,
-                  expression: "max_tedad"
-                }
-              ],
-              staticClass: "price-range-field left-border",
-              attrs: {
-                type: "number",
-                min: "1",
-                max: "1000",
-                oninput: "validity.valid",
-                id: "max_tedad"
-              },
-              domProps: { value: _vm.max_tedad },
+          _c(
+            "label",
+            {
+              staticClass:
+                "btn btn-light-blue btn-group-item col-xs-6 left-border  active ",
+              attrs: { id: "new-schools", for: "new-schools" },
               on: {
-                change: function($event) {
-                  return _vm.setSliders(2)
-                },
-                paste: function($event) {
-                  return _vm.setSliders(2)
-                },
-                keyup: function($event) {
-                  return _vm.setSliders(2)
-                },
-                input: function($event) {
-                  if ($event.target.composing) {
-                    return
-                  }
-                  _vm.max_tedad = $event.target.value
+                click: function($event) {
+                  _vm.by = "~n"
+                  _vm.$root.$emit("search")
                 }
               }
+            },
+            [
+              _c("input", {
+                staticClass: " ",
+                attrs: { type: "radio", name: "options", autocomplete: "off" }
+              }),
+              _vm._v(" جدید ترین مدارس\n        ")
+            ]
+          ),
+          _vm._v(" "),
+          _c(
+            "label",
+            {
+              staticClass:
+                "btn btn-togg btn-light-blue btn-group-item col-xs-6    ",
+              attrs: { id: "old-schools", for: "old-schools" },
+              on: {
+                click: function($event) {
+                  _vm.by = "~o"
+                  _vm.$root.$emit("search")
+                }
+              }
+            },
+            [
+              _c("input", {
+                staticClass: " ",
+                attrs: { type: "radio", name: "options", autocomplete: "off" }
+              }),
+              _vm._v(" قدیمی ترین مدارس\n        ")
+            ]
+          ),
+          _vm._v(" "),
+          _c(
+            "label",
+            {
+              staticClass: "btn btn-light-blue btn-group-item col-xs-6   ",
+              attrs: { id: "max-students", for: "max-students" },
+              on: {
+                click: function($event) {
+                  _vm.by = "~ma"
+                  _vm.$root.$emit("search")
+                }
+              }
+            },
+            [
+              _c("input", {
+                staticClass: " ",
+                attrs: { type: "radio", name: "options", autocomplete: "off" }
+              }),
+              _vm._v(" بیشترین دانش آموز\n        ")
+            ]
+          ),
+          _vm._v(" "),
+          _c(
+            "label",
+            {
+              staticClass:
+                "btn btn-light-blue btn-group-item col-xs-6 right-border  ",
+              attrs: { id: "min-students", for: "min-students" },
+              on: {
+                click: function($event) {
+                  _vm.by = "~mi"
+                  _vm.$root.$emit("search")
+                }
+              }
+            },
+            [
+              _c("input", {
+                staticClass: " ",
+                attrs: { type: "radio", name: "options", autocomplete: "off" }
+              }),
+              _vm._v(" کمترین دانش آموز\n        ")
+            ]
+          )
+        ]
+      ),
+      _vm._v(" "),
+      _vm._m(1),
+      _vm._v(" "),
+      _c(
+        "div",
+        {
+          staticClass:
+            "filters-container btn-group btn-group-toggle row  col-md-12 justify-content-center",
+          attrs: { "data-toggle": "buttons" }
+        },
+        [
+          _c("div", { staticClass: " px-2  " }, [
+            _c(
+              "label",
+              {
+                staticClass: "btn   btn-outline-success  ",
+                on: {
+                  click: function($event) {
+                    _vm.status["koochro"] = !_vm.status["koochro"]
+                    _vm.$root.$emit("search")
+                  }
+                }
+              },
+              [_vm._v(" کوچ رو\n            ")]
+            ),
+            _vm._v(" "),
+            _c(
+              "label",
+              {
+                staticClass: "btn   btn-outline-danger   ",
+                on: {
+                  click: function($event) {
+                    _vm.status["saabet"] = !_vm.status["saabet"]
+                    _vm.$root.$emit("search")
+                  }
+                }
+              },
+              [_vm._v(" ثابت\n            ")]
+            )
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "  px-2 " }, [
+            _c(
+              "label",
+              {
+                staticClass: "btn btn-outline-dark-blue ",
+                on: {
+                  click: function($event) {
+                    _vm.status["roozane"] = !_vm.status["roozane"]
+                    _vm.$root.$emit("search")
+                  }
+                }
+              },
+              [_vm._v("روزانه\n            ")]
+            ),
+            _vm._v(" "),
+            _c(
+              "label",
+              {
+                staticClass: "btn btn-outline-dark-gray ",
+                on: {
+                  click: function($event) {
+                    _vm.status["shabane"] = !_vm.status["shabane"]
+                    _vm.$root.$emit("search")
+                  }
+                }
+              },
+              [_vm._v("شبانه\n            ")]
+            )
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "  px-2 " }, [
+            _c(
+              "label",
+              {
+                staticClass: "btn btn-outline-dark-blue ",
+                on: {
+                  click: function($event) {
+                    _vm.status["boy"] = !_vm.status["boy"]
+                    _vm.$root.$emit("search")
+                  }
+                }
+              },
+              [_vm._v("پسرانه\n            ")]
+            ),
+            _vm._v(" "),
+            _c(
+              "label",
+              {
+                staticClass: "btn btn-outline-dark-gray ",
+                on: {
+                  click: function($event) {
+                    _vm.status["girl"] = !_vm.status["girl"]
+                    _vm.$root.$emit("search")
+                  }
+                }
+              },
+              [_vm._v("دخترانه\n            ")]
+            )
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "  px-2 " }, [
+            _c(
+              "label",
+              {
+                staticClass: "btn btn-outline-dark-green ",
+                on: {
+                  click: function($event) {
+                    _vm.status["ebte"] = !_vm.status["ebte"]
+                    _vm.$root.$emit("search")
+                  }
+                }
+              },
+              [_vm._v("ابتدایی\n            ")]
+            ),
+            _vm._v(" "),
+            _c(
+              "label",
+              {
+                staticClass: "btn btn-outline-success ",
+                on: {
+                  click: function($event) {
+                    _vm.status["mote1"] = !_vm.status["mote1"]
+                    _vm.$root.$emit("search")
+                  }
+                }
+              },
+              [_vm._v("متوسطه 1\n            ")]
+            ),
+            _vm._v(" "),
+            _c(
+              "label",
+              {
+                staticClass: "btn btn-outline-light-green ",
+                on: {
+                  click: function($event) {
+                    _vm.status["mote2"] = !_vm.status["mote2"]
+                    _vm.$root.$emit("search")
+                  }
+                }
+              },
+              [_vm._v("متوسطه 2\n            ")]
+            )
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: " px-2  " }, [
+            _c(
+              "label",
+              {
+                staticClass: "btn btn-outline-dark ",
+                on: {
+                  click: function($event) {
+                    _vm.status["mosta"] = !_vm.status["mosta"]
+                    _vm.$root.$emit("search")
+                  }
+                }
+              },
+              [_vm._v("مستقل\n            ")]
+            ),
+            _vm._v(" "),
+            _c(
+              "label",
+              {
+                staticClass: "btn btn-outline-dark-gray ",
+                on: {
+                  click: function($event) {
+                    _vm.status["zama"] = !_vm.status["zama"]
+                    _vm.$root.$emit("search")
+                  }
+                }
+              },
+              [_vm._v("ضمیمه است\n            ")]
+            ),
+            _vm._v(" "),
+            _c(
+              "label",
+              {
+                staticClass: "btn btn-outline-gray ",
+                on: {
+                  click: function($event) {
+                    _vm.status["zamd"] = !_vm.status["zamd"]
+                    _vm.$root.$emit("search")
+                  }
+                }
+              },
+              [_vm._v("ضمیمه دارد\n            ")]
+            )
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "  px-2 " }, [
+            _c(
+              "label",
+              {
+                staticClass: "btn btn-outline-light-red ",
+                on: {
+                  click: function($event) {
+                    _vm.status["kanex"] = !_vm.status["kanex"]
+                    _vm.$root.$emit("search")
+                  }
+                }
+              },
+              [_vm._v("کانکس\n            ")]
+            ),
+            _vm._v(" "),
+            _c(
+              "label",
+              {
+                staticClass: "btn btn-outline-flame-start ",
+                on: {
+                  click: function($event) {
+                    _vm.status["sakhteman"] = !_vm.status["sakhteman"]
+                    _vm.$root.$emit("search")
+                  }
+                }
+              },
+              [_vm._v("ساختمان\n            ")]
+            ),
+            _vm._v(" "),
+            _c(
+              "label",
+              {
+                staticClass: "btn btn-outline-cream ",
+                on: {
+                  click: function($event) {
+                    _vm.status["chador"] = !_vm.status["chador"]
+                    _vm.$root.$emit("search")
+                  }
+                }
+              },
+              [_vm._v("چادر\n            ")]
+            )
+          ])
+        ]
+      ),
+      _vm._v(" "),
+      _c("div", { staticClass: "row px-5" }, [
+        _c(
+          "div",
+          {
+            staticClass:
+              "slider-container col-md-6 col-sm-8  offset-sm-2 offset-md-0"
+          },
+          [
+            _vm._m(2),
+            _vm._v(" "),
+            _c("div", {
+              staticClass: "slider d-block ",
+              attrs: { id: "slider-sal" }
             }),
+            _vm._v(" "),
+            _c("div", { staticClass: "input-container text-center my-1" }, [
+              _c("input", {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.max_sal,
+                    expression: "max_sal"
+                  }
+                ],
+                staticClass: "price-range-field left-border",
+                attrs: {
+                  type: "number",
+                  min: "1300",
+                  max: "1500",
+                  oninput: "validity.valid",
+                  id: "max_sal"
+                },
+                domProps: { value: _vm.max_sal },
+                on: {
+                  change: function($event) {
+                    return _vm.setSliders(1)
+                  },
+                  paste: function($event) {
+                    return _vm.setSliders(1)
+                  },
+                  keyup: function($event) {
+                    return _vm.setSliders(1)
+                  },
+                  input: function($event) {
+                    if ($event.target.composing) {
+                      return
+                    }
+                    _vm.max_sal = $event.target.value
+                  }
+                }
+              }),
+              _vm._v(" "),
+              _c("input", {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.min_sal,
+                    expression: "min_sal"
+                  }
+                ],
+                staticClass: "price-range-field right-border ",
+                attrs: {
+                  type: "number",
+                  min: "1300",
+                  max: "1500",
+                  oninput: "validity.valid",
+                  id: "min_sal"
+                },
+                domProps: { value: _vm.min_sal },
+                on: {
+                  change: function($event) {
+                    return _vm.setSliders(1)
+                  },
+                  paste: function($event) {
+                    return _vm.setSliders(1)
+                  },
+                  keyup: function($event) {
+                    return _vm.setSliders(1)
+                  },
+                  input: function($event) {
+                    if ($event.target.composing) {
+                      return
+                    }
+                    _vm.min_sal = $event.target.value
+                  }
+                }
+              })
+            ])
+          ]
+        ),
+        _vm._v(" "),
+        _c(
+          "div",
+          {
+            staticClass:
+              "slider-container col-md-6 col-sm-8 offset-sm-2 offset-md-0 "
+          },
+          [
+            _vm._m(3),
+            _vm._v(" "),
+            _c("div", {
+              staticClass: "slider d-block ",
+              attrs: { id: "slider-tedad" }
+            }),
+            _vm._v(" "),
+            _c("div", { staticClass: "input-container text-center my-1" }, [
+              _c("input", {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.max_tedad,
+                    expression: "max_tedad"
+                  }
+                ],
+                staticClass: "price-range-field left-border",
+                attrs: {
+                  type: "number",
+                  min: "1",
+                  max: "1000",
+                  oninput: "validity.valid",
+                  id: "max_tedad"
+                },
+                domProps: { value: _vm.max_tedad },
+                on: {
+                  change: function($event) {
+                    return _vm.setSliders(2)
+                  },
+                  paste: function($event) {
+                    return _vm.setSliders(2)
+                  },
+                  keyup: function($event) {
+                    return _vm.setSliders(2)
+                  },
+                  input: function($event) {
+                    if ($event.target.composing) {
+                      return
+                    }
+                    _vm.max_tedad = $event.target.value
+                  }
+                }
+              }),
+              _vm._v(" "),
+              _c("input", {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.min_tedad,
+                    expression: "min_tedad"
+                  }
+                ],
+                staticClass: "price-range-field right-border d-inline",
+                attrs: {
+                  type: "number",
+                  min: "1",
+                  max: "1000",
+                  oninput: "validity.valid",
+                  id: "min_tedad"
+                },
+                domProps: { value: _vm.min_tedad },
+                on: {
+                  change: function($event) {
+                    return _vm.setSliders(2)
+                  },
+                  paste: function($event) {
+                    return _vm.setSliders(2)
+                  },
+                  keyup: function($event) {
+                    return _vm.setSliders(2)
+                  },
+                  input: function($event) {
+                    if ($event.target.composing) {
+                      return
+                    }
+                    _vm.min_tedad = $event.target.value
+                  }
+                }
+              })
+            ])
+          ]
+        )
+      ]),
+      _vm._v(" "),
+      _vm._m(4),
+      _vm._v(" "),
+      _c(
+        "div",
+        { staticClass: " row col-12" },
+        [
+          _c("div", { staticClass: "input-group col-md-6 col-sm-6 pt-1 " }, [
+            _vm._m(5),
             _vm._v(" "),
             _c("input", {
               directives: [
                 {
                   name: "model",
                   rawName: "v-model",
-                  value: _vm.min_tedad,
-                  expression: "min_tedad"
+                  value: _vm.sName,
+                  expression: "sName"
                 }
               ],
-              staticClass: "price-range-field right-border d-inline",
+              staticClass: "my-1 py-1 pr-1 form-control border",
               attrs: {
-                type: "number",
-                min: "1",
-                max: "1000",
-                oninput: "validity.valid",
-                id: "min_tedad"
+                type: "text",
+                placeholder: "نام مدرسه ",
+                id: "name-input",
+                "aria-label": "SearchName"
               },
-              domProps: { value: _vm.min_tedad },
+              domProps: { value: _vm.sName },
               on: {
-                change: function($event) {
-                  return _vm.setSliders(2)
-                },
-                paste: function($event) {
-                  return _vm.setSliders(2)
-                },
-                keyup: function($event) {
-                  return _vm.setSliders(2)
-                },
                 input: function($event) {
                   if ($event.target.composing) {
                     return
                   }
-                  _vm.min_tedad = $event.target.value
+                  _vm.sName = $event.target.value
                 }
               }
-            })
-          ])
-        ]
-      )
-    ]),
-    _vm._v(" "),
-    _vm._m(4),
-    _vm._v(" "),
-    _c(
-      "div",
-      { staticClass: " row col-12" },
-      [
-        _c("div", { staticClass: "input-group col-md-6 col-sm-6 pt-1 " }, [
-          _vm._m(5),
-          _vm._v(" "),
-          _c("input", {
-            directives: [
-              {
-                name: "model",
-                rawName: "v-model",
-                value: _vm.sName,
-                expression: "sName"
-              }
-            ],
-            staticClass: "my-1 py-1 pr-1 form-control",
-            attrs: {
-              type: "text",
-              placeholder: "نام مدرسه ",
-              id: "name-input",
-              "aria-label": "SearchName"
-            },
-            domProps: { value: _vm.sName },
-            on: {
-              input: function($event) {
-                if ($event.target.composing) {
-                  return
-                }
-                _vm.sName = $event.target.value
-              }
-            }
-          }),
-          _vm._v(" "),
-          _c(
-            "div",
-            { staticClass: " input-group-append  btn-group-vertical   " },
-            [
-              _c("i", {
-                staticClass:
-                  " glyphicon glyphicon-remove text-danger  clear-btn p-1",
-                on: {
-                  click: function($event) {
-                    _vm.sName = ""
-                    _vm.$root.$emit("search")
+            }),
+            _vm._v(" "),
+            _c(
+              "div",
+              { staticClass: " input-group-append  btn-group-vertical   " },
+              [
+                _c("i", {
+                  staticClass:
+                    " glyphicon glyphicon-remove text-danger  clear-btn p-1",
+                  on: {
+                    click: function($event) {
+                      _vm.sName = ""
+                      _vm.$root.$emit("search")
+                    }
                   }
-                }
-              })
-            ]
-          )
-        ]),
-        _vm._v(" "),
-        _c("dropdown", {
-          staticClass: "col-md-6 col-sm-6 ",
-          attrs: {
-            "data-link": this.hoozesLink,
-            for: "hooze",
-            newable: true,
-            multi: true
-          }
-        })
-      ],
-      1
-    ),
-    _vm._v(" "),
-    _c("div", { staticClass: "  m-1 mt-4 d-block " }, [
-      _c(
-        "label",
-        {
-          staticClass: "btn bg-gradient-purple   btn-block",
-          attrs: { id: "search", for: "search" },
-          on: {
-            click: function($event) {
-              return _vm.$root.$emit("search")
+                })
+              ]
+            )
+          ]),
+          _vm._v(" "),
+          _c("dropdown", {
+            staticClass: "col-md-6 col-sm-6 ",
+            attrs: {
+              "data-link": this.hoozesLink,
+              for: "hooze",
+              newable: true,
+              multi: true
             }
-          }
-        },
-        [_c("i", { staticClass: "fa fa-search" }), _vm._v(" جستجو\n        ")]
-      )
-    ])
-  ])
+          })
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c("div", { staticClass: "  m-1 mt-4 d-block " }, [
+        _c(
+          "label",
+          {
+            staticClass: "btn bg-gradient-purple   btn-block",
+            attrs: { id: "search", for: "search" },
+            on: {
+              click: function($event) {
+                return _vm.$root.$emit("search")
+              }
+            }
+          },
+          [_c("i", { staticClass: "fa fa-search" }), _vm._v(" جستجو\n        ")]
+        )
+      ])
+    ]
+  )
 }
 var staticRenderFns = [
   function() {
@@ -43333,7 +44750,7 @@ var render = function() {
                 expression: "sData"
               }
             ],
-            staticClass: "my-1 py-1 pr-1 form-control",
+            staticClass: "my-1 py-1 pr-1 form-control border",
             attrs: {
               type: "text",
               placeholder: _vm.placeholder,
@@ -55669,7 +57086,9 @@ __webpack_require__(/*! @fortawesome/fontawesome-free/js/all */ "./node_modules/
 
 __webpack_require__(/*! ./my-vue */ "./resources/js/my-vue.js");
 
-var Swal = __webpack_require__(/*! sweetalert2 */ "./node_modules/sweetalert2/dist/sweetalert2.all.js"); // require('ol-layerswitcher/dist/ol-layerswitcher');
+var Swal = __webpack_require__(/*! sweetalert2 */ "./node_modules/sweetalert2/dist/sweetalert2.all.js");
+
+__webpack_require__(/*! lity */ "./node_modules/lity/dist/lity.js"); // require('ol-layerswitcher/dist/ol-layerswitcher');
 // require('ol-layerswitcher/src/ol-layerswitcher');
 // require('./slider-range');
 // require('./footer-reveal.min');

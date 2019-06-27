@@ -107,7 +107,7 @@
 <script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
 <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList"></script>
 <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/build/ol.js"></script>
-<script src="/js/app.js"></script>
+<script src="{{mix('js/app.js')}}"></script>
 @yield('scripts')
 {{--@include('flash')--}}
 {{--@yield('script')--}}

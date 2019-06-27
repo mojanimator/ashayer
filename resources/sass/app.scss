@@ -17,12 +17,12 @@ $icon-font-path: '../fonts/';
 @import "~ol/ol.css";
 @import "~ol-layerswitcher/src/ol-layerswitcher.css";
 @import '~@fortawesome/fontawesome-free/scss/fontawesome';
-
+@import "~lity/dist/lity.css";
 //@import "~@fortawesome/fontawesome-free/css/all";
 //my styles
 @import 'navbar';
 @import 'footer';
-@import 'schoolCard';
+
 @import 'login';
 @import 'home';
 @import 'card';
@@ -48,6 +48,10 @@ html, body {
 
 body {
   font-family: Tanha, 'Segoe UI', sans-serif !important;
+}
+
+button {
+  cursor: pointer;
 }
 
 .container-full {

@@ -1,11 +1,13 @@
 <template>
 
-    <div class="row gallery">
+    <div class="row  mx-1  gallery">
 
         <div v-for="s,idx in schools" class="col-12 col-sm-6 col-md-4 col-lg-3 p-1">
 
-            <div class="m-card  " :key="s.id" data-toggle="modal" data-target="#mapModal" @click="selectedSchool=s">
-                <div class="m-card-header bg-transparent">
+            <div class="m-card h-100 d-flex align-items-end flex-column  " :key="s.id" data-toggle="modal"
+                 data-target="#mapModal"
+                 @click="selectedSchool=s">
+                <div class="m-card-header bg-transparent   ">
 
                     <div class="icon-container d-inline-block" data-toggle="tooltip" data-placement="top"
                          title="جنسیت">
@@ -16,20 +18,22 @@
                             <i class="fas fa-lg fa-female"></i>
                         </div>
                     </div>
-                    <span class="left-border  px-2 badge-pill bg-primary float-left small-1" data-toggle="tooltip"
+                    <div class="header-left  d-inline-block float-left  ">
+                    <span class="right-border px-2 float-left  badge-pill bg-primary   small-1" data-toggle="tooltip"
                           data-placement="top"
                           title="تعداد دانش آموز">
-                        {{s.tedad_daneshamooz}}</span>
+                        {{s.tedad_daneshamooz}}
+                    </span>
 
-                    <span class="px-1   text-white float-left small-1"
-                          :class="[s.is_roozane ?'bg-success':'bg-dark-gray']">
+                        <span class="  float-left px-1 text-white   small-1"
+                              :class="[s.is_roozane ?'bg-success':'bg-dark-gray']">
                         {{s.is_roozane ? "روزانه" : "شبانه"}}
                     </span>
-                    <span class="right-border badge-pill text-white float-left small-1 bg-light-red"
-                          data-toggle="tooltip" data-placement="top" title="نوع فضا">
+                        <span class="left-border px-2 float-left  badge-pill text-white   small-1 bg-light-red"
+                              data-toggle="tooltip" data-placement="top" title="نوع فضا">
                         {{getType(s, "faza")}}
                     </span>
-
+                    </div>
                     <img class="back-header-img" src="img/card-header.png" alt="">
                     <img class="school-img" :src="getImage(s.docs)" alt="">
 
@@ -37,7 +41,7 @@
                 </div>
 
                 <!--<img v-else src="img/school-no.png" alt=""></div>-->
-                <div class="card-body">
+                <div class="m-card-body  px-2   flex-column align-self-stretch">
 
                     <p class="text-purple mb-0 text-center"> {{s.name}}</p>
 
@@ -97,8 +101,8 @@
                     </div>
 
                 </div>
-                <div class="m-card-footer bg-transparent">
-                    <img class="back-footer-img" src="img/card-footer.png" alt="">
+                <div class="m-card-footer  bg-transparent      ">
+                    <img class="mb-auto  back-footer-img" src="/img/card-footer.png" alt="">
                 </div>
 
             </div>
@@ -121,15 +125,18 @@
                     <div class="modal-body   ">
 
                         <school_map id="map_card" :map="map"
-                                    :key="selectedSchool.id"
                                     :s="selectedSchool"
                                     :editMode="false">
                         </school_map>
-
-                        <div class="modal-footer justify-content-start text-dark-blue">
+                        <!--:key="selectedSchool.id"-->
+                        <div class="modal-footer justify-content-start text-dark-blue"
+                             :key="selectedSchool.id+'-modal'">
                             <div v-if="selectedSchool.schoolable_type==='App\\Saabet'">
                                 <p class="small text-primary"> آدرس <i class="fas fa-arrow-circle-left"></i>
-                                    {{selectedSchool.schoolable.address}} -> {{selectedSchool.name}} -> {{selectedSchool.doore}}
+                                    {{selectedSchool.schoolable.address}}
+                                    <i class="fas fa-circle"></i> فاصله از شهرستان
+                                    <i class="fas fa-arrow-circle-left"></i>
+                                    {{selectedSchool.schoolable.fasele_az_shahrestan}} کیلومتر
                                 </p>
                             </div>
                             <div v-else-if="selectedSchool.schoolable_type==='App\\Koochro'">
@@ -186,7 +193,7 @@
         },
         data() {
             return {
-                schools: null,
+                schools: [],
                 params: null,
                 selectedSchool: null,
                 map: null,
@@ -197,26 +204,11 @@
         mounted() {
 //            this.getSchools();
 
-            this.initialize_map();
-
             this.setEvents();
-//            $('#mapModal').on('shown.bs.modal', () => {
-////                console.log('modal');
+            this.initialize_map();
+            this.add_marker();
+
 //
-//
-////                this.layer.getSource().refresh({force: true});
-////
-//                this.map.renderSync();
-//                this.map.render();
-//                this.map.updateSize();
-//                this.map.changed();
-//            });
-//            this.initialize_map();
-//            this.addMarker();
-//            $(window).on('hidden.bs.modal', function() {
-//                $('#code').modal('hide');
-//                alert('hidden');
-//            });
         },
         created() {
 
@@ -225,85 +217,48 @@
 
         },
         methods: {
-            addMarker() {
-                this.selectedSchool = this.schools[0];
+            add_marker() {
+                console.log("add marker");
+
                 let iconFeatures = [];
 
                 let layer;
-//                console.log(this.map.getLayers().getArray());
-                this.map.getLayers().forEach(function (tLayer) {
-                    if (tLayer.get('name') !== undefined && tLayer.get('name') === 'main') {
-//                        layersToRemove.push(layer);
-                        layer = tLayer;
-                    }
+//                layer = this.map.getLayers().getArray()[2];
+
+                layer = this.map.getLayers().getArray()[0].getLayers().getArray()[3]; //markers layer
+
+
+                let marker1 = new ol.Feature({
+                    geometry: new ol.geom.Point(ol.proj.transform(kerman, 'EPSG:4326',
+                        'EPSG:3857')),
+                    name: "kerman",
+
+
                 });
-
-                if (this.selectedSchool.schoolable.loc) { // sabet have one marker
-//                    console.log(this.s.schoolable);
-                    this.latLng = this.selectedSchool.schoolable.loc.split(',');
-                    let marker1 = new ol.Feature({
-                        geometry: new ol.geom.Point(ol.proj.transform([this.latLng[0], this.latLng[1]], 'EPSG:4326',
-                            'EPSG:3857')),
-                        name: this.selectedSchool.name,
-                        population: this.selectedSchool.hooze.name,
-
-                    });
-                    iconFeatures.push(marker1);
-                }
-                else {
-//                    console.log(this.s.schoolable);
-                    this.latLng = this.selectedSchool.schoolable.loc_yeylagh.split(',');
-                    let marker1 = new ol.Feature({
-                        geometry: new ol.geom.Point(ol.proj.transform([this.latLng[1], this.latLng[0]], 'EPSG:4326',
-                            'EPSG:3857')),
-                        name: this.selectedSchool.name,
-                        population: this.selectedSchool.hooze.name,
-
-                    });
-
-                    let marker2 = new ol.Feature({
-                        geometry: new ol.geom.Point(ol.proj.transform([this.latLng[1], this.latLng[0]], 'EPSG:4326',
-                            'EPSG:3857')),
-                        name: this.selectedSchool.name,
-                        population: selectedSchool.hooze.name,
-
-                    });
-                    this.latLng = this.selectedSchool.schoolable.loc_gheshlagh.split(',');
-
-                    iconFeatures.push(marker1);
-                    iconFeatures.push(marker2);
-                }
+                iconFeatures.push(marker1);
+                this.map.getView().setCenter(ol.proj.fromLonLat(kerman), 4);
 
 
-//                var s = layer.getSource();
-////                s.clear();
-//                var f = s.getFeatures();
-//                console.log(f);
-//
-//                layer.getSource().addFeature(iconFeatures[0]);
-                let vectorSource = new ol.source.Vector({
-                    features: iconFeatures //add an array of features
-                });
+                layer.getSource().clear();
+                layer.getSource().addFeatures(iconFeatures);
 
-                let iconStyle = new ol.style.Style({
-                    image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-                        anchor: [0.5, 46],
-                        anchorXUnits: 'fraction',
-                        anchorYUnits: 'pixels',
-                        opacity: 0.75,
-                        src: 'img/school-marker.png'
-                    }))
-                });
+//                    layer.getSource().addFeature(iconFeatures[1]);
+                this.map.setTarget($("#map")[0]);
+                let extent = layer.getSource().getExtent();
+                extent = [extent[0] - 100, extent[1] - 50, extent[2] + 50, extent[3] + 100]; //add padding to borders
+                this.map.getView().fit(extent, this.map.getSize());
+
+                this.map.getView().setZoom(15);
+//                this.map.addLayer(layer);
+//                this.map.renderSync();
+//                this.map.render();
+//                this.map.updateSize();
+//                this.map.changed();
 
 
-                layer = new ol.layer.Vector({
-                    source: vectorSource,
-                    style: iconStyle
-                });
-                this.map.addLayer(layer);
             },
             initialize_map() {
-                console.log('init');
+                console.log('init map');
                 let iconFeatures = [];
 
                 let iconStyle = new ol.style.Style({
@@ -312,7 +267,7 @@
                         anchorXUnits: 'fraction',
                         anchorYUnits: 'fraction',
                         opacity: .9,
-                        src: 'img/marker-school-blue.png'
+                        src: '/img/marker-school-blue.png'
                     }))
                 });
                 let marker1 = new ol.Feature({
@@ -402,6 +357,7 @@
                     })
                 });
 
+
 //                this.map.addControl(new ol.control.PanZoomBar());
 //                this.map.addControl(new ol.control.LayerSwitcher());
 //                this.map.addControl(new ol.control.Permalink());
@@ -409,13 +365,12 @@
 //                this.map.addControl(new ol.control.KeyboardDefaults());
 //                this.map.addControl(new ol.control.KeyboardDefaults());
                 this.map.addControl(new ol.control.OverviewMap());
-
                 this.map.addControl(new LayerSwitcher());
 
+                let extent = vectorSource.getExtent();
+                extent = [extent[0] - 100, extent[1] - 50, extent[2] + 50, extent[3] + 100]; //add padding to borders
+                this.map.getView().fit(extent, this.map.getSize());
 
-//                });
-//                this.map = map;
-//                this.layer = layer;
             },
             cancel() {
                 $("#mapModal").removeClass('show');
@@ -473,7 +428,7 @@
                 if (doc.length !== 0)
                     return doc[0].path;
                 else
-                    return "img/school-no.png";
+                    return "/img/school-no.png";
             },
             getSchools() {
                 axios.post(this.schoolsLink, this.params)

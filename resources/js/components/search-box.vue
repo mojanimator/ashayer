@@ -1,7 +1,7 @@
 <template>
 
 
-    <div class="search-container ">
+    <div class="search-container d-inline-block col-md-4">
 
 
         <p class="divider "><span>مرتب سازی</span></p>
@@ -139,7 +139,7 @@
                     <i class="fa fa-search   text-primary  "></i>
                 </div>
                 <input type="text" placeholder="نام مدرسه " v-model="sName" id="name-input"
-                       class="my-1 py-1 pr-1 form-control" aria-label="SearchName">
+                       class="my-1 py-1 pr-1 form-control border" aria-label="SearchName">
                 <div class=" input-group-append  btn-group-vertical   ">
                     <i class=" glyphicon glyphicon-remove text-danger  clear-btn p-1"
                        @click="sName='';$root.$emit('search')"

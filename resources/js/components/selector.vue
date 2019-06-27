@@ -10,7 +10,7 @@
                     <i class="fa fa-search text-primary  "></i>
                 </div>
                 <input type="text" :placeholder="placeholder" v-model="sData" id="dataInput"
-                       class="my-1 py-1 pr-1 form-control"
+                       class="my-1 py-1 pr-1 form-control border"
                        @focus="openDropdown('h')"
                        @click="openDropdown('h')"
                        @blur="closeDropdown('h')"
@@ -108,6 +108,17 @@
             });
         },
         created() {
+            //hoozeRequest->hoozeResponse->selectorResponse
+            this.$root.$on('hoozeResponse', params => {
+                params.zamime = this.selected;
+                this.$root.$emit('selectorResponse', params);
+            });
+        },
+        beforeDestroy() {
+            this.$root.$off('hoozeResponse');
+        },
+        updated() {
+
 
         },
         methods: {
@@ -133,6 +144,13 @@
 
 //                    console.log(this.params);
                     this.$root.$emit('dropdownResponse', this.params);
+                });
+
+                //hoozeRequest->hoozeResponse->selectorResponse
+                this.$root.$on('hoozeResponse', params => {
+
+                    params.zamime = this.selected;
+                    this.$root.$emit('selectorResponse', params);
                 });
             },
 

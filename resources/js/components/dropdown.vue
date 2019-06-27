@@ -87,10 +87,29 @@
         created() {
 
         },
+        beforeDestroy() {
+            this.$root.$off('hoozeRequest');
+        },
         methods: {
 
             setEvents() {
+                //hoozeRequest->hoozeResponse->selectorResponse
+                this.$root.$on('hoozeRequest', params => {
+                    let i = 0;
+                    params.hooze = [];
+                    this.activeData.find((t, index) => {
+                        if (t) {
+                            i++;
+                            params.hooze.push(index);
+                        }
+                    });
 
+                    if (params.vaziat !== 'm') //school selector is not available
+                        this.$root.$emit('hoozeResponse', params);
+                    else
+                        this.$root.$emit('selectorResponse', params);
+
+                });
 
                 this.$root.$on('search', (params) => {
                     this.params['data'] = [];
@@ -144,7 +163,6 @@
                         this.sData = 'همه نمایندگی ها ';
                         this.params['h'] = [];//no filter on types
                     } else {
-
                         this.activeData.find((t, index) => {
                             if (t) {
                                 i++;

@@ -1,6 +1,6 @@
 @extends('layout')
 @section('title')
-    پنل کاربر
+    ساخت مدرسه جدید
 @stop
 
 

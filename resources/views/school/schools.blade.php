@@ -1,18 +1,18 @@
 @extends('layout')
 @section('title')
-    پنل کاربر
+    مدارس
 @stop
 
 
 @section('content')
-    <section class=" container-fluid  mt-4 mx-2" id="app">
+    <section class=" container-fluid  mt-4   " id="app">
 
         {{--@if(auth()->user())--}}
         <search-box schools-link="{{route('school.search')}}"
                     hoozes-link="{{route('school.hoozes')}}"></search-box>
 
         <pagination></pagination>
-        <school-cards user="{{auth()->user()}}"></school-cards>
+        <school-cards class=" " user="{{auth()->user()}}"></school-cards>
 
         <div class="row  justify-content-center">
             <div class="no-result text-center py-4 text-danger  hide">نتیــجه ای یافت نشد</div>

@@ -8,6 +8,20 @@
 }
 
 .m-card {
+
+  .m-card-body {
+    flex: 1 1 auto;
+  }
+  .header-left {
+    //margin-top: -1rem;
+    @include media-breakpoint-down(sm) {
+      font-size: .5rem !important;
+    }
+    @include media-breakpoint-down(md) {
+      font-size: 1rem !important;
+    }
+  }
+
   cursor: pointer;
   @include pb_box-shadow(1px, 0px, 10px, 1px, rgba($black, .4));
   border-radius: $border-radius;
@@ -69,6 +83,7 @@
   }
 
   .m-card-footer {
+
     img {
       &.back-footer-img {
         z-index: 10;

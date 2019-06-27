@@ -24,7 +24,7 @@ require('dropzone');
 require('@fortawesome/fontawesome-free/js/all');
 require('./my-vue');
 const Swal = require('sweetalert2');
-
+require('lity');
 // require('ol-layerswitcher/dist/ol-layerswitcher');
 // require('ol-layerswitcher/src/ol-layerswitcher');
 

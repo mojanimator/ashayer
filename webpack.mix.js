@@ -15,6 +15,6 @@ mix.js('resources/js/app.js', 'public/js')
     .js('resources/js/home.js', 'public/js')
     .sass('resources/sass/app.scss', 'public/css')
     .disableNotifications()
-    .browserSync('127.0.0.1:8000')
-    .version();
+    .browserSync('127.0.0.1:8000');
+// .version();
 
