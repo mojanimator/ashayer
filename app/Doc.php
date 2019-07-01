@@ -5,13 +5,20 @@ namespace App;
 use DateTime;
 use Faker\Provider\File;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Mockery\Exception;
+
+use OwenIt\Auditing\Contracts\Auditable;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class Doc extends Model
+
+class Doc extends Model implements Auditable
 {
+    use \OwenIt\Auditing\Auditable;
+
+
     protected $fillable = [
         'id', 'school_id', 'uploader_id', 'file_type', 'path',
 
@@ -21,7 +28,7 @@ class Doc extends Model
     protected $file;
     protected $fileType;
 
-    protected $baseDir = '/docs';
+    protected $baseDir = 'docs';
 
     public function baseDir()
     {
@@ -38,7 +45,7 @@ class Doc extends Model
         return $this->morphTo();
     }
 
-    public static function getFile(string $file, string $docable_id, string $docable_type, string $filename)
+    public static function getFile(string $file, int $docable_id, string $docable_type, string $filename)
     {
 
         $doc = new static;
@@ -55,27 +62,31 @@ class Doc extends Model
         return $doc;
     }
 
-    public function uploadTemp()
+    public function upload()
     {
         $image_parts = explode(";base64,", $this->file);
         $image_type_aux = explode("image/", $image_parts[0]);
-        $image_base64 = base64_decode($image_parts[1]);;
-        $name = $this->tempDir() . '/' . $this->filename . '.' . $image_type_aux[1];
+        $image_base64 = base64_decode($image_parts[1]);
+        $path = $this->baseDir() . '/' . $this->path . '.' . $image_type_aux[1];
+        $this->doc_type = $image_type_aux[1];
+        $this->path = $path;
         // storing image in storage/app/public Folder
-        Storage::disk('public')->put($name, $image_base64);
+        Storage::disk('public')->put($path, $image_base64);
 //        $this->file->move($this->tempDir(), $this->filename);
 
         return $this;
     }
 
-    public function saveToTempDocsDB()
+    public function saveToDocsDB()
     {
         $date = new DateTime();
-        DB::table('docs_temp')->insert(
-            ['school_id' => $this->docable_id, 'doc_type' => $this->doc_type, 'path' => $this->path,
-                'uploader_id' => auth()->user()->id, 'created_at' => $date,]
+        DB::table('docs')->insert(
+            ['school_id' => $this->school_id, 'doc_type' => $this->doc_type, 'path' => $this->path,
+                'uploader_id' => auth()->user()->id, 'created_at' => $date, 'updated_at' => $date,]
         );
 
 
     }
+
+
 }

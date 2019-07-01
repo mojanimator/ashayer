@@ -95,16 +95,18 @@
             setEvents() {
                 //hoozeRequest->hoozeResponse->selectorResponse
                 this.$root.$on('hoozeRequest', params => {
+
                     let i = 0;
-                    params.hooze = [];
+                    params.hooze = '';
                     this.activeData.find((t, index) => {
                         if (t) {
                             i++;
-                            params.hooze.push(index);
+                            params.hooze = index;
+
                         }
                     });
 
-                    if (params.vaziat !== 'm') //school selector is not available
+                    if (params.vaziat === 'd' || params.vaziat === 'a') //school selector is not available
                         this.$root.$emit('hoozeResponse', params);
                     else
                         this.$root.$emit('selectorResponse', params);

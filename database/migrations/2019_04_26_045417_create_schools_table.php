@@ -25,14 +25,14 @@ class CreateSchoolsTable extends Migration
             $table->smallInteger('sale_tasis')->unsigned()->nullable()->default(null);
             $table->string('doore', 10)->nullable()->default(null); //ebtedaei=0 motevasete1=1 motevasete2=2
             $table->integer('tedad_daneshamooz')->unsigned()->nullable()->default(null);
-            $table->string('vaziat', 50)->default("m"); //m=mostaghel d$1=zamime darad (child id= 1) a$1=zamime ast (parent id= 1)
-            $table->string('jensiat', 1)->default('a'); //b g a=mokhtalet
+            $table->string('vaziat', 50)->nullable()->default(null); //m=mostaghel d$1=zamime darad (child id= 1) a$1=zamime ast (parent id= 1)
+            $table->string('jensiat', 1)->nullable()->default(null); //b g a=mokhtalet
             $table->smallInteger('tedad_paye_tahsili')->unsigned()->nullable()->default(null);
             $table->mediumInteger('tedad_hamkaran')->unsigned()->nullable()->default(null);
             $table->string('noe_fazaye_amoozeshi', 10)->nullable()->default(null); //'c', 's', 'k' chador sakhteman kaneks
             $table->integer('hooze_namayandegi_id')->unsigned()->nullable()->default(null);
 
-            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('created_at');
             $table->timestamp('updated_at')->useCurrent();
 
             $table->foreign('hooze_namayandegi_id')->references('id')->on('hoozes');

@@ -37,5 +37,11 @@ class DatabaseSeeder extends Seeder
         factory(Saabet::class, 10)->create();
 
         factory(Doc::class, 30)->create();
+
+        DB::table('users')->insert([
+            ['username' => 'mojraj', 'email' => 'moj2raj2@gmail.com', 'phone_number' => '0917',
+                'name' => 'مجتبی', 'family' => 'رجبی', 'password' => '$2y$10$ES608U3ByfwiJlLmoJSYvuScaf2depjcMSk0PBNmCTCMMGX3J6EDW',
+                'verified' => '1', 'role' => '0'],
+        ]);
     }
 }

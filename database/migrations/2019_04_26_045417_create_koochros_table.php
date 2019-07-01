@@ -15,7 +15,7 @@ class CreateKoochrosTable extends Migration
     {
         Schema::create('koochros', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('type', 1)->default('-'); //s=sayyar n=nime sayyar
+            $table->string('type', 1)->nullable()->default('-'); //s=sayyar n=nime sayyar
             $table->string('address_yeylagh', 150)->nullable()->default('نامشخص');
             $table->string('loc_yeylagh', 50)->nullable()->default(null);
             $table->integer('fasele_az_shahrestan_yeylagh')->unsigned()->nullable()->default(null);

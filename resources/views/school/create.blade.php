@@ -11,7 +11,8 @@
 
 
         <school-create user="{{auth()->user()}}" schools-link="{{route('school.dropdown')}}"
-                       hoozes-link="{{route('school.hoozes')}}"></school-create>
+                       hoozes-link="{{route('school.hoozes')}}"
+                       create-school-link="{{route('schools.create')}}"></school-create>
 
         <div class="row  justify-content-center">
 

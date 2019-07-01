@@ -6139,16 +6139,16 @@ __webpack_require__.r(__webpack_exports__);
       //hoozeRequest->hoozeResponse->selectorResponse
       this.$root.$on('hoozeRequest', function (params) {
         var i = 0;
-        params.hooze = [];
+        params.hooze = '';
 
         _this2.activeData.find(function (t, index) {
           if (t) {
             i++;
-            params.hooze.push(index);
+            params.hooze = index;
           }
         });
 
-        if (params.vaziat !== 'm') //school selector is not available
+        if (params.vaziat === 'd' || params.vaziat === 'a') //school selector is not available
           _this2.$root.$emit('hoozeResponse', params);else _this2.$root.$emit('selectorResponse', params);
       });
       this.$root.$on('search', function (params) {
@@ -6538,17 +6538,22 @@ var EventBus = new Vue(); //    let map;
       }
     },
     addMarker: function addMarker() {
-      console.log("add marker");
+      //                console.log("add marker");
       var iconFeatures = [];
       var layer; //                layer = this.map.getLayers().getArray()[2];
 
       layer = this.map.getLayers().getArray()[0].getLayers().getArray()[3]; //markers layer
-      //                this.map.getLayers().forEach(function (tLayer) {
+
+      if (!this.s.schoolable.loc && !this.s.schoolable.loc_yeylagh) {
+        layer.getSource().clear();
+        return;
+      } //                this.map.getLayers().forEach(function (tLayer) {
       //                    if (tLayer.get('name') !== undefined && tLayer.get('name') === 'markers') {
       ////                        layersToRemove.push(layer);
       //                        layer = tLayer;
       //                    }
       //                });
+
 
       if (this.s.schoolable.loc) {
         // sabet have one marker
@@ -6560,7 +6565,7 @@ var EventBus = new Vue(); //    let map;
         });
         iconFeatures.push(marker1);
         this.map.getView().setCenter(ol.proj.fromLonLat([this.latLng[1], this.latLng[0]]), 4);
-      } else {
+      } else if (this.s.schoolable.loc_yeylagh) {
         var iconStyle = new ol.style.Style({
           image: new ol.style.Icon(
           /** @type {olx.style.IconOptions} */
@@ -6617,8 +6622,6 @@ var EventBus = new Vue(); //    let map;
       this.map.setTarget($("#map")[0]);
     },
     initialize_map: function initialize_map() {
-      console.log('hi2');
-
       if (this.map) {
         this.map.setTarget(null);
         this.map = null;
@@ -7094,6 +7097,25 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
  //    import 'ol/ol.css';
 //    import Feature from 'ol/Feature.js';
@@ -7265,17 +7287,17 @@ var kerman = [57.0532, 30.2880];
       var text = '';
 
       if (_for === "kooch") {
-        if (school.schoolable_type === 'App\\Saabet') text = 'نوع: ثابت';else if (school.schoolable_type === 'App\\Koochro') text = ' نوع: کوچ رو';
+        if (school.schoolable_type === 'App\\Saabet') text = 'نوع: ثابت';else if (school.schoolable_type === 'App\\Koochro') text = ' نوع: کوچ رو';else text = ' نوع: ---';
       } else if (_for === "sayyar") {
         if (school.schoolable.type === 'n') text = ' نیمه سیار ';else if (school.schoolable.type === 's') text = ' سیار ';
       } else if (_for === "faza") {
         if (school.noe_fazaye_amoozeshi === 's') text = ' ساختمان ';else if (school.noe_fazaye_amoozeshi === 'k') text = ' کانکس ';else if (school.noe_fazaye_amoozeshi === 'c') text = ' چادر ';
       } else if (_for === "zamime") {
-        if (school.vaziat.startsWith('a')) //zamime ast
-          text = ' ضمیمه است ';else if (school.vaziat.startsWith('d')) //zamime darad
+        if (school.vaziat && school.vaziat.startsWith('a')) //zamime ast
+          text = ' ضمیمه است ';else if (school.vaziat && school.vaziat.startsWith('d')) //zamime darad
           text = ' ضمیمه دارد ';
       } else if (_for === "zamime_ids") {
-        if (school.vaziat !== 'm') return school.vaziat.split("$").slice(1);
+        if (school.vaziat && school.vaziat !== 'm') return school.vaziat.split("$").slice(1);
       } else if (_for === "doore") {
         if (school === '0') text = ' ابتدایی ';else if (school === '1') text = ' متوسطه ۱ ';else if (school === '2') text = ' متوسطه ۲ ';
       }
@@ -7283,7 +7305,7 @@ var kerman = [57.0532, 30.2880];
       return text;
     },
     getImage: function getImage(doc) {
-      if (doc.length !== 0) return doc[0].path;else return "/img/school-no.png";
+      if (doc.length !== 0) return '/storage/' + doc[0].path;else return "/img/school-no.png";
     },
     getSchools: function getSchools() {
       var _this = this;
@@ -7714,6 +7736,14 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -7745,7 +7775,7 @@ var coordMarker1, coordMarker2;
 var tmpCoord1, tmpCoord2;
 var docs = [];
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ['schoolsLink', 'hoozesLink'],
+  props: ['schoolsLink', 'createSchoolLink', 'hoozesLink'],
   components: {
     school_map: _map_vue__WEBPACK_IMPORTED_MODULE_0__["default"],
     dropdown: _dropdown_vue__WEBPACK_IMPORTED_MODULE_1__["default"],
@@ -7771,7 +7801,7 @@ var docs = [];
       code_madrese: '',
       code_faza: '',
       schoolable_type: 'App\\Saabet',
-      vaziat: 'm',
+      vaziat: '',
       loc1: {
         lat: null,
         lon: null
@@ -7783,6 +7813,7 @@ var docs = [];
       marker1: '',
       marker2: '',
       uploader: $('#uploader'),
+      loading: $('.loading-page'),
       percentCompleted: 0,
       docs: [],
       IMG_LIMIT: 3,
@@ -7791,9 +7822,9 @@ var docs = [];
       params: {
         doore: '',
         jensiat: '',
-        hooze: [],
+        hooze: '',
         zamime: [],
-        vaziat: 'm'
+        vaziat: ''
       },
       noe_faza: '',
       loc1_lat_input: "",
@@ -7802,9 +7833,11 @@ var docs = [];
       loc2_lon_input: "",
       loc1_fasele_az_shahrestan: "",
       loc2_fasele_az_shahrestan: "",
+      masafate_kooch: "",
       loc1_address: "",
       loc2_address: "",
-      koochroo_type: "s"
+      koochro_type: "",
+      masire_kooch: ""
     };
   },
   watch: {//            noe_faza: () => {
@@ -7821,11 +7854,12 @@ var docs = [];
     this.setEvents(); //            this.setSliders(0);
 
     this.uploader = $('#uploader');
+    this.loading = $('.loading-page'); //            this.loading.removeClass('hide');
   },
   created: function created() {},
   updated: function updated() {
     //add listeners to input loc 2 after showing
-    if (this.schoolable_type === 'App\\Koochroo') {
+    if (this.schoolable_type === 'App\\Koochro') {
       input_loc1_lat = $('#loc1-lat-input');
       input_loc1_lon = $('#loc1-lon-input');
       input_loc2_lat = $('#loc2-lat-input');
@@ -7892,8 +7926,7 @@ var docs = [];
         }
     },
     checkInputs: function checkInputs(params) {
-      console.log(params); //check all inputs
-
+      //check all inputs
       this.errors = ''; // name input -> required -> not only space
 
       if (!this.sName.replace(/\s/g, '').length) this.errors += '<br>' + 'نام مدرسه نمی تواند خالی باشد';
@@ -7910,7 +7943,8 @@ var docs = [];
         params.vaziat += "$" + params.zamime[i].id;
       }
 
-      if (params.vaziat !== 'm' && !regIsZamime.test(params.vaziat)) this.errors += '<br>' + 'وضعیت مدرسه نامعتبر است';
+      if (params.vaziat !== '' && params.vaziat !== 'm' && !regIsZamime.test(params.vaziat)) this.errors += '<br>' + 'وضعیت مدرسه نامعتبر است';else this.params.vaziat = params.vaziat;
+      if (params.hooze !== '' && !regOnlyNumber.test(params.hooze)) this.errors += '<br>' + 'حوزه نمایندگی نامعتبر است';else this.params.hooze = params.hooze;
       this.params.doore = '';
 
       if (this.doore['ebte']) {
@@ -7932,7 +7966,7 @@ var docs = [];
       } else if (this.jensiat['g']) this.params.jensiat = 'g';
 
       if (!['c', 'k', 's', ''].includes(this.noe_faza)) this.errors += '<br>' + 'نوع فضای آموزشی نا معتبر است';
-      if (this.schoolable_type !== "App\\Saabet" && this.schoolable_type !== "App\\Koochroo") this.errors += '<br>' + 'نوع مدرسه معتبر نیست';
+      if (this.schoolable_type !== "" && this.schoolable_type !== "App\\Saabet" && this.schoolable_type !== "App\\Koochroo") this.errors += '<br>' + 'نوع مدرسه نامعتبر است';
       if (this.loc1_lat_input.length > 22 || !regIsLatLong.test(this.loc1_lat_input) && this.loc1_lat_input !== "") this.errors += '<br>' + 'طول جغرافیایی مکان ۱ معتبر نیست';
       if (this.loc1_lon_input.length > 22 || !regIsLatLong.test(this.loc1_lon_input) && this.loc1_lon_input !== "") this.errors += '<br>' + 'عرض جغرافیایی مکان ۱ معتبر نیست';
       if (this.loc2_lat_input.length > 22 || !regIsLatLong.test(this.loc2_lat_input) && this.loc2_lat_input !== "") this.errors += '<br>' + 'طول جغرافیایی مکان ۲ معتبر نیست';
@@ -7942,12 +7976,15 @@ var docs = [];
       if (this.loc1_fasele_az_shahrestan > 4294967295 || this.loc1_fasele_az_shahrestan.length > 0 && !regOnlyNumber.test(this.loc1_fasele_az_shahrestan)) this.errors += '<br>' + 'فاصله از شهرستان عدد و حداکثر 10 رقم باشد';
       if (this.loc2_fasele_az_shahrestan > 4294967295 || this.loc2_fasele_az_shahrestan.length > 0 && !regOnlyNumber.test(this.loc2_fasele_az_shahrestan)) this.errors += '<br>' + 'فاصله از شهرستان عدد و حداکثر 10 رقم باشد'; //
 
+      if (this.masafate_kooch > 4294967295 || this.masafate_kooch.length > 0 && !regOnlyNumber.test(this.masafate_kooch)) this.errors += '<br>' + 'فاصله از شهرستان عدد و حداکثر 5 رقم باشد';
+      if (this.masire_kooch !== "" && this.masire_kooch.length > 65535) this.errors += '<br>' + 'طول مسیر کوچ نمی تواند بیشتر از 5 رقم باشد';
+      this.errors = '';
       if (this.errors === '') this.showDialog(0);else this.showDialog(); //errors
     },
     checkDocs: function checkDocs(files, from) {
-      //                return true;
-      // from certs-input 3 files 4 mb
+      return true; // from certs-input 3 files 4 mb
       // from agent-input 2 files 4mb
+
       var message = '';
       var sizeMessage = ' حجم هر عکس زیر' + this.SIZE_LIMIT + 'مگابایت باشد';
       var numMessage = 'تعداد عکس، بیش از حد مجاز است';
@@ -8021,21 +8058,48 @@ var docs = [];
     saveChanges: function saveChanges() {
       var _this2 = this;
 
-      this.params['cert_docs'] = this.cert_docs;
-      this.params['agent_docs'] = this.agent_docs;
-      this.params['is_agent'] = this.hasRule('Agent'); //for agent docs
-      //                console.log(this.params);
+      this.loading.removeClass('hide');
+      console.log(this.params);
+      axios.post(this.createSchoolLink, {
+        sName: this.sName,
+        hooze: this.params.hooze,
+        code_madrese: this.code_madrese,
+        code_faza: this.code_faza,
+        sale_tasis: this.sale_tasis,
+        tedad_daneshamooz: this.tedad_daneshamooz,
+        tedad_paye_tahsili: this.tedad_paye_tahsili,
+        tedad_hamkaran: this.tedad_hamkaran,
+        is_roozane: this.is_roozane,
+        doore: this.params.doore,
+        jensiat: this.params.jensiat,
+        schoolable_type: this.schoolable_type,
+        vaziat: this.params.vaziat,
+        loc1: {
+          pos: this.loc1_lon_input && this.loc1_lat_input ? this.loc1_lon_input + "," + this.loc1_lat_input : "",
+          fasele_az_shahrestan: this.loc1_fasele_az_shahrestan,
+          address: this.loc1_address
+        },
+        loc2: {
+          pos: this.loc2_lon_input && this.loc2_lat_input ? this.loc2_lon_input + "," + this.loc2_lat_input : "",
+          fasele_az_shahrestan: this.loc2_fasele_az_shahrestan,
+          address: this.loc2_address,
+          masafate_kooch: this.masafate_kooch,
+          masire_kooch: this.masire_kooch,
+          koochro_type: this.koochro_type
+        },
+        docs: this.docs,
+        noe_faza: this.noe_faza
+      }).then(function (response) {
+        _this2.loading.addClass('hide');
 
-      axios.post(this.createAdvLink, this.params).then(function (response) {
         console.log(response);
 
         if (response.status === 200) {
-          _this2.$root.$emit('updateMessageBox'); //update messages in panel
-
-
           _this2.showDialog(1);
         }
       })["catch"](function (error) {
+        _this2.loading.addClass('hide');
+
         _this2.errors += '<br>'; // maybe is not empty from javascript validate
 
         if (error.response && error.response.status === 422) for (var idx in error.response.data.errors) {
@@ -8699,7 +8763,11 @@ __webpack_require__.r(__webpack_exports__);
 
           _this.no_result.removeClass('hide');
 
-          if (param['page'] !== null && param['page'] > 1) _this.$root.$emit('search');
+          if (param['page'] !== null && param['page'] > 1) {
+            param['page'] = 1;
+
+            _this.$root.$emit('search');
+          }
         } //                        console.log(this.schools);
         //                        console.log(response);
 
@@ -42177,32 +42245,36 @@ var render = function() {
               },
               [
                 _c("div", { staticClass: "m-card-header bg-transparent   " }, [
-                  _c(
-                    "div",
-                    {
-                      staticClass: "icon-container d-inline-block",
-                      attrs: {
-                        "data-toggle": "tooltip",
-                        "data-placement": "top",
-                        title: "جنسیت"
-                      }
-                    },
-                    [
-                      s.jensiat == "b"
-                        ? _c("div", {}, [
-                            _c("i", { staticClass: "fas  fa-lg fa-male   " })
-                          ])
-                        : s.jeniat == "g"
-                        ? _c("div", {}, [
-                            _c("i", { staticClass: "fas fa-lg fa-female" })
-                          ])
-                        : _c("div", {}, [
-                            _c("i", { staticClass: "fas fa-lg fa-male" }),
-                            _vm._v(" "),
-                            _c("i", { staticClass: "fas fa-lg fa-female" })
-                          ])
-                    ]
-                  ),
+                  s.jensiat != null
+                    ? _c(
+                        "div",
+                        {
+                          staticClass: "icon-container d-inline-block",
+                          attrs: {
+                            "data-toggle": "tooltip",
+                            "data-placement": "top",
+                            title: "جنسیت"
+                          }
+                        },
+                        [
+                          s.jensiat == "b"
+                            ? _c("div", {}, [
+                                _c("i", {
+                                  staticClass: "fas  fa-lg fa-male   "
+                                })
+                              ])
+                            : s.jeniat == "g"
+                            ? _c("div", {}, [
+                                _c("i", { staticClass: "fas fa-lg fa-female" })
+                              ])
+                            : _c("div", {}, [
+                                _c("i", { staticClass: "fas fa-lg fa-male" }),
+                                _vm._v(" "),
+                                _c("i", { staticClass: "fas fa-lg fa-female" })
+                              ])
+                        ]
+                      )
+                    : _vm._e(),
                   _vm._v(" "),
                   _c(
                     "div",
@@ -42228,20 +42300,25 @@ var render = function() {
                         ]
                       ),
                       _vm._v(" "),
-                      _c(
-                        "span",
-                        {
-                          staticClass: "  float-left px-1 text-white   small-1",
-                          class: [s.is_roozane ? "bg-success" : "bg-dark-gray"]
-                        },
-                        [
-                          _vm._v(
-                            "\n                    " +
-                              _vm._s(s.is_roozane ? "روزانه" : "شبانه") +
-                              "\n                "
+                      s.is_roozane != null
+                        ? _c(
+                            "span",
+                            {
+                              staticClass:
+                                "  float-left px-1 text-white   small-1",
+                              class: [
+                                s.is_roozane ? "bg-success" : "bg-dark-gray"
+                              ]
+                            },
+                            [
+                              _vm._v(
+                                "\n                    " +
+                                  _vm._s(s.is_roozane ? "روزانه" : "شبانه") +
+                                  "\n                "
+                              )
+                            ]
                           )
-                        ]
-                      ),
+                        : _vm._e(),
                       _vm._v(" "),
                       _c(
                         "span",
@@ -42289,23 +42366,28 @@ var render = function() {
                     _vm._v(" "),
                     _c(
                       "div",
-                      { staticClass: "codes d-flex justify-content-center" },
+                      {
+                        staticClass: "codes d-flex justify-content-center pt-1"
+                      },
                       [
                         _c(
                           "small",
                           {
                             staticClass:
-                              "  left-border badge-pill bg-gray text-white small d-inline-block   ",
-                            class: [
-                              s.is_roozane ? "bg-success" : "bg-dark-gray"
-                            ]
+                              "  left-border badge-pill bg-gray text-white small d-inline-block "
                           },
                           [
-                            _vm._v(
-                              "\n                        کد مدرسه: " +
-                                _vm._s(s.code_madrese) +
-                                "\n                    "
-                            )
+                            _vm._v(" کد مدرسه:\n                        "),
+                            s.code_madrese
+                              ? _c("span", [
+                                  _vm._v(" " + _vm._s(s.code_madrese))
+                                ])
+                              : _c("span", [
+                                  _c("i", {
+                                    staticClass:
+                                      "fas  fa-question-circle text-white"
+                                  })
+                                ])
                           ]
                         ),
                         _vm._v(" "),
@@ -42313,17 +42395,18 @@ var render = function() {
                           "small",
                           {
                             staticClass:
-                              "  right-border badge-pill bg-dark-green text-white small d-inline-block   ",
-                            class: [
-                              s.is_roozane ? "bg-success" : "bg-dark-gray"
-                            ]
+                              "  right-border badge-pill bg-dark-green text-white small d-inline-block "
                           },
                           [
-                            _vm._v(
-                              "\n                        کد فضا: " +
-                                _vm._s(s.code_faza) +
-                                "\n                    "
-                            )
+                            _vm._v("کد فضا:\n                        "),
+                            s.code_faza
+                              ? _c("span", [_vm._v(" " + _vm._s(s.code_faza))])
+                              : _c("span", [
+                                  _c("i", {
+                                    staticClass:
+                                      "fas  fa-question-circle text-white"
+                                  })
+                                ])
                           ]
                         )
                       ]
@@ -42333,18 +42416,26 @@ var render = function() {
                     _vm._v(" "),
                     _c("p", { staticClass: "card-text text-dark-blue" }, [
                       _c("i", { staticClass: "fas  fa-arrow-circle-left" }),
-                      _vm._v(
-                        " تاسیس: " + _vm._s(s.sale_tasis) + "\n                "
-                      )
+                      _vm._v(" تاسیس:\n                    "),
+                      s.sale_tasis
+                        ? _c("span", [_vm._v(" " + _vm._s(s.sale_tasis))])
+                        : _c("span", [
+                            _c("i", {
+                              staticClass: "fas  fa-question-circle text-danger"
+                            })
+                          ])
                     ]),
                     _vm._v(" "),
                     _c("p", { staticClass: "card-text text-dark-blue" }, [
                       _c("i", { staticClass: "fas  fa-arrow-circle-left" }),
-                      _vm._v(
-                        " حوزه نمایندگی: " +
-                          _vm._s(s.hooze.name) +
-                          "\n                "
-                      )
+                      _vm._v("حوزه نمایندگی:\n                    "),
+                      s.hooze
+                        ? _c("span", [_vm._v(" " + _vm._s(s.hooze.name))])
+                        : _c("span", [
+                            _c("i", {
+                              staticClass: "fas  fa-question-circle text-danger"
+                            })
+                          ])
                     ]),
                     _vm._v(" "),
                     _c(
@@ -42375,11 +42466,15 @@ var render = function() {
                       { staticClass: "card-text text-dark-blue p-type" },
                       [
                         _c("i", { staticClass: "fas  fa-arrow-circle-left" }),
-                        _vm._v(
-                          " تعداد همکاران: " +
-                            _vm._s(s.tedad_hamkaran) +
-                            "\n\n                "
-                        )
+                        _vm._v(" تعداد همکاران:\n                    "),
+                        s.tedad_hamkaran
+                          ? _c("span", [_vm._v(" " + _vm._s(s.tedad_hamkaran))])
+                          : _c("span", [
+                              _c("i", {
+                                staticClass:
+                                  "fas  fa-question-circle text-danger"
+                              })
+                            ])
                       ]
                     ),
                     _vm._v(" "),
@@ -42388,33 +42483,41 @@ var render = function() {
                       { staticClass: "card-text text-dark-blue p-type" },
                       [
                         _c("i", { staticClass: "fas  fa-arrow-circle-left" }),
-                        _vm._v(
-                          " تعداد پایه تحصیلی: " +
-                            _vm._s(s.tedad_paye_tahsili) +
-                            "\n\n                "
-                        )
+                        _vm._v(" تعداد پایه تحصیلی:\n                    "),
+                        s.tedad_paye_tahsili
+                          ? _c("span", [
+                              _vm._v(" " + _vm._s(s.tedad_paye_tahsili))
+                            ])
+                          : _c("span", [
+                              _c("i", {
+                                staticClass:
+                                  "fas  fa-question-circle text-danger"
+                              })
+                            ])
                       ]
                     ),
                     _vm._v(" "),
                     _c("div", { staticClass: "card-divider" }),
                     _vm._v(" "),
-                    _c(
-                      "div",
-                      { staticClass: "doore" },
-                      _vm._l(s.doore.split("$"), function(d) {
-                        return _c(
-                          "span",
-                          {
-                            staticClass:
-                              "card-text badge-pill bg-purple text-white px-2  mx-1 d-inline-block"
-                          },
-                          [_vm._v(_vm._s(_vm.getType(d, "doore")))]
+                    s.doore
+                      ? _c(
+                          "div",
+                          { staticClass: "doore" },
+                          _vm._l(s.doore.split("$"), function(d) {
+                            return _c(
+                              "span",
+                              {
+                                staticClass:
+                                  "card-text badge-pill bg-purple text-white px-2  mx-1 d-inline-block"
+                              },
+                              [_vm._v(_vm._s(_vm.getType(d, "doore")))]
+                            )
+                          }),
+                          0
                         )
-                      }),
-                      0
-                    ),
+                      : _vm._e(),
                     _vm._v(" "),
-                    s.vaziat != "m"
+                    s.vaziat != null && s.vaziat != "m"
                       ? _c(
                           "p",
                           {
@@ -42491,9 +42594,20 @@ var render = function() {
               _vm.selectedSchool
                 ? _c("div", { staticClass: "modal-content" }, [
                     _c("div", { staticClass: "modal-header  " }, [
-                      _c("h5", { staticClass: "modal-title " }, [
+                      _c("h5", { staticClass: "modal-title text-primary " }, [
                         _vm._v(" " + _vm._s(_vm.selectedSchool.name))
                       ]),
+                      _vm._v(" "),
+                      (_vm.selectedSchool.schoolable_type === "App\\Saabet" &&
+                        !_vm.selectedSchool.schoolable.loc) ||
+                      (_vm.selectedSchool.schoolable_type === "App\\Koochro" &&
+                        !_vm.selectedSchool.schoolable.loc_yeylagh)
+                        ? _c(
+                            "h5",
+                            { staticClass: "modal-title text-danger " },
+                            [_vm._v(" اطلاعات مکانی موجود نیست")]
+                          )
+                        : _vm._e(),
                       _vm._v(" "),
                       _c("i", {
                         staticClass:
@@ -42541,14 +42655,24 @@ var render = function() {
                                       _c("i", {
                                         staticClass: "fas fa-arrow-circle-left"
                                       }),
-                                      _vm._v(
-                                        "\n                                " +
-                                          _vm._s(
-                                            _vm.selectedSchool.schoolable
-                                              .address
-                                          ) +
-                                          "\n                                "
-                                      ),
+                                      _vm._v(" "),
+                                      _vm.selectedSchool.schoolable.address
+                                        ? _c("span", [
+                                            _vm._v(
+                                              " " +
+                                                _vm._s(
+                                                  _vm.selectedSchool.schoolable
+                                                    .address
+                                                )
+                                            )
+                                          ])
+                                        : _c("span", [
+                                            _c("i", {
+                                              staticClass:
+                                                "fas  fa-question-circle text-danger"
+                                            })
+                                          ]),
+                                      _vm._v(" "),
                                       _c("i", { staticClass: "fas fa-circle" }),
                                       _vm._v(
                                         " فاصله از شهرستان\n                                "
@@ -42556,14 +42680,25 @@ var render = function() {
                                       _c("i", {
                                         staticClass: "fas fa-arrow-circle-left"
                                       }),
-                                      _vm._v(
-                                        "\n                                " +
-                                          _vm._s(
-                                            _vm.selectedSchool.schoolable
-                                              .fasele_az_shahrestan
-                                          ) +
-                                          " کیلومتر\n                            "
-                                      )
+                                      _vm._v(" "),
+                                      _vm.selectedSchool.schoolable
+                                        .fasele_az_shahrestan
+                                        ? _c("span", [
+                                            _vm._v(
+                                              " " +
+                                                _vm._s(
+                                                  _vm.selectedSchool.schoolable
+                                                    .fasele_az_shahrestan
+                                                ) +
+                                                " کیلومتر "
+                                            )
+                                          ])
+                                        : _c("span", [
+                                            _c("i", {
+                                              staticClass:
+                                                "fas  fa-question-circle text-danger"
+                                            })
+                                          ])
                                     ]
                                   )
                                 ])
@@ -42578,14 +42713,25 @@ var render = function() {
                                       _c("i", {
                                         staticClass: "fas fa-arrow-circle-left"
                                       }),
-                                      _vm._v(
-                                        "\n                                " +
-                                          _vm._s(
-                                            _vm.selectedSchool.schoolable
-                                              .address_yeylagh
-                                          ) +
-                                          "\n                                "
-                                      ),
+                                      _vm._v(" "),
+                                      _vm.selectedSchool.schoolable
+                                        .address_yeylagh
+                                        ? _c("span", [
+                                            _vm._v(
+                                              " " +
+                                                _vm._s(
+                                                  _vm.selectedSchool.schoolable
+                                                    .address_yeylagh
+                                                )
+                                            )
+                                          ])
+                                        : _c("span", [
+                                            _c("i", {
+                                              staticClass:
+                                                "fas  fa-question-circle text-danger"
+                                            })
+                                          ]),
+                                      _vm._v(" "),
                                       _c("i", { staticClass: "fas fa-circle" }),
                                       _vm._v(
                                         " فاصله از شهرستان\n                                "
@@ -42593,14 +42739,25 @@ var render = function() {
                                       _c("i", {
                                         staticClass: "fas fa-arrow-circle-left"
                                       }),
-                                      _vm._v(
-                                        "\n                                " +
-                                          _vm._s(
-                                            _vm.selectedSchool.schoolable
-                                              .fasele_az_shahrestan_yeylagh
-                                          ) +
-                                          " کیلومتر "
-                                      )
+                                      _vm._v(" "),
+                                      _vm.selectedSchool.schoolable
+                                        .fasele_az_shahrestan_yeylagh
+                                        ? _c("span", [
+                                            _vm._v(
+                                              " " +
+                                                _vm._s(
+                                                  _vm.selectedSchool.schoolable
+                                                    .fasele_az_shahrestan_yeylagh
+                                                ) +
+                                                " کیلومتر "
+                                            )
+                                          ])
+                                        : _c("span", [
+                                            _c("i", {
+                                              staticClass:
+                                                "fas  fa-question-circle text-danger"
+                                            })
+                                          ])
                                     ]
                                   ),
                                   _vm._v(" "),
@@ -42627,14 +42784,25 @@ var render = function() {
                                       _c("i", {
                                         staticClass: "fas fa-arrow-circle-left"
                                       }),
-                                      _vm._v(
-                                        "\n                                " +
-                                          _vm._s(
-                                            _vm.selectedSchool.schoolable
-                                              .fasele_az_shahrestan_gheshlagh
-                                          ) +
-                                          " کیلومتر "
-                                      )
+                                      _vm._v(" "),
+                                      _vm.selectedSchool.schoolable
+                                        .fasele_az_shahrestan_gheshlagh
+                                        ? _c("span", [
+                                            _vm._v(
+                                              " " +
+                                                _vm._s(
+                                                  _vm.selectedSchool.schoolable
+                                                    .fasele_az_shahrestan_gheshlagh
+                                                ) +
+                                                " کیلومتر "
+                                            )
+                                          ])
+                                        : _c("span", [
+                                            _c("i", {
+                                              staticClass:
+                                                "fas  fa-question-circle text-danger"
+                                            })
+                                          ])
                                     ]
                                   ),
                                   _vm._v(" "),
@@ -42643,14 +42811,24 @@ var render = function() {
                                     _c("i", {
                                       staticClass: "fas fa-arrow-circle-left"
                                     }),
-                                    _vm._v(
-                                      "\n                                " +
-                                        _vm._s(
-                                          _vm.selectedSchool.schoolable
-                                            .masafate_kooch
-                                        ) +
-                                        " کیلومتر  "
-                                    )
+                                    _vm._v(" "),
+                                    _vm.selectedSchool.schoolable.masafate_kooch
+                                      ? _c("span", [
+                                          _vm._v(
+                                            " " +
+                                              _vm._s(
+                                                _vm.selectedSchool.schoolable
+                                                  .masafate_kooch
+                                              ) +
+                                              " کیلومتر "
+                                          )
+                                        ])
+                                      : _c("span", [
+                                          _c("i", {
+                                            staticClass:
+                                              "fas  fa-question-circle text-danger"
+                                          })
+                                        ])
                                   ])
                                 ])
                               : _vm._e()
@@ -43220,7 +43398,7 @@ var render = function() {
                     "label",
                     {
                       staticClass:
-                        "btn btn-outline-dark-green  col-xs-6   left-border   active",
+                        "btn btn-outline-dark-green  col-xs-6   left-border   ",
                       attrs: { id: "mostaghel", for: "mostaghel" },
                       on: {
                         click: function($event) {
@@ -43363,7 +43541,7 @@ var render = function() {
                     attrs: { id: "koochroo", for: "shabane" },
                     on: {
                       click: function($event) {
-                        _vm.schoolable_type = "App\\Koochroo"
+                        _vm.schoolable_type = "App\\Koochro"
                         _vm.marker("add", 2)
                       }
                     }
@@ -43388,7 +43566,7 @@ var render = function() {
               attrs: { id: "map" }
             }),
             _vm._v(" "),
-            _vm.schoolable_type == "App\\Koochroo"
+            _vm.schoolable_type == "App\\Koochro"
               ? _c(
                   "div",
                   {
@@ -43401,11 +43579,11 @@ var render = function() {
                       "label",
                       {
                         staticClass:
-                          "btn btn-outline-success    col-md-6    left-border   active",
+                          "btn btn-outline-success    col-md-6    left-border    ",
                         attrs: { id: "sayyar", for: "sayyar" },
                         on: {
                           click: function($event) {
-                            _vm.sayyar_type = "s"
+                            _vm.koochro_type = "s"
                           }
                         }
                       },
@@ -43430,7 +43608,7 @@ var render = function() {
                         attrs: { id: "nime-sayyar", for: "nime-sayyar" },
                         on: {
                           click: function($event) {
-                            _vm.sayyar_type = "n"
+                            _vm.koochro_type = "n"
                           }
                         }
                       },
@@ -43594,7 +43772,7 @@ var render = function() {
                 ])
               ]),
               _vm._v(" "),
-              _vm.schoolable_type == "App\\Koochroo"
+              _vm.schoolable_type == "App\\Koochro"
                 ? _c(
                     "div",
                     { staticClass: "loc-container   col-md-6 col-sm-6" },
@@ -43725,6 +43903,40 @@ var render = function() {
                               }
                               _vm.loc2_fasele_az_shahrestan =
                                 $event.target.value
+                            }
+                          }
+                        })
+                      ]),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "input-group  pt-1 " }, [
+                        _vm._m(16),
+                        _vm._v(" "),
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.masafate_kooch,
+                              expression: "masafate_kooch"
+                            }
+                          ],
+                          staticClass:
+                            "my-1 py-1 pr-1 form-control badge-pill ",
+                          attrs: {
+                            type: "Number",
+                            placeholder: "مسافت کوچ (کیلومتر)",
+                            id: "masafate_kooch",
+                            oninput: "validity.valid",
+                            min: "0",
+                            "aria-label": ""
+                          },
+                          domProps: { value: _vm.masafate_kooch },
+                          on: {
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.masafate_kooch = $event.target.value
                             }
                           }
                         })
@@ -44025,6 +44237,16 @@ var staticRenderFns = [
       "div",
       { staticClass: "input-group-prepend   btn-group-vertical p-1" },
       [_c("i", { staticClass: "fa fa-road  text-danger  " })]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      { staticClass: "input-group-prepend   btn-group-vertical p-1" },
+      [_c("i", { staticClass: "fa fa-ruler  text-danger  " })]
     )
   }
 ]
@@ -57086,7 +57308,7 @@ __webpack_require__(/*! @fortawesome/fontawesome-free/js/all */ "./node_modules/
 
 __webpack_require__(/*! ./my-vue */ "./resources/js/my-vue.js");
 
-var Swal = __webpack_require__(/*! sweetalert2 */ "./node_modules/sweetalert2/dist/sweetalert2.all.js");
+window.swal = __webpack_require__(/*! sweetalert2 */ "./node_modules/sweetalert2/dist/sweetalert2.all.js");
 
 __webpack_require__(/*! lity */ "./node_modules/lity/dist/lity.js"); // require('ol-layerswitcher/dist/ol-layerswitcher');
 // require('ol-layerswitcher/src/ol-layerswitcher');

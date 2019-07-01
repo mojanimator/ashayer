@@ -9,7 +9,8 @@
                  @click="selectedSchool=s">
                 <div class="m-card-header bg-transparent   ">
 
-                    <div class="icon-container d-inline-block" data-toggle="tooltip" data-placement="top"
+                    <div v-if="s.jensiat!=null" class="icon-container d-inline-block" data-toggle="tooltip"
+                         data-placement="top"
                          title="جنسیت">
                         <div class="" v-if="s.jensiat=='b'"><i class="fas  fa-lg fa-male   "></i></div>
                         <div class="" v-else-if="s.jeniat=='g'"><i class="fas fa-lg fa-female"></i></div>
@@ -25,7 +26,7 @@
                         {{s.tedad_daneshamooz}}
                     </span>
 
-                        <span class="  float-left px-1 text-white   small-1"
+                        <span v-if="s.is_roozane!=null" class="  float-left px-1 text-white   small-1"
                               :class="[s.is_roozane ?'bg-success':'bg-dark-gray']">
                         {{s.is_roozane ? "روزانه" : "شبانه"}}
                     </span>
@@ -45,24 +46,30 @@
 
                     <p class="text-purple mb-0 text-center"> {{s.name}}</p>
 
-                    <div class="codes d-flex justify-content-center">
-                        <small class="  left-border badge-pill bg-gray text-white small d-inline-block   "
-                               :class="[s.is_roozane ?'bg-success':'bg-dark-gray']">
-                            کد مدرسه: {{ s.code_madrese }}
+                    <div class="codes d-flex justify-content-center pt-1">
+                        <small class="  left-border badge-pill bg-gray text-white small d-inline-block "
+                        > کد مدرسه:
+                            <span v-if="s.code_madrese"> {{s.code_madrese}}</span>
+                            <span v-else> <i class="fas  fa-question-circle text-white"></i> </span>
                         </small>
-                        <small class="  right-border badge-pill bg-dark-green text-white small d-inline-block   "
-                               :class="[s.is_roozane ?'bg-success':'bg-dark-gray']">
-                            کد فضا: {{ s.code_faza }}
+                        <small class="  right-border badge-pill bg-dark-green text-white small d-inline-block "
+                        >کد فضا:
+                            <span v-if="s.code_faza"> {{s.code_faza}}</span>
+                            <span v-else> <i class="fas  fa-question-circle text-white"></i> </span>
                         </small>
                     </div>
 
                     <div class="card-divider"></div>
 
                     <p class="card-text text-dark-blue">
-                        <i class="fas  fa-arrow-circle-left"></i> تاسیس: {{s.sale_tasis}}
+                        <i class="fas  fa-arrow-circle-left"></i> تاسیس:
+                        <span v-if="s.sale_tasis"> {{s.sale_tasis}}</span>
+                        <span v-else> <i class="fas  fa-question-circle text-danger"></i> </span>
                     </p>
                     <p class="card-text text-dark-blue">
-                        <i class="fas  fa-arrow-circle-left"></i> حوزه نمایندگی: {{s.hooze.name}}
+                        <i class="fas  fa-arrow-circle-left"></i>حوزه نمایندگی:
+                        <span v-if="s.hooze"> {{s.hooze.name}}</span>
+                        <span v-else> <i class="fas  fa-question-circle text-danger"></i> </span>
                     </p>
 
                     <p class="card-text text-dark-blue p-type">
@@ -71,22 +78,25 @@
                            class="fas  fa-arrow-circle-left text-dark-red"></i>{{getType(s, "sayyar")}}
                     </p>
                     <p class="card-text text-dark-blue p-type">
-                        <i class="fas  fa-arrow-circle-left"></i> تعداد همکاران: {{s.tedad_hamkaran}}
-
+                        <i class="fas  fa-arrow-circle-left"></i> تعداد همکاران:
+                        <span v-if="s.tedad_hamkaran"> {{s.tedad_hamkaran}}</span>
+                        <span v-else> <i class="fas  fa-question-circle text-danger"></i> </span>
                     </p>
                     <p class="card-text text-dark-blue p-type">
-                        <i class="fas  fa-arrow-circle-left"></i> تعداد پایه تحصیلی: {{s.tedad_paye_tahsili}}
-
+                        <i class="fas  fa-arrow-circle-left"></i> تعداد پایه تحصیلی:
+                        <span v-if="s.tedad_paye_tahsili"> {{s.tedad_paye_tahsili}}</span>
+                        <span v-else> <i class="fas  fa-question-circle text-danger"></i> </span>
                     </p>
 
                     <div class="card-divider"></div>
 
-                    <div class="doore">
+                    <div v-if="s.doore" class="doore">
                         <span v-for="d in s.doore.split('$')"
                               class="card-text badge-pill bg-purple text-white px-2  mx-1 d-inline-block">{{getType(d, "doore")}}</span>
                     </div>
 
-                    <p v-if="s.vaziat!='m'" class="vaziat card-text badge-pill text-dark-blue text-center  mt-2 "
+                    <p v-if="s.vaziat!=null && s.vaziat!='m'"
+                       class="vaziat card-text badge-pill text-dark-blue text-center  mt-2 "
                        @click.stop="$root.$emit('dropdownResponse',{'ids':getType(s, 'zamime_ids')})">
                         <i class="fas  fa-eye "></i>{{getType(s, "zamime")}}
 
@@ -115,7 +125,10 @@
                 <div class="modal-content" v-if="selectedSchool">
                     <div class="modal-header  ">
 
-                        <h5 class="modal-title "> {{selectedSchool.name}}</h5>
+                        <h5 class="modal-title text-primary "> {{selectedSchool.name}}</h5>
+                        <h5 v-if="(selectedSchool.schoolable_type==='App\\Saabet' && !selectedSchool.schoolable.loc) ||
+                          (selectedSchool.schoolable_type==='App\\Koochro' && !selectedSchool.schoolable.loc_yeylagh)"
+                            class="modal-title text-danger "> اطلاعات مکانی موجود نیست</h5>
                         <i class="glyphicon glyphicon-remove text-danger  clear-btn" data-dismiss="modal"
                            aria-label="Close"
                            @click="cancel()">
@@ -133,25 +146,31 @@
                              :key="selectedSchool.id+'-modal'">
                             <div v-if="selectedSchool.schoolable_type==='App\\Saabet'">
                                 <p class="small text-primary"> آدرس <i class="fas fa-arrow-circle-left"></i>
-                                    {{selectedSchool.schoolable.address}}
+                                    <span v-if="selectedSchool.schoolable.address"> {{selectedSchool.schoolable.address}}</span>
+                                    <span v-else> <i class="fas  fa-question-circle text-danger"></i> </span>
                                     <i class="fas fa-circle"></i> فاصله از شهرستان
                                     <i class="fas fa-arrow-circle-left"></i>
-                                    {{selectedSchool.schoolable.fasele_az_shahrestan}} کیلومتر
+                                    <span v-if="selectedSchool.schoolable.fasele_az_shahrestan"> {{selectedSchool.schoolable.fasele_az_shahrestan}} کیلومتر </span>
+                                    <span v-else> <i class="fas  fa-question-circle text-danger"></i> </span>
                                 </p>
                             </div>
                             <div v-else-if="selectedSchool.schoolable_type==='App\\Koochro'">
                                 <p class="small text-primary"> آدرس ییلاق <i class="fas fa-arrow-circle-left"></i>
-                                    {{selectedSchool.schoolable.address_yeylagh}}
+                                    <span v-if="selectedSchool.schoolable.address_yeylagh"> {{selectedSchool.schoolable.address_yeylagh}}</span>
+                                    <span v-else> <i class="fas  fa-question-circle text-danger"></i> </span>
                                     <i class="fas fa-circle"></i> فاصله از شهرستان
                                     <i class="fas fa-arrow-circle-left"></i>
-                                    {{selectedSchool.schoolable.fasele_az_shahrestan_yeylagh}} کیلومتر </p>
+                                    <span v-if="selectedSchool.schoolable.fasele_az_shahrestan_yeylagh"> {{selectedSchool.schoolable.fasele_az_shahrestan_yeylagh}} کیلومتر </span>
+                                    <span v-else> <i class="fas  fa-question-circle text-danger"></i> </span></p>
                                 <p class="small text-danger"> آدرس قشلاق <i class="fas fa-arrow-circle-left"></i>
                                     {{selectedSchool.schoolable.address_gheshlagh}}
                                     <i class="fas fa-circle"></i> فاصله از شهرستان
                                     <i class="fas fa-arrow-circle-left"></i>
-                                    {{selectedSchool.schoolable.fasele_az_shahrestan_gheshlagh}} کیلومتر </p>
+                                    <span v-if="selectedSchool.schoolable.fasele_az_shahrestan_gheshlagh"> {{selectedSchool.schoolable.fasele_az_shahrestan_gheshlagh}} کیلومتر </span>
+                                    <span v-else> <i class="fas  fa-question-circle text-danger"></i> </span></p>
                                 <p class="small text-dark"> مسافت کوچ <i class="fas fa-arrow-circle-left"></i>
-                                    {{selectedSchool.schoolable.masafate_kooch}} کیلومتر  </p>
+                                    <span v-if="selectedSchool.schoolable.masafate_kooch"> {{selectedSchool.schoolable.masafate_kooch}} کیلومتر </span>
+                                    <span v-else> <i class="fas  fa-question-circle text-danger"></i> </span></p>
                             </div>
 
                         </div>
@@ -383,6 +402,8 @@
                         text = 'نوع: ثابت';
                     else if (school.schoolable_type === 'App\\Koochro')
                         text = ' نوع: کوچ رو';
+                    else
+                        text = ' نوع: ---';
                 }
                 else if (_for === "sayyar") {
                     if (school.schoolable.type === 'n')
@@ -400,14 +421,14 @@
                         text = ' چادر ';
                 }
                 else if (_for === "zamime") {
-                    if (school.vaziat.startsWith('a')) //zamime ast
+                    if (school.vaziat && school.vaziat.startsWith('a')) //zamime ast
                         text = ' ضمیمه است ';
-                    else if (school.vaziat.startsWith('d')) //zamime darad
+                    else if (school.vaziat && school.vaziat.startsWith('d')) //zamime darad
                         text = ' ضمیمه دارد ';
 
                 }
                 else if (_for === "zamime_ids") {
-                    if (school.vaziat !== 'm')
+                    if (school.vaziat && school.vaziat !== 'm')
                         return school.vaziat.split("$").slice(1);
 
 
@@ -426,7 +447,7 @@
             },
             getImage(doc) {
                 if (doc.length !== 0)
-                    return doc[0].path;
+                    return '/storage/' + doc[0].path;
                 else
                     return "/img/school-no.png";
             },

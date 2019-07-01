@@ -2,10 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Doc;
 use App\Hooze;
+use App\Http\Requests\SchoolRequest;
+use App\Koochro;
 use App\Madrese;
+use App\Saabet;
 use App\School;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SchoolController extends Controller
 {
@@ -126,10 +132,10 @@ class SchoolController extends Controller
             $query = $query->whereIn('noe_fazaye_amoozeshi', $noe_fazaye_amoozeshi);
         if (count($hooze_namayandegi_id) != 0)
             $query = $query->whereIn('hooze_namayandegi_id', $hooze_namayandegi_id);
-        if ($sale_tasis['min'] <= $sale_tasis['max'])
+        if (($sale_tasis['min'] != 1300 || $sale_tasis['max'] != 1500) && $sale_tasis['min'] <= $sale_tasis['max'])
             $query = $query->whereBetween('sale_tasis', [$sale_tasis['min'], $sale_tasis['max']]);
 
-        if ($tedad_daneshamooz['min'] <= $tedad_daneshamooz['max'])
+        if (($tedad_daneshamooz['min'] != 0 || $tedad_daneshamooz['max'] != 1000) && $tedad_daneshamooz['min'] <= $tedad_daneshamooz['max'])
             $query = $query->whereBetween('tedad_daneshamooz', [$tedad_daneshamooz['min'], $tedad_daneshamooz['max']]);
 
         if (count($vaziat) != 0)
@@ -157,9 +163,76 @@ class SchoolController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(SchoolRequest $request)
     {
-        //
+
+
+        DB::transaction(function () use ($request) {
+            $date = Carbon::now();
+            $schoolable_type = "";
+            $schoolable = ['id' => 0];
+            if ($request->schoolable_type == "App\\Saabet") {
+                $schoolable = Saabet::create([
+                    'address' => $request->loc1['address'],
+                    'loc' => $request->loc1['pos'],
+                    'fasele_az_shahrestan' => $request->loc1['fasele_az_shahrestan'],
+                    'created_at' => $date,
+                    'updated_at' => $date,
+                ]);
+                $schoolable_type = "App\\Saabet";
+
+            } elseif ($request->schoolable_type == "App\\Koochro") {
+                $schoolable = Koochro::create([
+                    'address_yeylagh' => $request->loc1['address'],
+                    'loc_yeylagh' => $request->loc1['pos'],
+                    'fasele_az_shahrestan_yeylagh' => $request->loc1['fasele_az_shahrestan'],
+                    'address_gheshlagh' => $request->loc2['address'],
+                    'loc_gheshlagh' => $request->loc2['pos'],
+                    'fasele_az_shahrestan_gheshlagh' => $request->loc2['fasele_az_shahrestan'],
+                    'type' => $request->loc2['koochro_type'],
+                    'masire_kooch' => $request->loc2['masire_kooch'],
+                    'masafate_kooch' => $request->loc2['masafate_kooch'],
+                    'created_at' => $date,
+                    'updated_at' => $date,
+                ]);
+                $schoolable_type = "App\\Koochro";
+            }
+
+
+            $school = School::create([
+//            'from_id' => auth()->user()->id,
+                'schoolable_id' => $schoolable->id,
+                'schoolable_type' => $schoolable_type,
+                'is_roozane' => $request->is_roozane,
+                'name' => $request->sName,
+                'code_madrese' => $request->code_madrese,
+                'code_faza' => $request->code_faza,
+                'sale_tasis' => $request->sale_tasis,
+                'doore' => $request->doore,
+                'tedad_daneshamooz' => $request->tedad_daneshamooz,
+                'vaziat' => $request->vaziat,
+                'jensiat' => $request->jensiat,
+                'tedad_paye_tahsili' => $request->tedad_paye_tahsili,
+                'tedad_hamkaran' => $request->tedad_hamkaran,
+                'noe_fazaye_amoozeshi' => $request->noe_fazaye_amoozeshi,
+                'hooze_namayandegi_id' => $request->hooze_namayandegi_id,
+                'created_at' => $date,
+                'updated_at' => $date,
+
+            ]);
+            // add school docs
+            foreach ($request->input('docs') as $d) {
+                $doc = Doc::getFile($d, $school->id, School::class, 'school');
+                //save doc to   folder and database
+                $doc->upload();
+                $doc->saveToDocsDB();
+
+            }
+
+        });
+
+
+        return "200";
     }
 
     /**

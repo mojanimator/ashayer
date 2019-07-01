@@ -155,11 +155,11 @@
 
 .loading-page {
   //content: '';
-  position: absolute;
+  position: fixed;
   transition: .3s all ease;
   content: url("/img/loading.gif");
   //background-image: url("../../../../public/img/loading.gif");
-  top: 70vh;
+  top: 50vh;
   width: 8rem;
   height: 8rem;
   overflow: hidden;

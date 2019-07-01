@@ -148,7 +148,7 @@
                     <div class="btn-group btn-group-toggle     col-md-6  justify-content-center   "
                          data-toggle="buttons">
                         <label id="mostaghel" for="mostaghel"
-                               class="btn btn-outline-dark-green  col-xs-6   left-border   active"
+                               class="btn btn-outline-dark-green  col-xs-6   left-border   "
                                @click=" params.vaziat='m';  ">
                             <input type="radio" name="options" autocomplete="off" class=" ">مستقل
                         </label>
@@ -184,7 +184,7 @@
                     </label>
                     <label id="koochroo" for="shabane"
                            class="btn btn-outline-dark    col-md-6    right-border  "
-                           @click=" schoolable_type= 'App\\Koochroo'; marker('add',2);">
+                           @click=" schoolable_type= 'App\\Koochro'; marker('add',2);">
                         <input type="radio" name="options" autocomplete="off" class=" ">کوچ رو
                     </label>
                 </div>
@@ -193,17 +193,17 @@
                 <div id="map" class="map container-fluid "></div>
 
                 <!--sayyar nimesayyar-->
-                <div v-if="schoolable_type== 'App\\Koochroo'"
+                <div v-if="schoolable_type== 'App\\Koochro'"
                      class=" btn-group btn-group-toggle    col-12  justify-content-center mt-4  px-5 "
                      data-toggle="buttons">
                     <label id="sayyar" for="sayyar"
-                           class="btn btn-outline-success    col-md-6    left-border   active"
-                           @click=" sayyar_type= 's' ;  ">
+                           class="btn btn-outline-success    col-md-6    left-border    "
+                           @click=" koochro_type= 's' ;  ">
                         <input type="radio" name="options" autocomplete="off" class=" ">سیار
                     </label>
                     <label id="nime-sayyar" for="nime-sayyar"
                            class="btn btn-outline-dark    col-md-6    right-border  "
-                           @click=" sayyar_type= 'n';  ">
+                           @click=" koochro_type= 'n';  ">
                         <input type="radio" name="options" autocomplete="off" class=" ">نیمه سیار
                     </label>
                 </div>
@@ -248,7 +248,7 @@
                         </div>
                     </div>
 
-                    <div v-if="schoolable_type== 'App\\Koochroo'" class="loc-container   col-md-6 col-sm-6">
+                    <div v-if="schoolable_type== 'App\\Koochro'" class="loc-container   col-md-6 col-sm-6">
                         <p class="divider  ">
                             <span class="text-danger">    مکان قشلاق   </span></p>
                         <div class="input-group  pt-1 ">
@@ -280,6 +280,14 @@
                             </div>
                             <input type="Number" placeholder="فاصله از شهرستان (کیلومتر)" id="loc2-fasele-input"
                                    v-model="loc2_fasele_az_shahrestan" oninput="validity.valid" min="0"
+                                   class="my-1 py-1 pr-1 form-control badge-pill " aria-label="">
+                        </div>
+                        <div class="input-group  pt-1 ">
+                            <div class="input-group-prepend   btn-group-vertical p-1">
+                                <i class="fa fa-ruler  text-danger  "></i>
+                            </div>
+                            <input type="Number" placeholder="مسافت کوچ (کیلومتر)" id="masafate_kooch"
+                                   v-model="masafate_kooch" oninput="validity.valid" min="0"
                                    class="my-1 py-1 pr-1 form-control badge-pill " aria-label="">
                         </div>
                     </div>
@@ -330,7 +338,7 @@
             <!--footer-->
             <div class="modal-footer justify-content-center col-12">
                 <button type="button" class="btn btn-primary mx-1  btn-block  "
-                        @click="   $root.$emit('hoozeRequest', params);">ذخیره
+                        @click="   $root.$emit('hoozeRequest', params); ">ذخیره
                 </button>
 
             </div>
@@ -374,7 +382,7 @@
     let docs = [];
     export default {
 
-        props: ['schoolsLink', 'hoozesLink'],
+        props: ['schoolsLink', 'createSchoolLink', 'hoozesLink'],
         components: {
             school_map: schoolMap,
             dropdown,
@@ -394,16 +402,17 @@
                 code_madrese: '',
                 code_faza: '',
                 schoolable_type: 'App\\Saabet',
-                vaziat: 'm',
+                vaziat: '',
                 loc1: {lat: null, lon: null},
                 loc2: {lat: null, lon: null},
                 marker1: '', marker2: '',
                 uploader: $('#uploader'),
+                loading: $('.loading-page'),
                 percentCompleted: 0,
                 docs: [],
                 IMG_LIMIT: 3,
                 SIZE_LIMIT: 2, //MB
-                params: {doore: '', jensiat: '', hooze: [], zamime: [], vaziat: 'm'},
+                params: {doore: '', jensiat: '', hooze: '', zamime: [], vaziat: ''},
                 noe_faza: '',
                 loc1_lat_input: "",
                 loc1_lon_input: "",
@@ -411,9 +420,11 @@
                 loc2_lon_input: "",
                 loc1_fasele_az_shahrestan: "",
                 loc2_fasele_az_shahrestan: "",
+                masafate_kooch: "",
                 loc1_address: "",
                 loc2_address: "",
-                koochroo_type: "s",
+                koochro_type: "",
+                masire_kooch: "",
             }
         },
         watch: {
@@ -434,13 +445,15 @@
             this.setEvents();
 //            this.setSliders(0);
             this.uploader = $('#uploader');
+            this.loading = $('.loading-page');
+//            this.loading.removeClass('hide');
         },
         created() {
 
         },
         updated() {
             //add listeners to input loc 2 after showing
-            if (this.schoolable_type === 'App\\Koochroo') {
+            if (this.schoolable_type === 'App\\Koochro') {
 
                 input_loc1_lat = $('#loc1-lat-input');
                 input_loc1_lon = $('#loc1-lon-input');
@@ -509,7 +522,7 @@
                     }
             },
             checkInputs(params) {
-                console.log(params);
+
                 //check all inputs
                 this.errors = '';
                 // name input -> required -> not only space
@@ -542,9 +555,16 @@
                 for (let i in params.zamime)
                     params.vaziat += "$" + params.zamime[i].id;
 
-                if (params.vaziat !== 'm' && !regIsZamime.test(params.vaziat))
+                if (params.vaziat !== '' && params.vaziat !== 'm' && !regIsZamime.test(params.vaziat))
                     this.errors += ('<br>' + 'وضعیت مدرسه نامعتبر است');
-             
+                else
+                    this.params.vaziat = params.vaziat;
+
+
+                if (params.hooze !== '' && !regOnlyNumber.test(params.hooze))
+                    this.errors += ('<br>' + 'حوزه نمایندگی نامعتبر است');
+                else
+                    this.params.hooze = params.hooze;
 
                 this.params.doore = '';
                 if (this.doore['ebte']) {
@@ -573,8 +593,8 @@
                 if (!['c', 'k', 's', ''].includes(this.noe_faza))
                     this.errors += ('<br>' + 'نوع فضای آموزشی نا معتبر است');
 
-                if (this.schoolable_type !== "App\\Saabet" && this.schoolable_type !== "App\\Koochroo")
-                    this.errors += ('<br>' + 'نوع مدرسه معتبر نیست');
+                if (this.schoolable_type !== "" && this.schoolable_type !== "App\\Saabet" && this.schoolable_type !== "App\\Koochroo")
+                    this.errors += ('<br>' + 'نوع مدرسه نامعتبر است');
 
 
                 if (this.loc1_lat_input.length > 22 || !regIsLatLong.test(this.loc1_lat_input) && this.loc1_lat_input !== "")
@@ -597,8 +617,13 @@
                 if (this.loc2_fasele_az_shahrestan > 4294967295 || (this.loc2_fasele_az_shahrestan.length > 0 && !regOnlyNumber.test(this.loc2_fasele_az_shahrestan)))
                     this.errors += ('<br>' + 'فاصله از شهرستان عدد و حداکثر 10 رقم باشد');
 //
+                if (this.masafate_kooch > 4294967295 || (this.masafate_kooch.length > 0 && !regOnlyNumber.test(this.masafate_kooch)))
+                    this.errors += ('<br>' + 'فاصله از شهرستان عدد و حداکثر 5 رقم باشد');
 
+                if (this.masire_kooch !== "" && this.masire_kooch.length > 65535)
+                    this.errors += ('<br>' + 'طول مسیر کوچ نمی تواند بیشتر از 5 رقم باشد');
 
+                this.errors = '';
                 if (this.errors === '')
                     this.showDialog(0);
                 else
@@ -607,7 +632,7 @@
             }
             ,
             checkDocs(files, from) {
-//                return true;
+                return true;
                 // from certs-input 3 files 4 mb
                 // from agent-input 2 files 4mb
                 let message = '';
@@ -688,21 +713,50 @@
             ,
 
             saveChanges() {
+                this.loading.removeClass('hide');
 
-                this.params['cert_docs'] = this.cert_docs;
-                this.params['agent_docs'] = this.agent_docs;
-                this.params['is_agent'] = this.hasRule('Agent'); //for agent docs
+                console.log(this.params);
+                axios.post(this.createSchoolLink, {
+                    sName: this.sName,
+                    hooze: this.params.hooze,
+                    code_madrese: this.code_madrese,
+                    code_faza: this.code_faza,
+                    sale_tasis: this.sale_tasis,
+                    tedad_daneshamooz: this.tedad_daneshamooz,
+                    tedad_paye_tahsili: this.tedad_paye_tahsili,
+                    tedad_hamkaran: this.tedad_hamkaran,
+                    is_roozane: this.is_roozane,
+                    doore: this.params.doore,
+                    jensiat: this.params.jensiat,
+                    schoolable_type: this.schoolable_type,
+                    vaziat: this.params.vaziat,
+                    loc1: {
+                        pos: this.loc1_lon_input && this.loc1_lat_input ? this.loc1_lon_input + "," + this.loc1_lat_input : "",
+                        fasele_az_shahrestan: this.loc1_fasele_az_shahrestan,
+                        address: this.loc1_address
+                    },
+                    loc2: {
+                        pos: this.loc2_lon_input && this.loc2_lat_input ? this.loc2_lon_input + "," + this.loc2_lat_input : "",
+                        fasele_az_shahrestan: this.loc2_fasele_az_shahrestan,
+                        address: this.loc2_address,
+                        masafate_kooch: this.masafate_kooch,
+                        masire_kooch: this.masire_kooch,
+                        koochro_type: this.koochro_type,
+                    },
+                    docs: this.docs,
+                    noe_faza: this.noe_faza,
 
-//                console.log(this.params);
-                axios.post(this.createAdvLink, this.params)
+
+                })
                     .then((response) => {
+                        this.loading.addClass('hide');
                         console.log(response);
                         if (response.status === 200) {
-                            this.$root.$emit('updateMessageBox'); //update messages in panel
                             this.showDialog(1);
 
                         }
                     }).catch((error) => {
+                    this.loading.addClass('hide');
                     this.errors += '<br>'; // maybe is not empty from javascript validate
                     if (error.response && error.response.status === 422)
                         for (let idx in error.response.data.errors)

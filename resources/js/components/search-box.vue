@@ -350,8 +350,10 @@
                         if (this.schools === null || this.schools.length === 0) {
                             this.schools = [];
                             this.no_result.removeClass('hide');
-                            if (param['page'] !== null && param['page'] > 1)
+                            if (param['page'] !== null && param['page'] > 1) {
+                                param['page'] = 1;
                                 this.$root.$emit('search');
+                            }
 
                         }
 //                        console.log(this.schools);

@@ -97,7 +97,8 @@
             },
 
             addMarker() {
-                console.log("add marker");
+//                console.log("add marker");
+
 
                 let iconFeatures = [];
 
@@ -105,7 +106,10 @@
 //                layer = this.map.getLayers().getArray()[2];
 
                 layer = this.map.getLayers().getArray()[0].getLayers().getArray()[3]; //markers layer
-
+                if (!this.s.schoolable.loc && !this.s.schoolable.loc_yeylagh) {
+                    layer.getSource().clear();
+                    return;
+                }
 //                this.map.getLayers().forEach(function (tLayer) {
 //                    if (tLayer.get('name') !== undefined && tLayer.get('name') === 'markers') {
 ////                        layersToRemove.push(layer);
@@ -126,7 +130,7 @@
                     this.map.getView().setCenter(ol.proj.fromLonLat([this.latLng[1], this.latLng[0]]), 4);
 
                 }
-                else {
+                else if (this.s.schoolable.loc_yeylagh) {
                     let iconStyle = new ol.style.Style({
                         image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
                             anchor: [0.5, 1],
@@ -181,6 +185,7 @@
                 layer.getSource().clear();
                 layer.getSource().addFeatures(iconFeatures);
 
+
 //                    layer.getSource().addFeature(iconFeatures[1]);
 
                 let extent = layer.getSource().getExtent();
@@ -191,7 +196,6 @@
             },
 
             initialize_map() {
-                console.log('hi2');
 
                 if (this.map) {
                     this.map.setTarget(null);

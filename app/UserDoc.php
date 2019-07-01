@@ -8,10 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Mockery\Exception;
+use OwenIt\Auditing\Contracts\Auditable;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class UserDoc extends Model
+class UserDoc extends Model implements Auditable
 {
+    use \OwenIt\Auditing\Auditable;
+
     protected $fillable = [
         'id', 'user_id', 'doc_type', 'path',
 

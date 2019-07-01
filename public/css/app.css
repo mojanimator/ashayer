@@ -30014,10 +30014,10 @@ ol {
 }
 
 .loading-page {
-  position: absolute;
+  position: fixed;
   transition: 0.3s all ease;
   content: url("/img/loading.gif");
-  top: 70vh;
+  top: 50vh;
   width: 8rem;
   height: 8rem;
   overflow: hidden;

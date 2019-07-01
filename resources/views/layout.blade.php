@@ -111,6 +111,6 @@
 @yield('scripts')
 {{--@include('flash')--}}
 {{--@yield('script')--}}
-
+@include('flash')
 </body>
 </html>
