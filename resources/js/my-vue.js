@@ -4,6 +4,7 @@ import login from './components/login.vue'
 import searchBox from './components/search-box.vue'
 import pagination from './components/pagination.vue'
 import selector from './components/selector.vue'
+import userPanel from './components/user-panel.vue'
 
 const app = new Vue({
     el: '#app',
@@ -14,6 +15,7 @@ const app = new Vue({
         login,
         searchBox,
         pagination,
-        selector
+        selector,
+        userPanel,
     }
 });

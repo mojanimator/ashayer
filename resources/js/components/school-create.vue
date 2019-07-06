@@ -316,11 +316,11 @@
                     </div>
 
                 </form>
-                <input id="img-input" class="col-12" accept=".png, .jpg, .jpeg" type="file" name="images[]"
+                <input id="img-input" class="col-12 hide " accept=".png, .jpg, .jpeg" type="file" name="images[]"
                        style="opacity: 0" multiple
                        @change="filePreview($event,'img-input')"/>
 
-                <div class="img-container row   mx-2 mt-2 p-2   ">
+                <div class="img-container row   mx-2   p-2   ">
                     <div v-for="(doc,index) in docs" class="thumb-container col-md-4 col-sm-6 ">
                         <a :href="doc" data-lity>
                             <img :id="'img-'+index" class="img-thumbnail "
@@ -335,6 +335,13 @@
                     </div>
                 </div>
             </div>
+            <!--{{captcha}}-->
+            <vue-recaptcha class="mb-1 mx-2"
+                           ref="recaptcha"
+                           @verify="onVerify"
+                           :sitekey="sitekey">
+
+            </vue-recaptcha>
             <!--footer-->
             <div class="modal-footer justify-content-center col-12">
                 <button type="button" class="btn btn-primary mx-1  btn-block  "
@@ -354,7 +361,9 @@
     import selector from './selector.vue';
     import LayerSwitcher from 'ol-layerswitcher/dist/ol-layerswitcher';
     import swal from 'sweetalert2';
+    import VueRecaptcha from 'vue-recaptcha';
 
+    //    import 'jquery-captcha/dist/jquery-captcha.min';
     //    import 'ol/ol.css';
     //    import Feature from 'ol/Feature.js';
     //    import Map from 'ol/Map.js';
@@ -380,13 +389,16 @@
     let coordMarker1, coordMarker2;
     let tmpCoord1, tmpCoord2;
     let docs = [];
+
+    let captcha;
     export default {
 
-        props: ['schoolsLink', 'createSchoolLink', 'hoozesLink'],
+        props: ['schoolsLink', 'createSchoolLink', 'hoozesLink', 'sitekey'],
         components: {
             school_map: schoolMap,
             dropdown,
             selector,
+            VueRecaptcha,
         },
         data() {
             return {
@@ -425,6 +437,8 @@
                 loc2_address: "",
                 koochro_type: "",
                 masire_kooch: "",
+
+                recaptcha: "",
             }
         },
         watch: {
@@ -447,6 +461,17 @@
             this.uploader = $('#uploader');
             this.loading = $('.loading-page');
 //            this.loading.removeClass('hide');
+
+//            let captchaLink = this.captchaLink;
+//            console.log(captchaLink);
+//            $(document).ready(function () {
+////                // DOM ready
+//                captcha = $('#botdetect-captcha').captcha({
+//                    captchaEndpoint:
+//                    captchaLink
+//                });
+//            });
+
         },
         created() {
 
@@ -480,6 +505,10 @@
             }
         },
         methods: {
+            onVerify(token) {
+//                console.log(event);
+                this.recaptcha = token;
+            },
             removeImage(idx, from) {
                 if (from === 'img-input')
                     this.docs.splice(idx, 1);
@@ -715,8 +744,11 @@
             saveChanges() {
                 this.loading.removeClass('hide');
 
-                console.log(this.params);
+//                console.log(this.recaptcha);
                 axios.post(this.createSchoolLink, {
+//                    userEnteredCaptchaCode: captcha.userEnteredCaptchaCode,
+//                    captchaId: captcha.captchaId,
+                    recaptcha: this.recaptcha,
                     sName: this.sName,
                     hooze: this.params.hooze,
                     code_madrese: this.code_madrese,
@@ -768,6 +800,7 @@
 //                    console.log(error);
 //                    console.log(error.response);
                 });
+                this.$refs.recaptcha.reset();
             }
             ,
             setSliders(type) {

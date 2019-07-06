@@ -8,13 +8,13 @@ class UserController extends Controller
 {
     public function __construct()
     {
-        parent::__construct();
+//        parent::__construct();
         $this->middleware('auth')->except([]);
     }
 
     public function showPanel()
     {
 
-        return view('panels.user-panel');
+        return view('user.panel');
     }
 }

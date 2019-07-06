@@ -56,7 +56,7 @@ $light-blue: #028BBF !default;
 $dark-green: #51573C !default;
 $light-green: #60aa2f !default;
 $dark-red: #782517 !default;
-$red: #B53029 !default;
+//$red: #B53029 !default;
 $light-red: #db8f3c !default;
 //my colors
 $flame-start: #ff9a9e;
@@ -109,7 +109,15 @@ $colors: map-merge((
         "red": $red,
         "light-red": $light-red,
         "white": $white,
-        "gray-dark": $gray-800
+        "gray-dark": $gray-800,
+        "blue": #3490dc,
+        "indigo": #6574cd,
+        "pink": #f66D9b,
+        "orange": #f6993f,
+        "yellow": #ffed4a,
+        "green": #38c172,
+        "teal": #4dc0b5,
+        "cyan": #6cb2eb,
 ), $colors);
 
 $theme-colors: () !default;
@@ -133,4 +141,13 @@ $theme-colors: map-merge((
         "light-blue":$light-blue,
         "dark-green":$dark-green,
         "light-green": $success,
+        "blue": #3490dc,
+        "indigo": #6574cd,
+        "pink": #f66D9b,
+        "red": #e3342f,
+        "orange": #f6993f,
+        "yellow": #ffed4a,
+        "green": #38c172,
+        "teal": #4dc0b5,
+        "cyan": #6cb2eb,
 ), $theme-colors);

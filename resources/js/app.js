@@ -14,7 +14,7 @@ $.fn.load = function (callback) {
 };
 
 // window.$ = $.extend(require('jquery-ui'));
-window.$ = $.extend(require('jquery-ui/ui/widgets/slider.js'));
+window.jQuery = window.$ = $.extend(require('jquery-ui/ui/widgets/slider.js'));
 // require('jquery-ui/ui/widgets/slider.js');
 window.Vue = require('vue');
 window.axios = require('axios');
@@ -25,6 +25,11 @@ require('@fortawesome/fontawesome-free/js/all');
 require('./my-vue');
 window.swal = require('sweetalert2');
 require('lity');
+// $(document).ready(() => {
+window.captcha = require('jquery-captcha');
+
+// });
+// require('jquery-captcha/dist/jquery-captcha.min');
 // require('ol-layerswitcher/dist/ol-layerswitcher');
 // require('ol-layerswitcher/src/ol-layerswitcher');
 

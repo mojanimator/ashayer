@@ -22,6 +22,7 @@ Route::get('/school/create', function () {
     return view('school.create');
 })->name('school.create');
 
+
 Route::post('schools/all', 'SchoolController@all')->name('school.all');
 Route::post('schools/search', 'SchoolController@search')->name('school.search');
 Route::post('schools/dropdown', 'SchoolController@dropdown')->name('school.dropdown');
@@ -45,4 +46,4 @@ Route::get('/init', function () {
 
 Route::get('register/confirm/{token}', 'Auth\RegisterController@confirmEmail');
 
-Route::post('panel/{username}', 'UserController@showPanel')->name('user.panel');
+Route::post('/panel/{username}', 'UserController@showPanel')->name('user.panel');
