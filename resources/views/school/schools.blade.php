@@ -12,12 +12,14 @@
                     hoozes-link="{{route('school.hoozes')}}"></search-box>
 
         <pagination></pagination>
-        <school-cards class=" " user="{{auth()->user()}}"></school-cards>
-
+        <school-cards user="{{auth()->user()}} "
+                      panel-link="{{route('user.panel',['username'=>auth()->user()->username])}}"></school-cards>
+        <pagination></pagination>
         <div class="row  justify-content-center">
             <div class="no-result text-center py-4 text-danger  hide">نتیــجه ای یافت نشد</div>
             <div class="loading-page center-block  "></div>
         </div>
+
         {{--@else--}}
 
         {{--<div class="no-result text-center py-4 text-danger">--}}

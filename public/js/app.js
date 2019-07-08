@@ -6574,7 +6574,7 @@ var EventBus = new Vue(); //    let map;
             anchorXUnits: 'fraction',
             anchorYUnits: 'fraction',
             opacity: .9,
-            src: 'img/marker-school-red.png'
+            src: '/img/marker-school-red.png'
           })
         }); //                    console.log(this.s.schoolable);
 
@@ -7116,6 +7116,91 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
  //    import 'ol/ol.css';
 //    import Feature from 'ol/Feature.js';
@@ -7132,29 +7217,105 @@ var map;
 var layer;
 var kerman = [57.0532, 30.2880];
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ['schoolsLink'],
+  props: ['schoolsLink', 'panelLink'],
   components: {
     school_map: _map_vue__WEBPACK_IMPORTED_MODULE_0__["default"]
   },
   data: function data() {
     return {
+      show: 'list',
+      //card and table
       schools: [],
       params: null,
       selectedSchool: null,
       map: null,
       layer: null,
-      bingLayer: null
+      bingLayer: null,
+      loading: null,
+      errors: ''
     };
   },
   mounted: function mounted() {
     //            this.getSchools();
     this.setEvents();
     this.initialize_map();
-    this.add_marker(); //
+    this.add_marker();
+    this.loading = $('.loading-page'); //
   },
   created: function created() {},
   updated: function updated() {},
   methods: {
+    deleteSchool: function deleteSchool(school) {
+      var _this = this;
+
+      this.loading.removeClass('hide');
+      console.log(this.panelLink + "/delete/s=" + school.id); //                console.log(param);
+
+      axios.post(this.panelLink + "/delete/s=" + school.id, {
+        id: school.id,
+        schoolable_id: school.schoolable ? school.schoolable.id : 0,
+        schoolable_type: school.schoolable_type
+      }).then(function (response) {
+        //                        console.log(response);
+        _this.loading.addClass('hide');
+
+        if (response.status === 200) {
+          _this.showDialog(1);
+        }
+      })["catch"](function (error) {
+        //                    console.log('res error:');
+        console.log(error);
+        _this.errors = error.message;
+
+        _this.showDialog();
+
+        _this.loading.addClass('hide');
+      });
+    },
+    showDialog: function showDialog(type, data) {
+      var _this2 = this;
+
+      // 0  ready for save
+      // 1  success  save
+      // else show errors
+      if (type === 0) swal.fire({
+        title: 'توجه',
+        text: 'مدرسه حذف شود؟',
+        type: 'warning',
+        showCancelButton: true,
+        showCloseButton: true,
+        cancelButtonText: 'خیر',
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: ' بله'
+      }).then(function (result) {
+        if (result.value) {
+          _this2.deleteSchool(data);
+        }
+      });else if (type === 1) {
+        swal.fire({
+          title: 'توجه',
+          text: ' با موفقیت حذف شد!',
+          confirmButtonColor: '#60aa2f',
+          type: 'success',
+          confirmButtonText: ' باشه'
+        }).then(function (result) {
+          if (result.value) {
+            //                            location.reload();
+            _this2.$root.$emit('search');
+          }
+        });
+      } else {
+        swal.fire({
+          title: 'خطایی رخ داد',
+          html: " <p   class=\"text-danger\">" + this.errors + "</p>",
+          //                        text: this.errors,
+          confirmButtonColor: '#d33',
+          type: 'error',
+          confirmButtonText: ' باشه'
+        });
+      }
+    },
     add_marker: function add_marker() {
       console.log("add marker");
       var iconFeatures = [];
@@ -7289,7 +7450,7 @@ var kerman = [57.0532, 30.2880];
       if (_for === "kooch") {
         if (school.schoolable_type === 'App\\Saabet') text = 'نوع: ثابت';else if (school.schoolable_type === 'App\\Koochro') text = ' نوع: کوچ رو';else text = ' نوع: ---';
       } else if (_for === "sayyar") {
-        if (school.schoolable.type === 'n') text = ' نیمه سیار ';else if (school.schoolable.type === 's') text = ' سیار ';
+        if (school.schoolable && school.schoolable.type === 'n') text = ' نیمه سیار ';else if (school.schoolable && school.schoolable.type === 's') text = ' سیار ';
       } else if (_for === "faza") {
         if (school.noe_fazaye_amoozeshi === 's') text = ' ساختمان ';else if (school.noe_fazaye_amoozeshi === 'k') text = ' کانکس ';else if (school.noe_fazaye_amoozeshi === 'c') text = ' چادر ';
       } else if (_for === "zamime") {
@@ -7308,14 +7469,14 @@ var kerman = [57.0532, 30.2880];
       if (doc.length !== 0) return '/storage/' + doc[0].path;else return "/img/school-no.png";
     },
     getSchools: function getSchools() {
-      var _this = this;
+      var _this3 = this;
 
       axios.post(this.schoolsLink, this.params).then(function (response) {
         //                        console.log(response);
         if (response.status === 200) {
           //
-          _this.schools = response.data;
-          _this.paginator = {
+          _this3.schools = response.data;
+          _this3.paginator = {
             current_page: response.data['current_page'],
             first_page_url: response.data['first_page_url'],
             next_page_url: response.data['next_page_url'],
@@ -7327,7 +7488,7 @@ var kerman = [57.0532, 30.2880];
             total: response.data['total']
           };
 
-          _this.$root.$emit('paginationChange', _this.paginator);
+          _this3.$root.$emit('paginationChange', _this3.paginator);
         }
       })["catch"](function (error) {//                    this.errors += '<br>'; // maybe is not empty from javascript validate
         //                    if (error.response && error.response.status === 422)
@@ -7342,12 +7503,16 @@ var kerman = [57.0532, 30.2880];
       });
     },
     setEvents: function setEvents() {
-      var _this2 = this;
+      var _this4 = this;
 
       this.$root.$on('schoolsChange', function (data) {
         //                    console.log(data);
-        _this2.schools = data; //                    this.initialize_map();
+        _this4.schools = data; //                    this.initialize_map();
         //                    this.addMarker();
+      });
+      this.$root.$on('viewChange', function (view) {
+        //                    console.log(view);
+        _this4.show = view;
       }); //            console.log(this.data);
       //            console.log(this.banners);
       //ids that start with img-
@@ -7382,6 +7547,1092 @@ var kerman = [57.0532, 30.2880];
 /*!************************************************************************************************************************************************************************!*\
   !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/school-create.vue?vue&type=script&lang=js& ***!
   \************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _map_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./map.vue */ "./resources/js/components/map.vue");
+/* harmony import */ var _dropdown_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./dropdown.vue */ "./resources/js/components/dropdown.vue");
+/* harmony import */ var _selector_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./selector.vue */ "./resources/js/components/selector.vue");
+/* harmony import */ var ol_layerswitcher_dist_ol_layerswitcher__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ol-layerswitcher/dist/ol-layerswitcher */ "./node_modules/ol-layerswitcher/dist/ol-layerswitcher.js");
+/* harmony import */ var ol_layerswitcher_dist_ol_layerswitcher__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(ol_layerswitcher_dist_ol_layerswitcher__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var sweetalert2__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! sweetalert2 */ "./node_modules/sweetalert2/dist/sweetalert2.all.js");
+/* harmony import */ var sweetalert2__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(sweetalert2__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var vue_recaptcha__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! vue-recaptcha */ "./node_modules/vue-recaptcha/dist/vue-recaptcha.es.js");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+
+
+ //    import 'jquery-captcha/dist/jquery-captcha.min';
+//    import 'ol/ol.css';
+//    import Feature from 'ol/Feature.js';
+//    import Map from 'ol/Map.js';
+//    import Overlay from 'ol/Overlay.js';
+//    import View from 'ol/View.js';
+//    import Point from 'ol/geom/Point.js';
+//    import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer.js';
+//    import TileJSON from 'ol/source/TileJSON.js';
+//    import VectorSource from 'ol/source/Vector.js';
+//    import {Icon, Style} from 'ol/style.js';
+
+var regOnlyNumber = new RegExp('^[0-9]+$');
+var regIsLatLong = new RegExp("^[-+]?[0-9]{1,7}(\\.[0-9]+)?$");
+var regIsZamime = new RegExp("^(a|d)\\$\\d+(\\$\\d+)*$"); //a or d and
+
+var map;
+var marker1, marker2, vectorSource, lineMarker;
+var layer;
+var kerman = [57.0532, 30.2880];
+var input_loc1_lat;
+var input_loc1_lon;
+var input_loc2_lat;
+var input_loc2_lon;
+var coordMarker1, coordMarker2;
+var tmpCoord1, tmpCoord2;
+var docs = [];
+var captcha;
+/* harmony default export */ __webpack_exports__["default"] = ({
+  props: ['schoolsLink', 'createSchoolLink', 'hoozesLink', 'sitekey'],
+  components: {
+    school_map: _map_vue__WEBPACK_IMPORTED_MODULE_0__["default"],
+    dropdown: _dropdown_vue__WEBPACK_IMPORTED_MODULE_1__["default"],
+    selector: _selector_vue__WEBPACK_IMPORTED_MODULE_2__["default"],
+    VueRecaptcha: vue_recaptcha__WEBPACK_IMPORTED_MODULE_5__["default"]
+  },
+  data: function data() {
+    return {
+      sName: '',
+      is_roozane: '',
+      doore: {
+        'ebte': false,
+        'mote1': false,
+        'mote2': false
+      },
+      jensiat: {
+        'b': false,
+        'g': false
+      },
+      sale_tasis: '',
+      tedad_daneshamooz: '',
+      tedad_paye_tahsili: '',
+      tedad_hamkaran: '',
+      code_madrese: '',
+      code_faza: '',
+      schoolable_type: 'App\\Saabet',
+      vaziat: '',
+      loc1: {
+        lat: null,
+        lon: null
+      },
+      loc2: {
+        lat: null,
+        lon: null
+      },
+      marker1: '',
+      marker2: '',
+      uploader: $('#uploader'),
+      loading: $('.loading-page'),
+      percentCompleted: 0,
+      docs: [],
+      IMG_LIMIT: 3,
+      SIZE_LIMIT: 2,
+      //MB
+      params: {
+        doore: '',
+        jensiat: '',
+        hooze: '',
+        zamime: [],
+        vaziat: ''
+      },
+      noe_faza: '',
+      loc1_lat_input: "",
+      loc1_lon_input: "",
+      loc2_lat_input: "",
+      loc2_lon_input: "",
+      loc1_fasele_az_shahrestan: "",
+      loc2_fasele_az_shahrestan: "",
+      masafate_kooch: "",
+      loc1_address: "",
+      loc2_address: "",
+      koochro_type: "",
+      masire_kooch: "",
+      recaptcha: ""
+    };
+  },
+  watch: {//            noe_faza: () => {
+    //                return Vue.noe_faza;
+    //            }
+  },
+  computed: {//            get_noe_faza: () => {
+    //                return Vue.noe_faza;
+    //            }
+  },
+  mounted: function mounted() {
+    //            this.getSchools();
+    this.initialize_map();
+    this.setEvents(); //            this.setSliders(0);
+
+    this.uploader = $('#uploader');
+    this.loading = $('.loading-page'); //            this.loading.removeClass('hide');
+    //            let captchaLink = this.captchaLink;
+    //            console.log(captchaLink);
+    //            $(document).ready(function () {
+    ////                // DOM ready
+    //                captcha = $('#botdetect-captcha').captcha({
+    //                    captchaEndpoint:
+    //                    captchaLink
+    //                });
+    //            });
+  },
+  created: function created() {},
+  updated: function updated() {
+    //add listeners to input loc 2 after showing
+    if (this.schoolable_type === 'App\\Koochro') {
+      input_loc1_lat = $('#loc1-lat-input');
+      input_loc1_lon = $('#loc1-lon-input');
+      input_loc2_lat = $('#loc2-lat-input');
+      input_loc2_lon = $('#loc2-lon-input');
+      coordMarker2 = marker2.getGeometry().getCoordinates(); //                input_loc2_lon.val(coordMarker2[0]);
+      //                input_loc2_lat.val(coordMarker2[1]);
+
+      $(input_loc2_lon).keyup(function () {
+        marker2.getGeometry().setCoordinates([Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]);
+        lineMarker.getGeometry().setCoordinates([[Number(input_loc1_lon.val()), Number(input_loc1_lat.val())], [Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]]);
+      });
+      $(input_loc2_lat).keyup(function () {
+        marker2.getGeometry().setCoordinates([Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]);
+        lineMarker.getGeometry().setCoordinates([[Number(input_loc1_lon.val()), Number(input_loc1_lat.val())], [Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]]);
+      });
+    }
+  },
+  methods: {
+    onVerify: function onVerify(token) {
+      //                console.log(event);
+      this.recaptcha = token;
+    },
+    removeImage: function removeImage(idx, from) {
+      if (from === 'img-input') this.docs.splice(idx, 1);
+    },
+    openFileChooser: function openFileChooser(event, from) {
+      //                send fake click for browser file
+      var image_input = document.getElementById(from);
+
+      if (document.createEvent) {
+        var evt = document.createEvent("MouseEvents");
+        evt.initEvent("click", false, true);
+        image_input.dispatchEvent(evt);
+      } else {
+        var _evt = new Event("click", {
+          "bubbles": false,
+          "cancelable": true
+        });
+
+        image_input.dispatchEvent(_evt);
+      }
+    },
+    filePreview: function filePreview(e, from) {
+      var files;
+
+      if (event.dataTransfer) {
+        files = event.dataTransfer.files;
+      } else if (event.target.files) {
+        files = event.target.files;
+      }
+
+      if (this.checkDocs(files, from)) //                    console.log(files.length);
+        if (files && files.length > 0) {
+          if (from === 'img-input') {
+            for (var i = 0; i < files.length; i++) {
+              //                        console.log(files.length);
+              var reader = new FileReader();
+
+              reader.onload = function (e) {
+                docs.push(e.target.result);
+              };
+
+              reader.readAsDataURL(files[i]);
+            }
+
+            this.docs = docs;
+          }
+        }
+    },
+    checkInputs: function checkInputs(params) {
+      //check all inputs
+      this.errors = ''; // name input -> required -> not only space
+
+      if (!this.sName.replace(/\s/g, '').length) this.errors += '<br>' + 'نام مدرسه نمی تواند خالی باشد';
+      if (this.sName.length > 100) this.errors += '<br>' + 'نام مدرسه نمی تواند بیشتر از 100 حرف باشد';
+      if (this.code_madrese > 4294967295 || this.code_madrese.length > 0 && !regOnlyNumber.test(this.code_madrese)) this.errors += '<br>' + 'کد مدرسه عدد و حداکثر 10 رقم باشد';
+      if (this.code_faza > 4294967295 || this.code_faza.length > 0 && !regOnlyNumber.test(this.code_faza)) this.errors += '<br>' + 'کد فضا عدد و حداکثر 10 رقم باشد';
+      if (this.sale_tasis !== "" && (this.sale_tasis > 1500 || this.sale_tasis < 1300) || this.sale_tasis.length > 0 && !regOnlyNumber.test(this.sale_tasis)) this.errors += '<br>' + 'سال تاسیس نامعتبر است';
+      if (this.tedad_daneshamooz > 4294967295 || this.tedad_daneshamooz.length > 0 && !regOnlyNumber.test(this.tedad_daneshamooz)) this.errors += '<br>' + 'تعداد دانش آموز عدد و حداکثر 10 رقم باشد';
+      if (this.tedad_paye_tahsili > 65535 || this.tedad_paye_tahsili.length > 0 && !regOnlyNumber.test(this.tedad_paye_tahsili)) this.errors += '<br>' + 'تعداد پایه تحصیلی عدد و حداکثر 5 رقم باشد';
+      if (this.tedad_hamkaran > 16777215 || this.tedad_hamkaran.length > 0 && !regOnlyNumber.test(this.tedad_hamkaran)) this.errors += '<br>' + 'تعداد همکاران عدد و حداکثر 8 رقم باشد';
+      if (this.is_roozane !== "" && typeof this.is_roozane !== "boolean") this.errors += '<br>' + 'روزانه شبانه نامعتبر است';
+
+      for (var i in params.zamime) {
+        params.vaziat += "$" + params.zamime[i].id;
+      }
+
+      if (params.vaziat !== '' && params.vaziat !== 'm' && !regIsZamime.test(params.vaziat)) this.errors += '<br>' + 'وضعیت مدرسه نامعتبر است';else this.params.vaziat = params.vaziat;
+      if (params.hooze !== '' && !regOnlyNumber.test(params.hooze)) this.errors += '<br>' + 'حوزه نمایندگی نامعتبر است';else this.params.hooze = params.hooze;
+      this.params.doore = '';
+
+      if (this.doore['ebte']) {
+        this.params.doore = '0';
+        if (this.doore['mote1']) this.params.doore += '$1';
+        if (this.doore['mote2']) this.params.doore += '$2';
+      } else if (this.doore['mote1']) {
+        this.params.doore = '1';
+        if (this.doore['mote2']) this.params.doore += '$2';
+      } else if (this.doore['mote2']) {
+        this.params.doore = '2';
+      }
+
+      this.params.jensiat = '';
+
+      if (this.jensiat['b']) {
+        this.params.jensiat = 'b';
+        if (this.jensiat['g']) this.params.jensiat = 'a';
+      } else if (this.jensiat['g']) this.params.jensiat = 'g';
+
+      if (!['c', 'k', 's', ''].includes(this.noe_faza)) this.errors += '<br>' + 'نوع فضای آموزشی نا معتبر است';
+      if (this.schoolable_type !== "" && this.schoolable_type !== "App\\Saabet" && this.schoolable_type !== "App\\Koochroo") this.errors += '<br>' + 'نوع مدرسه نامعتبر است';
+      if (this.loc1_lat_input.length > 22 || !regIsLatLong.test(this.loc1_lat_input) && this.loc1_lat_input !== "") this.errors += '<br>' + 'طول جغرافیایی مکان ۱ معتبر نیست';
+      if (this.loc1_lon_input.length > 22 || !regIsLatLong.test(this.loc1_lon_input) && this.loc1_lon_input !== "") this.errors += '<br>' + 'عرض جغرافیایی مکان ۱ معتبر نیست';
+      if (this.loc2_lat_input.length > 22 || !regIsLatLong.test(this.loc2_lat_input) && this.loc2_lat_input !== "") this.errors += '<br>' + 'طول جغرافیایی مکان ۲ معتبر نیست';
+      if (this.loc2_lon_input.length > 22 || !regIsLatLong.test(this.loc2_lon_input) && this.loc2_lon_input !== "") this.errors += '<br>' + 'عرض جغرافیایی مکان ۲ معتبر نیست';
+      if (this.loc1_address.length > 150) this.errors += '<br>' + 'آدرس مکان ۱ نمی تواند بیشتر از 150 حرف باشد';
+      if (this.loc2_address.length > 150) this.errors += '<br>' + 'آدرس مکان ۲ نمی تواند بیشتر از 150 حرف باشد';
+      if (this.loc1_fasele_az_shahrestan > 4294967295 || this.loc1_fasele_az_shahrestan.length > 0 && !regOnlyNumber.test(this.loc1_fasele_az_shahrestan)) this.errors += '<br>' + 'فاصله از شهرستان عدد و حداکثر 10 رقم باشد';
+      if (this.loc2_fasele_az_shahrestan > 4294967295 || this.loc2_fasele_az_shahrestan.length > 0 && !regOnlyNumber.test(this.loc2_fasele_az_shahrestan)) this.errors += '<br>' + 'فاصله از شهرستان عدد و حداکثر 10 رقم باشد'; //
+
+      if (this.masafate_kooch > 4294967295 || this.masafate_kooch.length > 0 && !regOnlyNumber.test(this.masafate_kooch)) this.errors += '<br>' + 'فاصله از شهرستان عدد و حداکثر 5 رقم باشد';
+      if (this.masire_kooch !== "" && this.masire_kooch.length > 65535) this.errors += '<br>' + 'طول مسیر کوچ نمی تواند بیشتر از 5 رقم باشد';
+      this.errors = '';
+      if (this.errors === '') this.showDialog(0);else this.showDialog(); //errors
+    },
+    checkDocs: function checkDocs(files, from) {
+      return true; // from certs-input 3 files 4 mb
+      // from agent-input 2 files 4mb
+
+      var message = '';
+      var sizeMessage = ' حجم هر عکس زیر' + this.SIZE_LIMIT + 'مگابایت باشد';
+      var numMessage = 'تعداد عکس، بیش از حد مجاز است';
+
+      for (var i = 0; i < files.length; i++) {
+        if (files[i].size / 1024 / 1024 > this.SIZE_LIMIT) {
+          message = sizeMessage;
+          break;
+        }
+      }
+
+      if (from === 'img-input' && this.docs.length + files.length > this.IMG_LIMIT) message = numMessage;
+
+      if (message !== '') {
+        sweetalert2__WEBPACK_IMPORTED_MODULE_4___default.a.fire({
+          title: 'توجه',
+          text: message,
+          type: 'error',
+          showCancelButton: true,
+          showConfirmButton: false,
+          showCloseButton: true,
+          cancelButtonText: 'باشه',
+          cancelButtonColor: '#d33'
+        });
+        return false;
+      } else return true;
+    },
+    showDialog: function showDialog(type, data) {
+      var _this = this;
+
+      // 0  ready for save
+      // 1  success  save
+      // else show errors
+      if (type === 0) sweetalert2__WEBPACK_IMPORTED_MODULE_4___default.a.fire({
+        title: 'توجه',
+        text: 'تغییرات ذخیره شوند؟',
+        type: 'warning',
+        showCancelButton: true,
+        showCloseButton: true,
+        cancelButtonText: 'خیر',
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: ' بله'
+      }).then(function (result) {
+        if (result.value) {
+          _this.saveChanges();
+        }
+      });else if (type === 1) {
+        sweetalert2__WEBPACK_IMPORTED_MODULE_4___default.a.fire({
+          title: 'توجه',
+          text: ' با موفقیت ذخیره شد!',
+          confirmButtonColor: '#60aa2f',
+          type: 'success',
+          confirmButtonText: ' باشه'
+        }).then(function (result) {
+          if (result.value) {
+            location.reload();
+          }
+        });
+      } else {
+        sweetalert2__WEBPACK_IMPORTED_MODULE_4___default.a.fire({
+          title: 'خطاهای زیر را اصلاح نمایید',
+          html: " <p   class=\"text-danger\">" + this.errors + "</p>",
+          //                        text: this.errors,
+          confirmButtonColor: '#d33',
+          type: 'error',
+          confirmButtonText: ' باشه'
+        });
+      }
+    },
+    saveChanges: function saveChanges() {
+      var _this2 = this;
+
+      this.loading.removeClass('hide'); //                console.log(this.recaptcha);
+
+      axios.post(this.createSchoolLink, {
+        //                    userEnteredCaptchaCode: captcha.userEnteredCaptchaCode,
+        //                    captchaId: captcha.captchaId,
+        recaptcha: this.recaptcha,
+        sName: this.sName,
+        hooze: this.params.hooze,
+        code_madrese: this.code_madrese,
+        code_faza: this.code_faza,
+        sale_tasis: this.sale_tasis,
+        tedad_daneshamooz: this.tedad_daneshamooz,
+        tedad_paye_tahsili: this.tedad_paye_tahsili,
+        tedad_hamkaran: this.tedad_hamkaran,
+        is_roozane: this.is_roozane,
+        doore: this.params.doore,
+        jensiat: this.params.jensiat,
+        schoolable_type: this.schoolable_type,
+        vaziat: this.params.vaziat,
+        loc1: {
+          pos: this.loc1_lon_input && this.loc1_lat_input ? this.loc1_lon_input + "," + this.loc1_lat_input : "",
+          fasele_az_shahrestan: this.loc1_fasele_az_shahrestan,
+          address: this.loc1_address
+        },
+        loc2: {
+          pos: this.loc2_lon_input && this.loc2_lat_input ? this.loc2_lon_input + "," + this.loc2_lat_input : "",
+          fasele_az_shahrestan: this.loc2_fasele_az_shahrestan,
+          address: this.loc2_address,
+          masafate_kooch: this.masafate_kooch,
+          masire_kooch: this.masire_kooch,
+          koochro_type: this.koochro_type
+        },
+        docs: this.docs,
+        noe_faza: this.noe_faza
+      }).then(function (response) {
+        _this2.loading.addClass('hide');
+
+        console.log(response);
+
+        if (response.status === 200) {
+          _this2.showDialog(1);
+        }
+      })["catch"](function (error) {
+        _this2.loading.addClass('hide');
+
+        _this2.errors += '<br>'; // maybe is not empty from javascript validate
+
+        if (error.response && error.response.status === 422) for (var idx in error.response.data.errors) {
+          _this2.errors += error.response.data.errors[idx] + '<br>';
+        } else {
+          _this2.errors = error;
+        }
+
+        _this2.showDialog(); //                    console.log(error);
+        //                    console.log(error.response);
+
+      });
+      this.$refs.recaptcha.reset();
+    },
+    setSliders: function setSliders(type) {
+      var _this3 = this;
+
+      if (type === 0) {
+        //init sliders
+        $(function () {
+          $("#slider-sal").slider({
+            range: false,
+            orientation: "horizontal",
+            value: 1300,
+            min: 1300,
+            max: 1500,
+            step: 1,
+            slide: function slide(event, ui) {
+              _this3.sale_tasis = ui.value;
+            }
+          });
+          $("#slider-tedad").slider({
+            range: false,
+            orientation: "horizontal",
+            value: 0,
+            min: 0,
+            max: 1000,
+            step: 1,
+            slide: function slide(event, ui) {
+              _this3.tedad_daneshamooz = ui.value;
+            }
+          });
+        });
+      } else if (type === 1) {
+        //sale tasis slider update
+        $("#slider-sal").slider({
+          value: this.sale_tasis
+        });
+      } else if (type === 2) {
+        //tedad   slider update
+        $("#slider-tedad").slider({
+          value: this.tedad_daneshamooz
+        });
+      }
+    },
+    initialize_map: function initialize_map() {
+      console.log('init');
+      var iconFeatures = [];
+      var iconStyle1 = new ol.style.Style({
+        image: new ol.style.Icon(
+        /** @type {olx.style.IconOptions} */
+        {
+          anchor: [.5, 1],
+          anchorXUnits: 'fraction',
+          anchorYUnits: 'fraction',
+          scale: .5,
+          opacity: .9,
+          src: '../img/marker-school-blue.png'
+        })
+      });
+      var iconStyle2 = new ol.style.Style({
+        image: new ol.style.Icon(
+        /** @type {olx.style.IconOptions} */
+        {
+          anchor: [.5, 1],
+          anchorXUnits: 'fraction',
+          anchorYUnits: 'fraction',
+          opacity: .9,
+          scale: .5,
+          src: '../img/marker-school-red.png'
+        })
+      });
+      var lineStyle = new ol.style.Style({
+        stroke: new ol.style.Stroke({
+          color: '#09ef00',
+          width: 8
+        })
+      });
+      marker1 = new ol.Feature({
+        geometry: new ol.geom.Point(ol.proj.transform(kerman, 'EPSG:4326', 'EPSG:3857')),
+        name: this.sName
+      });
+      marker1.setId('marker1');
+      marker2 = new ol.Feature({
+        geometry: new ol.geom.Point(ol.proj.transform([kerman[0] - .002, kerman[1]], 'EPSG:4326', 'EPSG:3857')),
+        name: this.sName
+      });
+      marker2.setId('marker2');
+      var startPt = ol.proj.fromLonLat(kerman);
+      var endPt = ol.proj.fromLonLat([kerman[0] - .002, kerman[1]]);
+      lineMarker = new ol.Feature({
+        geometry: new ol.geom.LineString([startPt, endPt]),
+        name: 'Line'
+      });
+      lineMarker.setId('line');
+      marker1.setStyle(iconStyle1);
+      marker2.setStyle(iconStyle2);
+      lineMarker.setStyle(lineStyle);
+      iconFeatures.push(marker1); //                iconFeatures.push(marker2);
+      //                iconFeatures.push(lineMarker);
+
+      if (this.map) {
+        this.map.setTarget(null);
+        this.map = null;
+      }
+
+      vectorSource = new ol.source.Vector({
+        features: iconFeatures
+      });
+      var markersLayer = new ol.layer.Vector({
+        source: vectorSource,
+        name: "markers"
+      }); //                console.log(marker2.getGeometry().getCoordinates());
+
+      this.bingLayer = new ol.layer.Tile({
+        source: new ol.source.BingMaps({
+          key: 'AodEaqQSDksfjZDM0HwxhdvJQDnj0Y6wgtaP6gi_wpDBcFMaefn8kz8bjvmFpN_s',
+          imagerySet: 'Aerial',
+          //or 'Road', 'AerialWithLabels',
+          maxZoom: 19
+        }),
+        name: "bingHybrid",
+        title: 'عوارض'
+      });
+      this.layer = new ol.layer.Tile({
+        source: new ol.source.OSM({
+          url: "http://mt.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&s=IR&hl=fa"
+        }),
+        //                    style: iconStyle,
+        name: "main",
+        title: 'ساده'
+      });
+      this.GoogleHybridlayer = new ol.layer.Tile({
+        source: new ol.source.OSM({
+          url: 'http://mt0.google.com/vt/lyrs=y&hl=fa&x={x}&y={y}&z={z}&s=IR'
+        }),
+        //                    style: iconStyle1,
+        name: "googleHybrid",
+        title: 'گوگل'
+      });
+      this.map = new ol.Map({
+        target: "map",
+        layers: [new ol.layer.Group({
+          title: 'لایه ها',
+          name: 'group',
+          layers: [this.GoogleHybridlayer, this.layer, this.bingLayer, markersLayer]
+        })],
+        view: new ol.View({
+          center: ol.proj.fromLonLat(kerman),
+          zoom: 15
+        })
+      });
+      this.map.addControl(new ol.control.OverviewMap());
+      this.map.addControl(new ol_layerswitcher_dist_ol_layerswitcher__WEBPACK_IMPORTED_MODULE_3___default.a()); //                drag features
+
+      var translate1 = new ol.interaction.Translate({
+        features: new ol.Collection([marker1])
+      });
+      var translate2 = new ol.interaction.Translate({
+        features: new ol.Collection([marker2])
+      });
+      this.map.addInteraction(translate1);
+      this.map.addInteraction(translate2);
+      input_loc1_lat = $('#loc1-lat-input');
+      input_loc1_lon = $('#loc1-lon-input');
+      input_loc2_lat = $('#loc2-lat-input');
+      input_loc2_lon = $('#loc2-lon-input');
+      translate1.on('translatestart', function (evt) {
+        coordMarker2 = marker2.getGeometry().getCoordinates();
+      });
+      translate1.on('translating', function (evt) {
+        tmpCoord1 = marker1.getGeometry().getCoordinates();
+        lineMarker.getGeometry().setCoordinates([coordMarker2, tmpCoord1]);
+        input_loc1_lon.val(tmpCoord1[0]);
+        input_loc1_lat.val(tmpCoord1[1]);
+      });
+      translate2.on('translatestart', function (evt) {
+        coordMarker1 = marker1.getGeometry().getCoordinates();
+      });
+      translate2.on('translating', function (evt) {
+        tmpCoord2 = marker2.getGeometry().getCoordinates();
+        lineMarker.getGeometry().setCoordinates([coordMarker1, tmpCoord2]);
+        input_loc2_lon.val(tmpCoord2[0]);
+        input_loc2_lat.val(tmpCoord2[1]);
+      });
+      $(input_loc1_lon).keyup(function () {
+        marker1.getGeometry().setCoordinates([Number(input_loc1_lon.val()), Number(input_loc1_lat.val())]);
+        lineMarker.getGeometry().setCoordinates([[Number(input_loc1_lon.val()), Number(input_loc1_lat.val())], [Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]]);
+      });
+      $(input_loc1_lat).keyup(function () {
+        marker1.getGeometry().setCoordinates([Number(input_loc1_lon.val()), Number(input_loc1_lat.val())]);
+        lineMarker.getGeometry().setCoordinates([[Number(input_loc1_lon.val()), Number(input_loc1_lat.val())], [Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]]);
+      });
+      $(input_loc2_lon).keyup(function () {
+        marker2.getGeometry().setCoordinates([Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]);
+        lineMarker.getGeometry().setCoordinates([[Number(input_loc1_lon.val()), Number(input_loc1_lat.val())], [Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]]);
+      });
+      $(input_loc2_lat).keyup(function () {
+        marker2.getGeometry().setCoordinates([Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]);
+        lineMarker.getGeometry().setCoordinates([[Number(input_loc1_lon.val()), Number(input_loc1_lat.val())], [Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]]);
+      }); //first lat lon input values
+
+      coordMarker1 = marker1.getGeometry().getCoordinates();
+      coordMarker2 = marker2.getGeometry().getCoordinates(); //                input_loc1_lon.val(coordMarker1[0]);
+      //                input_loc1_lat.val(coordMarker1[1]);
+      //                input_loc2_lon.val(coordMarker2[0]);
+      //                input_loc2_lat.val(coordMarker2[1]);
+      //                this.loc1_lon_input = coordMarker1[0];
+      //                this.loc1_lat_input = coordMarker1[1];
+      //                this.loc2_lon_input = coordMarker2[0];
+      //                this.loc2_lat_input = coordMarker2[1];
+
+      map = this.map;
+      map.on('pointermove', function (e) {
+        if (e.dragging) return;
+        var hit = map.hasFeatureAtPixel(map.getEventPixel(e.originalEvent));
+        map.getTargetElement().style.cursor = hit ? 'pointer' : '';
+      });
+      marker1.style = {
+        display: 'none'
+      };
+      lineMarker.style = {
+        display: 'none'
+      };
+      this.layer.getSource().changed();
+      map.render();
+    },
+    marker: function marker(command, _marker) {
+      if (command === 'add' && _marker === 2 && vectorSource.getFeatureById('marker2') === null) {
+        vectorSource.addFeature(lineMarker);
+        vectorSource.addFeature(marker2);
+      } else if (command === 'del' && _marker === 2 && vectorSource.getFeatureById('marker2') !== null) {
+        vectorSource.removeFeature(lineMarker);
+        vectorSource.removeFeature(marker2);
+      }
+    },
+    //                this.layer = layer;
+    cancel: function cancel() {
+      $("#mapModal").removeClass('show');
+    },
+    getType: function getType(school, _for) {
+      var text = '';
+
+      if (_for === "kooch") {
+        if (school.schoolable_type === 'App\\Saabet') text = 'نوع: ثابت';else if (school.schoolable_type === 'App\\Koochro') text = ' نوع: کوچ رو';
+      } else if (_for === "sayyar") {
+        if (school.schoolable.type === 'n') text = ' نیمه سیار ';else if (school.schoolable.type === 's') text = ' سیار ';
+      } else if (_for === "faza") {
+        if (school.noe_fazaye_amoozeshi === 's') text = ' ساختمان ';else if (school.noe_fazaye_amoozeshi === 'k') text = ' کانکس ';else if (school.noe_fazaye_amoozeshi === 'c') text = ' چادر ';
+      } else if (_for === "zamime") {
+        if (school.vaziat.startsWith('a')) //zamime ast
+          text = ' ضمیمه است ';else if (school.vaziat.startsWith('d')) //zamime darad
+          text = ' ضمیمه دارد ';
+      } else if (_for === "zamime_ids") {
+        if (school.vaziat !== 'm') return school.vaziat.split("$").slice(1);
+      } else if (_for === "doore") {
+        if (school === '0') text = ' ابتدایی ';else if (school === '1') text = ' متوسطه ۱ ';else if (school === '2') text = ' متوسطه ۲ ';
+      }
+
+      return text;
+    },
+    getImage: function getImage(doc) {
+      if (doc.length !== 0) return doc[0].path;else return "img/school-no.png";
+    },
+    getSchools: function getSchools() {
+      var _this4 = this;
+
+      axios.post(this.schoolsLink, this.params).then(function (response) {
+        //                        console.log(response);
+        if (response.status === 200) {
+          //
+          _this4.schools = response.data;
+          _this4.paginator = {
+            current_page: response.data['current_page'],
+            first_page_url: response.data['first_page_url'],
+            next_page_url: response.data['next_page_url'],
+            prev_page_url: response.data['prev_page_url'],
+            last_page_url: response.data['last_page_url'],
+            last_page: response.data['last_page'],
+            from: response.data['from'],
+            to: response.data['to'],
+            total: response.data['total']
+          };
+
+          _this4.$root.$emit('paginationChange', _this4.paginator);
+        }
+      })["catch"](function (error) {//                    this.errors += '<br>'; // maybe is not empty from javascript validate
+        //                    if (error.response && error.response.status === 422)
+        //                        for (let idx in error.response.data.errors)
+        //                            this.errors += error.response.data.errors[idx] + '<br>';
+        //                    else {
+        //                        this.errors = error;
+        //                    }
+        //                    this.showDialog();
+        ////                    console.log(error);
+        ////                    console.log(error.response);
+      });
+    },
+    setEvents: function setEvents() {
+      var _this5 = this;
+
+      this.$root.$on('schoolsChange', function (data) {
+        _this5.schools = data;
+      }); //hoozeRequest->hoozeResponse->selectorResponse
+
+      this.$root.$on('selectorResponse', function (params) {
+        _this5.checkInputs(params);
+      }); //            console.log(this.data);
+      //            console.log(this.banners);
+
+      this.uploader.on('dragenter', function (e) {
+        _this5.uploader.addClass('hover');
+
+        return false;
+      }).on('dragleave', function (e) {
+        _this5.uploader.removeClass('hover');
+
+        return false;
+      });
+    }
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/school-edit.vue?vue&type=script&lang=js&":
+/*!**********************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/school-edit.vue?vue&type=script&lang=js& ***!
+  \**********************************************************************************************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -8645,6 +9896,43 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -8654,6 +9942,10 @@ __webpack_require__.r(__webpack_exports__);
   },
   data: function data() {
     return {
+      show: 'list',
+      simple_search: true,
+      //only school name
+      per_page: 24,
       sName: '',
       loading: $(".loading-page"),
       oldSchools: $("#old-schools"),
@@ -8756,8 +10048,7 @@ __webpack_require__.r(__webpack_exports__);
       if (this.status['sakhteman']) noe_fazaye_amoozeshi.push('s');
       if (this.status['kanex']) noe_fazaye_amoozeshi.push('k');
       this.loading.removeClass('hide');
-      this.no_result.addClass('hide'); //                console.log(status);
-      //                console.log(this.searchName);
+      this.no_result.addClass('hide'); //                console.log(this.searchName);
       //                console.log(param);
 
       axios.post(this.schoolsLink, {
@@ -8772,6 +10063,7 @@ __webpack_require__.r(__webpack_exports__);
         vaziat: vaziat,
         noe_fazaye_amoozeshi: noe_fazaye_amoozeshi,
         hooze_namayandegi_id: param['data'],
+        paginate: this.per_page,
         page: param['page'],
         sale_tasis: {
           'min': this.min_sal,
@@ -9237,17 +10529,97 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 var EventBus = new Vue();
 /* harmony default export */ __webpack_exports__["default"] = ({
   //        extends: bannerCards,
-  props: ['user'],
+  props: ['user', 'panelLink'],
   data: function data() {
     return {};
   },
   created: function created() {},
   mounted: function mounted() {},
   updated: function updated() {},
-  methods: {}
+  methods: {
+    view: function view(v) {
+      var link;
+      if (v === 'schools') link = this.panelLink + "/" + v;
+      window.location.href = link; //                axios.get(link, {})
+      //                    .then((response) => {
+      //                        console.log(response);
+      //                        if (response.status === 200) {
+      //                            this.showDialog(1);
+      //
+      //                        }
+      //                    }).catch((error) => {
+      //                    this.errors += '<br>'; // maybe is not empty from javascript validate
+      //                    if (error.response && error.response.status === 422)
+      //                        for (let idx in error.response.data.errors)
+      //                            this.errors += error.response.data.errors[idx] + '<br>';
+      //                    else {
+      //                        this.errors = error;
+      //                    }
+      //                    this.showDialog();
+      ////                    console.log(error);
+      ////                    console.log(error.response);
+      //                });
+    },
+    showDialog: function showDialog(type, data) {
+      var _this = this;
+
+      // 0  ready for save
+      // 1  success  save
+      // else show errors
+      if (type === 0) swal.fire({
+        title: 'توجه',
+        text: 'تغییرات ذخیره شوند؟',
+        type: 'warning',
+        showCancelButton: true,
+        showCloseButton: true,
+        cancelButtonText: 'خیر',
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: ' بله'
+      }).then(function (result) {
+        if (result.value) {
+          _this.saveChanges();
+        }
+      });else if (type === 1) {
+        swal.fire({
+          title: 'توجه',
+          text: ' با موفقیت ذخیره شد!',
+          confirmButtonColor: '#60aa2f',
+          type: 'success',
+          confirmButtonText: ' باشه'
+        }).then(function (result) {
+          if (result.value) {
+            location.reload();
+          }
+        });
+      } else {
+        swal.fire({
+          title: 'خطاهای زیر را اصلاح نمایید',
+          html: " <p   class=\"text-danger\">" + this.errors + "</p>",
+          //                        text: this.errors,
+          confirmButtonColor: '#d33',
+          type: 'error',
+          confirmButtonText: ' باشه'
+        });
+      }
+    }
+  }
 });
 
 /***/ }),
@@ -13701,6 +15073,25 @@ var EventBus = new Vue();
 /*!*******************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/school-create.vue?vue&type=style&index=0&lang=css& ***!
   \*******************************************************************************************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loader/lib/css-base.js */ "./node_modules/css-loader/lib/css-base.js")(false);
+// imports
+
+
+// module
+exports.push([module.i, "\n.toggle-container {\n    border-radius: 1rem;\n    /*border-width: 1rem;*/\n    /*border-style: dashed;*/\n    border: .2rem dashed;\n}\n\n", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/school-edit.vue?vue&type=style&index=0&lang=css&":
+/*!*****************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/school-edit.vue?vue&type=style&index=0&lang=css& ***!
+  \*****************************************************************************************************************************************************************************************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -35625,6 +37016,36 @@ if(false) {}
 
 /***/ }),
 
+/***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/school-edit.vue?vue&type=style&index=0&lang=css&":
+/*!*********************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader!./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/school-edit.vue?vue&type=style&index=0&lang=css& ***!
+  \*********************************************************************************************************************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+var content = __webpack_require__(/*! !../../../node_modules/css-loader??ref--6-1!../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../node_modules/postcss-loader/src??ref--6-2!../../../node_modules/vue-loader/lib??vue-loader-options!./school-edit.vue?vue&type=style&index=0&lang=css& */ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/school-edit.vue?vue&type=style&index=0&lang=css&");
+
+if(typeof content === 'string') content = [[module.i, content, '']];
+
+var transform;
+var insertInto;
+
+
+
+var options = {"hmr":true}
+
+options.transform = transform
+options.insertInto = undefined;
+
+var update = __webpack_require__(/*! ../../../node_modules/style-loader/lib/addStyles.js */ "./node_modules/style-loader/lib/addStyles.js")(content, options);
+
+if(content.locals) module.exports = content.locals;
+
+if(false) {}
+
+/***/ }),
+
 /***/ "./node_modules/style-loader/lib/addStyles.js":
 /*!****************************************************!*\
   !*** ./node_modules/style-loader/lib/addStyles.js ***!
@@ -42355,10 +43776,20 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    { staticClass: "row  mx-1  gallery" },
-    [
+  return _c("div", { staticClass: "row  mx-1  gallery" }, [
+    _c(
+      "div",
+      {
+        directives: [
+          {
+            name: "show",
+            rawName: "v-show",
+            value: _vm.show == "card",
+            expression: "show=='card'"
+          }
+        ],
+        staticClass: "row"
+      },
       _vm._l(_vm.schools, function(s, idx) {
         return _c(
           "div",
@@ -42478,7 +43909,7 @@ var render = function() {
                   _vm._v(" "),
                   _c("img", {
                     staticClass: "back-header-img",
-                    attrs: { src: "img/card-header.png", alt: "" }
+                    attrs: { src: "/img/card-header.png", alt: "" }
                   }),
                   _vm._v(" "),
                   _c("img", {
@@ -42511,7 +43942,7 @@ var render = function() {
                               "  left-border badge-pill bg-gray text-white small d-inline-block "
                           },
                           [
-                            _vm._v(" کد مدرسه:\n                        "),
+                            _vm._v(" کد مدرسه:\n                            "),
                             s.code_madrese
                               ? _c("span", [
                                   _vm._v(" " + _vm._s(s.code_madrese))
@@ -42532,7 +43963,7 @@ var render = function() {
                               "  right-border badge-pill bg-dark-green text-white small d-inline-block "
                           },
                           [
-                            _vm._v("کد فضا:\n                        "),
+                            _vm._v("کد فضا:\n                            "),
                             s.code_faza
                               ? _c("span", [_vm._v(" " + _vm._s(s.code_faza))])
                               : _c("span", [
@@ -42550,7 +43981,7 @@ var render = function() {
                     _vm._v(" "),
                     _c("p", { staticClass: "card-text text-dark-blue" }, [
                       _c("i", { staticClass: "fas  fa-arrow-circle-left" }),
-                      _vm._v(" تاسیس:\n                    "),
+                      _vm._v(" تاسیس:\n                        "),
                       s.sale_tasis
                         ? _c("span", [_vm._v(" " + _vm._s(s.sale_tasis))])
                         : _c("span", [
@@ -42562,7 +43993,7 @@ var render = function() {
                     _vm._v(" "),
                     _c("p", { staticClass: "card-text text-dark-blue" }, [
                       _c("i", { staticClass: "fas  fa-arrow-circle-left" }),
-                      _vm._v("حوزه نمایندگی:\n                    "),
+                      _vm._v("حوزه نمایندگی:\n                        "),
                       s.hooze
                         ? _c("span", [_vm._v(" " + _vm._s(s.hooze.name))])
                         : _c("span", [
@@ -42580,7 +44011,7 @@ var render = function() {
                         _vm._v(
                           " " +
                             _vm._s(_vm.getType(s, "kooch")) +
-                            "\n                    "
+                            "\n                        "
                         ),
                         s.schoolable_type === "App\\Koochro"
                           ? _c("i", {
@@ -42590,7 +44021,7 @@ var render = function() {
                           : _vm._e(),
                         _vm._v(
                           _vm._s(_vm.getType(s, "sayyar")) +
-                            "\n                "
+                            "\n                    "
                         )
                       ]
                     ),
@@ -42600,7 +44031,7 @@ var render = function() {
                       { staticClass: "card-text text-dark-blue p-type" },
                       [
                         _c("i", { staticClass: "fas  fa-arrow-circle-left" }),
-                        _vm._v(" تعداد همکاران:\n                    "),
+                        _vm._v(" تعداد همکاران:\n                        "),
                         s.tedad_hamkaran
                           ? _c("span", [_vm._v(" " + _vm._s(s.tedad_hamkaran))])
                           : _c("span", [
@@ -42617,7 +44048,7 @@ var render = function() {
                       { staticClass: "card-text text-dark-blue p-type" },
                       [
                         _c("i", { staticClass: "fas  fa-arrow-circle-left" }),
-                        _vm._v(" تعداد پایه تحصیلی:\n                    "),
+                        _vm._v(" تعداد پایه تحصیلی:\n                        "),
                         s.tedad_paye_tahsili
                           ? _c("span", [
                               _vm._v(" " + _vm._s(s.tedad_paye_tahsili))
@@ -42670,7 +44101,7 @@ var render = function() {
                             _c("i", { staticClass: "fas  fa-eye " }),
                             _vm._v(
                               _vm._s(_vm.getType(s, "zamime")) +
-                                "\n\n\n                "
+                                "\n\n\n                    "
                             )
                           ]
                         )
@@ -42691,7 +44122,7 @@ var render = function() {
                         },
                         [
                           _c("i", { staticClass: "fa fa-edit" }),
-                          _vm._v(" ویرایش\n                    ")
+                          _vm._v(" ویرایش\n                        ")
                         ]
                       )
                     ])
@@ -42704,282 +44135,478 @@ var render = function() {
           ]
         )
       }),
-      _vm._v(" "),
-      _c(
-        "div",
-        {
-          staticClass: "modal fade px-2 ",
-          attrs: {
-            id: "mapModal",
-            tabindex: "-1",
-            role: "dialog",
-            "aria-labelledby": "mapModalLabel",
-            "aria-hidden": "true"
+      0
+    ),
+    _vm._v(" "),
+    _c(
+      "div",
+      {
+        directives: [
+          {
+            name: "show",
+            rawName: "v-show",
+            value: _vm.show == "list",
+            expression: "show=='list'"
           }
-        },
-        [
+        ],
+        staticClass: "col-12  "
+      },
+      [
+        _c("div", { staticClass: "table-responsive " }, [
           _c(
-            "div",
-            {
-              staticClass: "modal-dialog  max-w-full show",
-              attrs: { role: "document" }
-            },
+            "table",
+            { staticClass: "table   table-sm table-bordered table-striped   " },
             [
-              _vm.selectedSchool
-                ? _c("div", { staticClass: "modal-content" }, [
-                    _c("div", { staticClass: "modal-header  " }, [
-                      _c("h5", { staticClass: "modal-title text-primary " }, [
-                        _vm._v(" " + _vm._s(_vm.selectedSchool.name))
-                      ]),
-                      _vm._v(" "),
-                      (_vm.selectedSchool.schoolable_type === "App\\Saabet" &&
-                        !_vm.selectedSchool.schoolable.loc) ||
-                      (_vm.selectedSchool.schoolable_type === "App\\Koochro" &&
-                        !_vm.selectedSchool.schoolable.loc_yeylagh)
-                        ? _c(
-                            "h5",
-                            { staticClass: "modal-title text-danger " },
-                            [_vm._v(" اطلاعات مکانی موجود نیست")]
-                          )
-                        : _vm._e(),
-                      _vm._v(" "),
-                      _c("i", {
-                        staticClass:
-                          "glyphicon glyphicon-remove text-danger  clear-btn",
-                        attrs: {
-                          "data-dismiss": "modal",
-                          "aria-label": "Close"
-                        },
-                        on: {
-                          click: function($event) {
-                            return _vm.cancel()
-                          }
-                        }
-                      })
+              _vm._m(1),
+              _vm._v(" "),
+              _c(
+                "tbody",
+                _vm._l(_vm.schools, function(s, idx) {
+                  return _c("tr", { staticClass: " small    " }, [
+                    _c(
+                      "th",
+                      { staticClass: "text-center ", attrs: { scope: "row" } },
+                      [_vm._v(_vm._s(s.code_madrese))]
+                    ),
+                    _vm._v(" "),
+                    _c("td", { staticClass: "align-middle" }, [
+                      _vm._v(_vm._s(s.name))
                     ]),
                     _vm._v(" "),
-                    _c(
-                      "div",
-                      { staticClass: "modal-body   " },
-                      [
-                        _c("school_map", {
-                          attrs: {
-                            id: "map_card",
-                            map: _vm.map,
-                            s: _vm.selectedSchool,
-                            editMode: false
-                          }
-                        }),
-                        _vm._v(" "),
-                        _c(
-                          "div",
+                    _c("td", { staticClass: "align-middle" }, [
+                      _vm._v(_vm._s(s.code_faza))
+                    ]),
+                    _vm._v(" "),
+                    _c("td", { staticClass: "align-middle" }, [
+                      _vm._v(_vm._s(s.sale_tasis))
+                    ]),
+                    _vm._v(" "),
+                    s.hooze
+                      ? _c("td", { staticClass: "align-middle" }, [
+                          _vm._v(_vm._s(s.hooze.name))
+                        ])
+                      : _c("td", { staticClass: "align-middle" }, [
+                          _c("i", {
+                            staticClass: "fas  fa-question-circle text-danger"
+                          })
+                        ]),
+                    _vm._v(" "),
+                    s.schoolable_type === "App\\Saabet"
+                      ? _c("td", { staticClass: "align-middle" }, [
+                          _vm._v("ثابت")
+                        ])
+                      : s.schoolable_type === "App\\Koochro"
+                      ? _c("td", { staticClass: "align-middle" }, [
+                          _vm._v(
+                            "کوچ رو\n                        " +
+                              _vm._s(_vm.getType(s, "sayyar")) +
+                              "\n                    "
+                          )
+                        ])
+                      : _c("td", [_vm._v("---")]),
+                    _vm._v(" "),
+                    s.tedad_hamkaran
+                      ? _c("td", { staticClass: "align-middle" }, [
+                          _vm._v(_vm._s(s.tedad_hamkaran))
+                        ])
+                      : _c("td", { staticClass: "align-middle" }, [
+                          _c("i", {
+                            staticClass: "fas  fa-question-circle text-danger"
+                          })
+                        ]),
+                    _vm._v(" "),
+                    s.tedad_paye_tahsili
+                      ? _c("td", { staticClass: "align-middle" }, [
+                          _vm._v(_vm._s(s.tedad_paye_tahsili))
+                        ])
+                      : _c("td", { staticClass: "align-middle" }, [
+                          _c("i", {
+                            staticClass: "fas  fa-question-circle text-danger"
+                          })
+                        ]),
+                    _vm._v(" "),
+                    s.vaziat && s.vaziat.startsWith("a")
+                      ? _c(
+                          "td",
                           {
-                            key: _vm.selectedSchool.id + "-modal",
-                            staticClass:
-                              "modal-footer justify-content-start text-dark-blue"
+                            staticClass: "align-middle",
+                            on: {
+                              click: function($event) {
+                                $event.stopPropagation()
+                                _vm.$root.$emit("dropdownResponse", {
+                                  ids: _vm.getType(s, "zamime_ids")
+                                })
+                              }
+                            }
                           },
                           [
-                            _vm.selectedSchool.schoolable_type === "App\\Saabet"
-                              ? _c("div", [
-                                  _c(
-                                    "p",
-                                    { staticClass: "small text-primary" },
-                                    [
-                                      _vm._v(" آدرس "),
-                                      _c("i", {
-                                        staticClass: "fas fa-arrow-circle-left"
-                                      }),
-                                      _vm._v(" "),
-                                      _vm.selectedSchool.schoolable.address
-                                        ? _c("span", [
-                                            _vm._v(
-                                              " " +
-                                                _vm._s(
-                                                  _vm.selectedSchool.schoolable
-                                                    .address
-                                                )
-                                            )
-                                          ])
-                                        : _c("span", [
-                                            _c("i", {
-                                              staticClass:
-                                                "fas  fa-question-circle text-danger"
-                                            })
-                                          ]),
-                                      _vm._v(" "),
-                                      _c("i", { staticClass: "fas fa-circle" }),
-                                      _vm._v(
-                                        " فاصله از شهرستان\n                                "
-                                      ),
-                                      _c("i", {
-                                        staticClass: "fas fa-arrow-circle-left"
-                                      }),
-                                      _vm._v(" "),
-                                      _vm.selectedSchool.schoolable
-                                        .fasele_az_shahrestan
-                                        ? _c("span", [
-                                            _vm._v(
-                                              " " +
-                                                _vm._s(
-                                                  _vm.selectedSchool.schoolable
-                                                    .fasele_az_shahrestan
-                                                ) +
-                                                " کیلومتر "
-                                            )
-                                          ])
-                                        : _c("span", [
-                                            _c("i", {
-                                              staticClass:
-                                                "fas  fa-question-circle text-danger"
-                                            })
-                                          ])
-                                    ]
-                                  )
-                                ])
-                              : _vm.selectedSchool.schoolable_type ===
-                                "App\\Koochro"
-                              ? _c("div", [
-                                  _c(
-                                    "p",
-                                    { staticClass: "small text-primary" },
-                                    [
-                                      _vm._v(" آدرس ییلاق "),
-                                      _c("i", {
-                                        staticClass: "fas fa-arrow-circle-left"
-                                      }),
-                                      _vm._v(" "),
-                                      _vm.selectedSchool.schoolable
-                                        .address_yeylagh
-                                        ? _c("span", [
-                                            _vm._v(
-                                              " " +
-                                                _vm._s(
-                                                  _vm.selectedSchool.schoolable
-                                                    .address_yeylagh
-                                                )
-                                            )
-                                          ])
-                                        : _c("span", [
-                                            _c("i", {
-                                              staticClass:
-                                                "fas  fa-question-circle text-danger"
-                                            })
-                                          ]),
-                                      _vm._v(" "),
-                                      _c("i", { staticClass: "fas fa-circle" }),
-                                      _vm._v(
-                                        " فاصله از شهرستان\n                                "
-                                      ),
-                                      _c("i", {
-                                        staticClass: "fas fa-arrow-circle-left"
-                                      }),
-                                      _vm._v(" "),
-                                      _vm.selectedSchool.schoolable
-                                        .fasele_az_shahrestan_yeylagh
-                                        ? _c("span", [
-                                            _vm._v(
-                                              " " +
-                                                _vm._s(
-                                                  _vm.selectedSchool.schoolable
-                                                    .fasele_az_shahrestan_yeylagh
-                                                ) +
-                                                " کیلومتر "
-                                            )
-                                          ])
-                                        : _c("span", [
-                                            _c("i", {
-                                              staticClass:
-                                                "fas  fa-question-circle text-danger"
-                                            })
-                                          ])
-                                    ]
-                                  ),
-                                  _vm._v(" "),
-                                  _c(
-                                    "p",
-                                    { staticClass: "small text-danger" },
-                                    [
-                                      _vm._v(" آدرس قشلاق "),
-                                      _c("i", {
-                                        staticClass: "fas fa-arrow-circle-left"
-                                      }),
-                                      _vm._v(
-                                        "\n                                " +
-                                          _vm._s(
-                                            _vm.selectedSchool.schoolable
-                                              .address_gheshlagh
-                                          ) +
-                                          "\n                                "
-                                      ),
-                                      _c("i", { staticClass: "fas fa-circle" }),
-                                      _vm._v(
-                                        " فاصله از شهرستان\n                                "
-                                      ),
-                                      _c("i", {
-                                        staticClass: "fas fa-arrow-circle-left"
-                                      }),
-                                      _vm._v(" "),
-                                      _vm.selectedSchool.schoolable
-                                        .fasele_az_shahrestan_gheshlagh
-                                        ? _c("span", [
-                                            _vm._v(
-                                              " " +
-                                                _vm._s(
-                                                  _vm.selectedSchool.schoolable
-                                                    .fasele_az_shahrestan_gheshlagh
-                                                ) +
-                                                " کیلومتر "
-                                            )
-                                          ])
-                                        : _c("span", [
-                                            _c("i", {
-                                              staticClass:
-                                                "fas  fa-question-circle text-danger"
-                                            })
-                                          ])
-                                    ]
-                                  ),
-                                  _vm._v(" "),
-                                  _c("p", { staticClass: "small text-dark" }, [
-                                    _vm._v(" مسافت کوچ "),
-                                    _c("i", {
-                                      staticClass: "fas fa-arrow-circle-left"
-                                    }),
-                                    _vm._v(" "),
-                                    _vm.selectedSchool.schoolable.masafate_kooch
-                                      ? _c("span", [
-                                          _vm._v(
-                                            " " +
-                                              _vm._s(
-                                                _vm.selectedSchool.schoolable
-                                                  .masafate_kooch
-                                              ) +
-                                              " کیلومتر "
-                                          )
-                                        ])
-                                      : _c("span", [
-                                          _c("i", {
-                                            staticClass:
-                                              "fas  fa-question-circle text-danger"
-                                          })
-                                        ])
-                                  ])
-                                ])
-                              : _vm._e()
+                            _c("span", { staticClass: "  hoverable" }, [
+                              _vm._v("است")
+                            ])
                           ]
                         )
-                      ],
-                      1
-                    )
+                      : s.vaziat && s.vaziat.startsWith("d")
+                      ? _c(
+                          "td",
+                          {
+                            staticClass: "align-middle",
+                            on: {
+                              click: function($event) {
+                                $event.stopPropagation()
+                                _vm.$root.$emit("dropdownResponse", {
+                                  ids: _vm.getType(s, "zamime_ids")
+                                })
+                              }
+                            }
+                          },
+                          [
+                            _c("span", { staticClass: "  hoverable" }, [
+                              _vm._v("دارد")
+                            ])
+                          ]
+                        )
+                      : s.vaziat && s.vaziat == "m"
+                      ? _c("td", { staticClass: "align-middle" }, [
+                          _vm._m(2, true)
+                        ])
+                      : _c("td", { staticClass: "align-middle" }, [
+                          _c("i", {
+                            staticClass: "fas  fa-question-circle text-danger"
+                          })
+                        ]),
+                    _vm._v(" "),
+                    _c("td", { staticClass: "align-middle" }, [
+                      _c(
+                        "nav",
+                        { staticClass: "nav  justify-content-between " },
+                        [
+                          _c(
+                            "div",
+                            {
+                              key: s.id,
+                              staticClass: " p-1 nav-link text-green hoverable",
+                              attrs: {
+                                "data-toggle": "modal",
+                                "data-target": "#mapModal"
+                              },
+                              on: {
+                                click: function($event) {
+                                  _vm.selectedSchool = s
+                                }
+                              }
+                            },
+                            [
+                              _vm._v(" نقشه\n                                "),
+                              _c("i", {
+                                staticClass: "fa fa-edit",
+                                attrs: { "aria-hidden": "true" }
+                              })
+                            ]
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "div",
+                            {
+                              staticClass: " p-1 nav-link text-blue hoverable",
+                              on: { click: function($event) {} }
+                            },
+                            [
+                              _vm._v(
+                                " ویرایش\n                                "
+                              ),
+                              _c("i", {
+                                staticClass: "fa fa-edit",
+                                attrs: { "aria-hidden": "true" }
+                              })
+                            ]
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "div",
+                            {
+                              staticClass: " p-1 nav-link text-red  hoverable ",
+                              on: {
+                                click: function($event) {
+                                  return _vm.showDialog(0, s)
+                                }
+                              }
+                            },
+                            [
+                              _vm._v(" حذف\n                                "),
+                              _c("i", {
+                                staticClass: "fa fa-window-close",
+                                attrs: { "aria-hidden": "true" }
+                              })
+                            ]
+                          )
+                        ]
+                      )
+                    ])
                   ])
-                : _vm._e()
+                }),
+                0
+              )
             ]
           )
-        ]
-      )
-    ],
-    2
-  )
+        ])
+      ]
+    ),
+    _vm._v(" "),
+    _c(
+      "div",
+      {
+        staticClass: "modal fade px-2 ",
+        attrs: {
+          id: "mapModal",
+          tabindex: "-1",
+          role: "dialog",
+          "aria-labelledby": "mapModalLabel",
+          "aria-hidden": "true"
+        }
+      },
+      [
+        _c(
+          "div",
+          {
+            staticClass: "modal-dialog  max-w-full show",
+            attrs: { role: "document" }
+          },
+          [
+            _vm.selectedSchool
+              ? _c("div", { staticClass: "modal-content" }, [
+                  _c("div", { staticClass: "modal-header  " }, [
+                    _c("h5", { staticClass: "modal-title text-primary " }, [
+                      _vm._v(" " + _vm._s(_vm.selectedSchool.name))
+                    ]),
+                    _vm._v(" "),
+                    (_vm.selectedSchool.schoolable_type === "App\\Saabet" &&
+                      !_vm.selectedSchool.schoolable.loc) ||
+                    (_vm.selectedSchool.schoolable_type === "App\\Koochro" &&
+                      !_vm.selectedSchool.schoolable.loc_yeylagh)
+                      ? _c("h5", { staticClass: "modal-title text-danger " }, [
+                          _vm._v(" اطلاعات مکانی موجود نیست")
+                        ])
+                      : _vm._e(),
+                    _vm._v(" "),
+                    _c("i", {
+                      staticClass:
+                        "glyphicon glyphicon-remove text-danger  clear-btn",
+                      attrs: { "data-dismiss": "modal", "aria-label": "Close" },
+                      on: {
+                        click: function($event) {
+                          return _vm.cancel()
+                        }
+                      }
+                    })
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    { staticClass: "modal-body   " },
+                    [
+                      _c("school_map", {
+                        attrs: {
+                          id: "map_card",
+                          map: _vm.map,
+                          s: _vm.selectedSchool,
+                          editMode: false
+                        }
+                      }),
+                      _vm._v(" "),
+                      _c(
+                        "div",
+                        {
+                          key: _vm.selectedSchool.id + "-modal",
+                          staticClass:
+                            "modal-footer justify-content-start text-dark-blue"
+                        },
+                        [
+                          _vm.selectedSchool.schoolable_type === "App\\Saabet"
+                            ? _c("div", [
+                                _c("p", { staticClass: "small text-primary" }, [
+                                  _vm._v(" آدرس "),
+                                  _c("i", {
+                                    staticClass: "fas fa-arrow-circle-left"
+                                  }),
+                                  _vm._v(" "),
+                                  _vm.selectedSchool.schoolable.address
+                                    ? _c("span", [
+                                        _vm._v(
+                                          " " +
+                                            _vm._s(
+                                              _vm.selectedSchool.schoolable
+                                                .address
+                                            )
+                                        )
+                                      ])
+                                    : _c("span", [
+                                        _c("i", {
+                                          staticClass:
+                                            "fas  fa-question-circle text-danger"
+                                        })
+                                      ]),
+                                  _vm._v(" "),
+                                  _c("i", { staticClass: "fas fa-circle" }),
+                                  _vm._v(
+                                    " فاصله از شهرستان\n                                "
+                                  ),
+                                  _c("i", {
+                                    staticClass: "fas fa-arrow-circle-left"
+                                  }),
+                                  _vm._v(" "),
+                                  _vm.selectedSchool.schoolable
+                                    .fasele_az_shahrestan
+                                    ? _c("span", [
+                                        _vm._v(
+                                          " " +
+                                            _vm._s(
+                                              _vm.selectedSchool.schoolable
+                                                .fasele_az_shahrestan
+                                            ) +
+                                            " کیلومتر "
+                                        )
+                                      ])
+                                    : _c("span", [
+                                        _c("i", {
+                                          staticClass:
+                                            "fas  fa-question-circle text-danger"
+                                        })
+                                      ])
+                                ])
+                              ])
+                            : _vm.selectedSchool.schoolable_type ===
+                              "App\\Koochro"
+                            ? _c("div", [
+                                _c("p", { staticClass: "small text-primary" }, [
+                                  _vm._v(" آدرس ییلاق "),
+                                  _c("i", {
+                                    staticClass: "fas fa-arrow-circle-left"
+                                  }),
+                                  _vm._v(" "),
+                                  _vm.selectedSchool.schoolable.address_yeylagh
+                                    ? _c("span", [
+                                        _vm._v(
+                                          " " +
+                                            _vm._s(
+                                              _vm.selectedSchool.schoolable
+                                                .address_yeylagh
+                                            )
+                                        )
+                                      ])
+                                    : _c("span", [
+                                        _c("i", {
+                                          staticClass:
+                                            "fas  fa-question-circle text-danger"
+                                        })
+                                      ]),
+                                  _vm._v(" "),
+                                  _c("i", { staticClass: "fas fa-circle" }),
+                                  _vm._v(
+                                    " فاصله از شهرستان\n                                "
+                                  ),
+                                  _c("i", {
+                                    staticClass: "fas fa-arrow-circle-left"
+                                  }),
+                                  _vm._v(" "),
+                                  _vm.selectedSchool.schoolable
+                                    .fasele_az_shahrestan_yeylagh
+                                    ? _c("span", [
+                                        _vm._v(
+                                          " " +
+                                            _vm._s(
+                                              _vm.selectedSchool.schoolable
+                                                .fasele_az_shahrestan_yeylagh
+                                            ) +
+                                            " کیلومتر "
+                                        )
+                                      ])
+                                    : _c("span", [
+                                        _c("i", {
+                                          staticClass:
+                                            "fas  fa-question-circle text-danger"
+                                        })
+                                      ])
+                                ]),
+                                _vm._v(" "),
+                                _c("p", { staticClass: "small text-danger" }, [
+                                  _vm._v(" آدرس قشلاق "),
+                                  _c("i", {
+                                    staticClass: "fas fa-arrow-circle-left"
+                                  }),
+                                  _vm._v(
+                                    "\n                                " +
+                                      _vm._s(
+                                        _vm.selectedSchool.schoolable
+                                          .address_gheshlagh
+                                      ) +
+                                      "\n                                "
+                                  ),
+                                  _c("i", { staticClass: "fas fa-circle" }),
+                                  _vm._v(
+                                    " فاصله از شهرستان\n                                "
+                                  ),
+                                  _c("i", {
+                                    staticClass: "fas fa-arrow-circle-left"
+                                  }),
+                                  _vm._v(" "),
+                                  _vm.selectedSchool.schoolable
+                                    .fasele_az_shahrestan_gheshlagh
+                                    ? _c("span", [
+                                        _vm._v(
+                                          " " +
+                                            _vm._s(
+                                              _vm.selectedSchool.schoolable
+                                                .fasele_az_shahrestan_gheshlagh
+                                            ) +
+                                            " کیلومتر "
+                                        )
+                                      ])
+                                    : _c("span", [
+                                        _c("i", {
+                                          staticClass:
+                                            "fas  fa-question-circle text-danger"
+                                        })
+                                      ])
+                                ]),
+                                _vm._v(" "),
+                                _c("p", { staticClass: "small text-dark" }, [
+                                  _vm._v(" مسافت کوچ "),
+                                  _c("i", {
+                                    staticClass: "fas fa-arrow-circle-left"
+                                  }),
+                                  _vm._v(" "),
+                                  _vm.selectedSchool.schoolable.masafate_kooch
+                                    ? _c("span", [
+                                        _vm._v(
+                                          " " +
+                                            _vm._s(
+                                              _vm.selectedSchool.schoolable
+                                                .masafate_kooch
+                                            ) +
+                                            " کیلومتر "
+                                        )
+                                      ])
+                                    : _c("span", [
+                                        _c("i", {
+                                          staticClass:
+                                            "fas  fa-question-circle text-danger"
+                                        })
+                                      ])
+                                ])
+                              ])
+                            : _vm._e()
+                        ]
+                      )
+                    ],
+                    1
+                  )
+                ])
+              : _vm._e()
+          ]
+        )
+      ]
+    )
+  ])
 }
 var staticRenderFns = [
   function() {
@@ -42991,6 +44618,46 @@ var staticRenderFns = [
         staticClass: "mb-auto  back-footer-img",
         attrs: { src: "/img/card-footer.png", alt: "" }
       })
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "thead",
+      { staticClass: "bg-gradient-blue text-center text-white  " },
+      [
+        _c("tr", [
+          _c("th", { attrs: { scope: "col" } }, [_vm._v("کد مدرسه")]),
+          _vm._v(" "),
+          _c("th", { attrs: { scope: "col" } }, [_vm._v("نام")]),
+          _vm._v(" "),
+          _c("th", { attrs: { scope: "col" } }, [_vm._v("کد فضا")]),
+          _vm._v(" "),
+          _c("th", { attrs: { scope: "col" } }, [_vm._v("تاسیس")]),
+          _vm._v(" "),
+          _c("th", { attrs: { scope: "col" } }, [_vm._v("حوزه نمایندگی")]),
+          _vm._v(" "),
+          _c("th", { attrs: { scope: "col" } }, [_vm._v("نوع")]),
+          _vm._v(" "),
+          _c("th", { attrs: { scope: "col" } }, [_vm._v("تعداد همکاران")]),
+          _vm._v(" "),
+          _c("th", { attrs: { scope: "col" } }, [_vm._v("تعداد پایه تحصیلی")]),
+          _vm._v(" "),
+          _c("th", { attrs: { scope: "col" } }, [_vm._v("ضمیمه")]),
+          _vm._v(" "),
+          _c("th", { attrs: { scope: "col" } }, [_vm._v("عملیات")])
+        ])
+      ]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("span", { staticClass: "   " }, [
+      _c("i", { staticClass: "fas  fa-minus text-danger" })
     ])
   }
 ]
@@ -43004,6 +44671,1403 @@ render._withStripped = true
 /*!****************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/school-create.vue?vue&type=template&id=157cbeba& ***!
   \****************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", { staticClass: "search-container" }, [
+    _c(
+      "div",
+      { staticClass: " row col-12" },
+      [
+        _c("div", { staticClass: "input-group col-md-6 col-sm-6 pt-1 " }, [
+          _vm._m(0),
+          _vm._v(" "),
+          _c("input", {
+            directives: [
+              {
+                name: "model",
+                rawName: "v-model",
+                value: _vm.sName,
+                expression: "sName"
+              }
+            ],
+            staticClass: "my-1 py-1 pr-1 form-control border",
+            attrs: {
+              type: "text",
+              placeholder: "نام مدرسه ",
+              id: "name-input",
+              "aria-label": "SearchName"
+            },
+            domProps: { value: _vm.sName },
+            on: {
+              input: function($event) {
+                if ($event.target.composing) {
+                  return
+                }
+                _vm.sName = $event.target.value
+              }
+            }
+          }),
+          _vm._v(" "),
+          _c(
+            "div",
+            { staticClass: " input-group-append  btn-group-vertical   " },
+            [
+              _c("i", {
+                staticClass:
+                  " glyphicon glyphicon-remove text-danger  clear-btn p-1",
+                on: {
+                  click: function($event) {
+                    _vm.sName = ""
+                  }
+                }
+              })
+            ]
+          )
+        ]),
+        _vm._v(" "),
+        _c("dropdown", {
+          staticClass: "col-md-6 col-sm-6 ",
+          attrs: {
+            "data-link": this.hoozesLink,
+            for: "hooze",
+            newable: true,
+            multi: false
+          }
+        }),
+        _vm._v(" "),
+        _c("div", { staticClass: "col-md-6 col-sm-6 my-1" }, [
+          _vm._m(1),
+          _vm._v(" "),
+          _c("div", { staticClass: "input-container text-center my-1 px-5" }, [
+            _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.code_madrese,
+                  expression: "code_madrese"
+                }
+              ],
+              staticClass: "form-control   badge-pill",
+              attrs: {
+                type: "number",
+                oninput: "validity.valid",
+                id: "code-madrese-input"
+              },
+              domProps: { value: _vm.code_madrese },
+              on: {
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.code_madrese = $event.target.value
+                }
+              }
+            })
+          ])
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "col-md-6 col-sm-6 my-1" }, [
+          _vm._m(2),
+          _vm._v(" "),
+          _c("div", { staticClass: "input-container text-center my-1 px-5" }, [
+            _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.code_faza,
+                  expression: "code_faza"
+                }
+              ],
+              staticClass: " form-control  badge-pill",
+              attrs: {
+                type: "number",
+                oninput: "validity.valid",
+                id: "code-faza-input"
+              },
+              domProps: { value: _vm.code_faza },
+              on: {
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.code_faza = $event.target.value
+                }
+              }
+            })
+          ])
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "col-md-6 col-sm-6 my-1" }, [
+          _vm._m(3),
+          _vm._v(" "),
+          _c("div", { staticClass: "input-container text-center my-1 px-5" }, [
+            _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.sale_tasis,
+                  expression: "sale_tasis"
+                }
+              ],
+              staticClass: "  form-control badge-pill",
+              attrs: {
+                type: "number",
+                min: "1300",
+                oninput: "validity.valid",
+                id: "sal-input"
+              },
+              domProps: { value: _vm.sale_tasis },
+              on: {
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.sale_tasis = $event.target.value
+                }
+              }
+            })
+          ])
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "col-md-6 col-sm-6 my-1" }, [
+          _vm._m(4),
+          _vm._v(" "),
+          _c("div", { staticClass: "input-container text-center my-1 px-5" }, [
+            _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.tedad_daneshamooz,
+                  expression: "tedad_daneshamooz"
+                }
+              ],
+              staticClass: " form-control  badge-pill",
+              attrs: {
+                type: "number",
+                oninput: "validity.valid",
+                id: "tedad-input"
+              },
+              domProps: { value: _vm.tedad_daneshamooz },
+              on: {
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.tedad_daneshamooz = $event.target.value
+                }
+              }
+            })
+          ])
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "col-md-6 col-sm-6 my-1" }, [
+          _vm._m(5),
+          _vm._v(" "),
+          _c("div", { staticClass: "input-container text-center my-1 px-5" }, [
+            _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.tedad_paye_tahsili,
+                  expression: "tedad_paye_tahsili"
+                }
+              ],
+              staticClass: " form-control  badge-pill",
+              attrs: {
+                type: "number",
+                oninput: "validity.valid",
+                id: "tedad-paye-input"
+              },
+              domProps: { value: _vm.tedad_paye_tahsili },
+              on: {
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.tedad_paye_tahsili = $event.target.value
+                }
+              }
+            })
+          ])
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "col-md-6 col-sm-6 my-1" }, [
+          _vm._m(6),
+          _vm._v(" "),
+          _c("div", { staticClass: "input-container text-center my-1 px-5" }, [
+            _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.tedad_hamkaran,
+                  expression: "tedad_hamkaran"
+                }
+              ],
+              staticClass: " form-control  badge-pill ",
+              attrs: {
+                type: "number",
+                oninput: "validity.valid",
+                id: "tedad-hamkaran-input"
+              },
+              domProps: { value: _vm.tedad_hamkaran },
+              on: {
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.tedad_hamkaran = $event.target.value
+                }
+              }
+            })
+          ])
+        ]),
+        _vm._v(" "),
+        _c(
+          "div",
+          {
+            staticClass:
+              "toggle-container filters-container col-12 row   rounded p-2 mx-2 border-1 border-primary"
+          },
+          [
+            _c(
+              "div",
+              {
+                staticClass:
+                  "btn-group btn-group-toggle    col-md-6  justify-content-center   ",
+                attrs: { "data-toggle": "buttons" }
+              },
+              [
+                _c(
+                  "label",
+                  {
+                    staticClass:
+                      "btn btn-outline-success  col-xs-6   left-border   ",
+                    attrs: { id: "roozane", for: "roozane" },
+                    on: {
+                      click: function($event) {
+                        _vm.is_roozane = true
+                      }
+                    }
+                  },
+                  [
+                    _c("input", {
+                      staticClass: " ",
+                      attrs: {
+                        type: "radio",
+                        name: "options",
+                        autocomplete: "off"
+                      }
+                    }),
+                    _vm._v("روزانه\n                ")
+                  ]
+                ),
+                _vm._v(" "),
+                _c(
+                  "label",
+                  {
+                    staticClass:
+                      "btn btn-outline-dark  col-xs-6   right-border  ",
+                    attrs: { id: "shabane", for: "shabane" },
+                    on: {
+                      click: function($event) {
+                        _vm.is_roozane = false
+                      }
+                    }
+                  },
+                  [
+                    _c("input", {
+                      staticClass: " ",
+                      attrs: {
+                        type: "radio",
+                        name: "options",
+                        autocomplete: "off"
+                      }
+                    }),
+                    _vm._v("شبانه\n                ")
+                  ]
+                )
+              ]
+            ),
+            _vm._v(" "),
+            _c(
+              "div",
+              {
+                staticClass:
+                  "btn-group   btn-group-toggle    col-md-6    justify-content-center ",
+                attrs: { "data-toggle": "buttons" }
+              },
+              [
+                _c(
+                  "label",
+                  {
+                    staticClass:
+                      "btn   btn-outline-dark-green  left-border mr-1 ",
+                    on: {
+                      click: function($event) {
+                        _vm.doore["ebte"] = !_vm.doore["ebte"]
+                      }
+                    }
+                  },
+                  [_vm._v(" ابتدایی\n                ")]
+                ),
+                _vm._v(" "),
+                _c(
+                  "label",
+                  {
+                    staticClass: "btn   btn-outline-dark-red  no-radius ",
+                    on: {
+                      click: function($event) {
+                        _vm.doore["mote1"] = !_vm.doore["mote1"]
+                      }
+                    }
+                  },
+                  [_vm._v(" متوسطه ۱\n                ")]
+                ),
+                _vm._v(" "),
+                _c(
+                  "label",
+                  {
+                    staticClass:
+                      "btn   btn-outline-dark-blue   right-border ml-1",
+                    on: {
+                      click: function($event) {
+                        _vm.doore["mote2"] = !_vm.doore["mote2"]
+                      }
+                    }
+                  },
+                  [_vm._v(" متوسطه ۲\n                ")]
+                )
+              ]
+            ),
+            _vm._v(" "),
+            _c(
+              "div",
+              {
+                staticClass:
+                  "btn-group   btn-group-toggle    col-md-6    justify-content-center ",
+                attrs: { "data-toggle": "buttons" }
+              },
+              [
+                _c(
+                  "label",
+                  {
+                    staticClass:
+                      "btn   btn-outline-dark-green  left-border mr-1 ",
+                    on: {
+                      click: function($event) {
+                        _vm.jensiat["b"] = !_vm.jensiat["b"]
+                      }
+                    }
+                  },
+                  [_vm._v(" پسرانه\n                ")]
+                ),
+                _vm._v(" "),
+                _c(
+                  "label",
+                  {
+                    staticClass: "btn   btn-outline-dark-red  right-border  ",
+                    on: {
+                      click: function($event) {
+                        _vm.jensiat["g"] = !_vm.jensiat["g"]
+                      }
+                    }
+                  },
+                  [_vm._v("دخترانه\n                ")]
+                )
+              ]
+            ),
+            _vm._v(" "),
+            _c(
+              "div",
+              {
+                staticClass:
+                  "btn-group btn-group-toggle    col-md-6  justify-content-center   ",
+                attrs: { "data-toggle": "buttons" }
+              },
+              [
+                _c(
+                  "label",
+                  {
+                    staticClass:
+                      "btn btn-outline-dark-green  col-xs-6   left-border   ",
+                    attrs: { id: "chador", for: "chador" },
+                    on: {
+                      click: function($event) {
+                        _vm.noe_faza = "c"
+                      }
+                    }
+                  },
+                  [
+                    _c("input", {
+                      staticClass: " ",
+                      attrs: {
+                        type: "radio",
+                        name: "options",
+                        autocomplete: "off"
+                      }
+                    }),
+                    _vm._v("چادر\n                ")
+                  ]
+                ),
+                _vm._v(" "),
+                _c(
+                  "label",
+                  {
+                    staticClass:
+                      "btn btn-outline-dark-red  col-xs-6   no-radius  ",
+                    attrs: { id: "kanex", for: "kanex" },
+                    on: {
+                      click: function($event) {
+                        _vm.noe_faza = "k"
+                      }
+                    }
+                  },
+                  [
+                    _c("input", {
+                      staticClass: " ",
+                      attrs: {
+                        type: "radio",
+                        name: "options",
+                        autocomplete: "off"
+                      }
+                    }),
+                    _vm._v("کانکس\n                ")
+                  ]
+                ),
+                _vm._v(" "),
+                _c(
+                  "label",
+                  {
+                    staticClass:
+                      "btn btn-outline-dark-blue  col-xs-6   right-border  ",
+                    attrs: { id: "sakhteman", for: "sakhteman" },
+                    on: {
+                      click: function($event) {
+                        _vm.noe_faza = "s"
+                      }
+                    }
+                  },
+                  [
+                    _c("input", {
+                      staticClass: " ",
+                      attrs: {
+                        type: "radio",
+                        name: "options",
+                        autocomplete: "off"
+                      }
+                    }),
+                    _vm._v("ساختمان\n                ")
+                  ]
+                )
+              ]
+            )
+          ]
+        ),
+        _vm._v(" "),
+        _c(
+          "div",
+          {
+            staticClass:
+              "toggle-container filters-container col-12  rounded p-2 mx-2 border-1 border-primary mt-3  "
+          },
+          [
+            _c("div", { staticClass: "  filters-container col-12 row  mt-4" }, [
+              _c(
+                "div",
+                {
+                  staticClass:
+                    "btn-group btn-group-toggle     col-md-6  justify-content-center   ",
+                  attrs: { "data-toggle": "buttons" }
+                },
+                [
+                  _c(
+                    "label",
+                    {
+                      staticClass:
+                        "btn btn-outline-dark-green  col-xs-6   left-border   ",
+                      attrs: { id: "mostaghel", for: "mostaghel" },
+                      on: {
+                        click: function($event) {
+                          _vm.params.vaziat = "m"
+                        }
+                      }
+                    },
+                    [
+                      _c("input", {
+                        staticClass: " ",
+                        attrs: {
+                          type: "radio",
+                          name: "options",
+                          autocomplete: "off"
+                        }
+                      }),
+                      _vm._v("مستقل\n                    ")
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "label",
+                    {
+                      staticClass:
+                        "btn btn-outline-dark-red  col-xs-6   no-radius  ",
+                      attrs: { id: "zamd", for: "zamd" },
+                      on: {
+                        click: function($event) {
+                          _vm.params.vaziat = "d"
+                        }
+                      }
+                    },
+                    [
+                      _c("input", {
+                        staticClass: " ",
+                        attrs: {
+                          type: "radio",
+                          name: "options",
+                          autocomplete: "off"
+                        }
+                      }),
+                      _vm._v("ضمیمه دارد\n                    ")
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "label",
+                    {
+                      staticClass:
+                        "btn btn-outline-dark-blue  col-xs-6   right-border  ",
+                      attrs: { id: "zama", for: "zama" },
+                      on: {
+                        click: function($event) {
+                          _vm.params.vaziat = "a"
+                        }
+                      }
+                    },
+                    [
+                      _c("input", {
+                        staticClass: " ",
+                        attrs: {
+                          type: "radio",
+                          name: "options",
+                          autocomplete: "off"
+                        }
+                      }),
+                      _vm._v("ضمیمه است\n                    ")
+                    ]
+                  )
+                ]
+              )
+            ]),
+            _vm._v(" "),
+            _vm.params.vaziat == "d" || _vm.params.vaziat == "a"
+              ? _c(
+                  "div",
+                  { staticClass: " " },
+                  [
+                    _c("selector", {
+                      staticClass: " ",
+                      attrs: {
+                        "data-link": this.schoolsLink,
+                        for: "school",
+                        newable: true
+                      }
+                    })
+                  ],
+                  1
+                )
+              : _vm._e()
+          ]
+        ),
+        _vm._v(" "),
+        _c(
+          "div",
+          {
+            staticClass:
+              "toggle-container filters-container col-12 row   rounded p-2 mt-2 mx-2 border-1 border-primary"
+          },
+          [
+            _c(
+              "div",
+              {
+                staticClass:
+                  " btn-group btn-group-toggle    col-12  justify-content-center mt-4  px-5 ",
+                attrs: { "data-toggle": "buttons" }
+              },
+              [
+                _c(
+                  "label",
+                  {
+                    staticClass:
+                      "btn btn-outline-success    col-md-6    left-border   active",
+                    attrs: { id: "saabet", for: "roozane" },
+                    on: {
+                      click: function($event) {
+                        _vm.schoolable_type = "App\\Saabet"
+                        _vm.marker("del", 2)
+                      }
+                    }
+                  },
+                  [
+                    _c("input", {
+                      staticClass: " ",
+                      attrs: {
+                        type: "radio",
+                        name: "options",
+                        autocomplete: "off"
+                      }
+                    }),
+                    _vm._v("ثابت\n                ")
+                  ]
+                ),
+                _vm._v(" "),
+                _c(
+                  "label",
+                  {
+                    staticClass:
+                      "btn btn-outline-dark    col-md-6    right-border  ",
+                    attrs: { id: "koochroo", for: "shabane" },
+                    on: {
+                      click: function($event) {
+                        _vm.schoolable_type = "App\\Koochro"
+                        _vm.marker("add", 2)
+                      }
+                    }
+                  },
+                  [
+                    _c("input", {
+                      staticClass: " ",
+                      attrs: {
+                        type: "radio",
+                        name: "options",
+                        autocomplete: "off"
+                      }
+                    }),
+                    _vm._v("کوچ رو\n                ")
+                  ]
+                )
+              ]
+            ),
+            _vm._v(" "),
+            _c("div", {
+              staticClass: "map container-fluid ",
+              attrs: { id: "map" }
+            }),
+            _vm._v(" "),
+            _vm.schoolable_type == "App\\Koochro"
+              ? _c(
+                  "div",
+                  {
+                    staticClass:
+                      " btn-group btn-group-toggle    col-12  justify-content-center mt-4  px-5 ",
+                    attrs: { "data-toggle": "buttons" }
+                  },
+                  [
+                    _c(
+                      "label",
+                      {
+                        staticClass:
+                          "btn btn-outline-success    col-md-6    left-border    ",
+                        attrs: { id: "sayyar", for: "sayyar" },
+                        on: {
+                          click: function($event) {
+                            _vm.koochro_type = "s"
+                          }
+                        }
+                      },
+                      [
+                        _c("input", {
+                          staticClass: " ",
+                          attrs: {
+                            type: "radio",
+                            name: "options",
+                            autocomplete: "off"
+                          }
+                        }),
+                        _vm._v("سیار\n                ")
+                      ]
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "label",
+                      {
+                        staticClass:
+                          "btn btn-outline-dark    col-md-6    right-border  ",
+                        attrs: { id: "nime-sayyar", for: "nime-sayyar" },
+                        on: {
+                          click: function($event) {
+                            _vm.koochro_type = "n"
+                          }
+                        }
+                      },
+                      [
+                        _c("input", {
+                          staticClass: " ",
+                          attrs: {
+                            type: "radio",
+                            name: "options",
+                            autocomplete: "off"
+                          }
+                        }),
+                        _vm._v("نیمه سیار\n                ")
+                      ]
+                    )
+                  ]
+                )
+              : _vm._e(),
+            _vm._v(" "),
+            _c("div", { staticClass: "row col-12" }, [
+              _c("div", { staticClass: "loc-container   col-md-6 col-sm-6" }, [
+                _c("p", { staticClass: "divider   " }, [
+                  _c("span", { staticClass: "text-primary" }, [
+                    _vm._v(
+                      " " +
+                        _vm._s(
+                          _vm.schoolable_type == "App\\Saabet"
+                            ? "مکان"
+                            : "مکان ییلاق"
+                        ) +
+                        " "
+                    )
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "input-group   pt-1 " }, [
+                  _vm._m(7),
+                  _vm._v(" "),
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.loc1_lat_input,
+                        expression: "loc1_lat_input"
+                      }
+                    ],
+                    staticClass: "my-1 py-1 pr-1 form-control border ",
+                    attrs: {
+                      type: "text",
+                      placeholder: "طول",
+                      id: "loc1-lat-input",
+                      "aria-label": ""
+                    },
+                    domProps: { value: _vm.loc1_lat_input },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.loc1_lat_input = $event.target.value
+                      }
+                    }
+                  })
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "input-group  pt-1 " }, [
+                  _vm._m(8),
+                  _vm._v(" "),
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.loc1_lon_input,
+                        expression: "loc1_lon_input"
+                      }
+                    ],
+                    staticClass:
+                      "my-1 py-1 pr-1 form-control right-bottom-border ",
+                    attrs: {
+                      type: "text",
+                      placeholder: "عرض",
+                      id: "loc1-lon-input",
+                      "aria-label": ""
+                    },
+                    domProps: { value: _vm.loc1_lon_input },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.loc1_lon_input = $event.target.value
+                      }
+                    }
+                  })
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "input-group  pt-1 " }, [
+                  _vm._m(9),
+                  _vm._v(" "),
+                  _c("textarea", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.loc1_address,
+                        expression: "loc1_address"
+                      }
+                    ],
+                    staticClass: "my-1 py-1 pr-1 form-control rounded ",
+                    attrs: {
+                      rows: "2",
+                      placeholder: "آدرس",
+                      id: "loc1-address-input",
+                      "aria-label": ""
+                    },
+                    domProps: { value: _vm.loc1_address },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.loc1_address = $event.target.value
+                      }
+                    }
+                  })
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "input-group  pt-1 " }, [
+                  _vm._m(10),
+                  _vm._v(" "),
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.loc1_fasele_az_shahrestan,
+                        expression: "loc1_fasele_az_shahrestan"
+                      }
+                    ],
+                    staticClass: "my-1 py-1 pr-1 form-control badge-pill ",
+                    attrs: {
+                      type: "number",
+                      placeholder: "فاصله از شهرستان (کیلومتر)",
+                      id: "loc1-fasele-input",
+                      oninput: "validity.valid",
+                      min: "0",
+                      "aria-label": ""
+                    },
+                    domProps: { value: _vm.loc1_fasele_az_shahrestan },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.loc1_fasele_az_shahrestan = $event.target.value
+                      }
+                    }
+                  })
+                ])
+              ]),
+              _vm._v(" "),
+              _vm.schoolable_type == "App\\Koochro"
+                ? _c(
+                    "div",
+                    { staticClass: "loc-container   col-md-6 col-sm-6" },
+                    [
+                      _vm._m(11),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "input-group  pt-1 " }, [
+                        _vm._m(12),
+                        _vm._v(" "),
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.loc2_lat_input,
+                              expression: "loc2_lat_input"
+                            }
+                          ],
+                          staticClass: "my-1 py-1 pr-1 form-control  ",
+                          attrs: {
+                            type: "text",
+                            placeholder: "طول",
+                            id: "loc2-lat-input",
+                            "aria-label": "SearchName"
+                          },
+                          domProps: { value: _vm.loc2_lat_input },
+                          on: {
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.loc2_lat_input = $event.target.value
+                            }
+                          }
+                        })
+                      ]),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "input-group  pt-1 " }, [
+                        _vm._m(13),
+                        _vm._v(" "),
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.loc2_lon_input,
+                              expression: "loc2_lon_input"
+                            }
+                          ],
+                          staticClass:
+                            "my-1 py-1 pr-1 form-control right-border   ",
+                          attrs: {
+                            type: "text",
+                            placeholder: "عرض",
+                            id: "loc2-lon-input",
+                            "aria-label": "SearchName"
+                          },
+                          domProps: { value: _vm.loc2_lon_input },
+                          on: {
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.loc2_lon_input = $event.target.value
+                            }
+                          }
+                        })
+                      ]),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "input-group  pt-1 " }, [
+                        _vm._m(14),
+                        _vm._v(" "),
+                        _c("textarea", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.loc2_address,
+                              expression: "loc2_address"
+                            }
+                          ],
+                          staticClass: "my-1 py-1 pr-1 form-control rounded ",
+                          attrs: {
+                            rows: "2",
+                            placeholder: "آدرس",
+                            id: "loc2-address-input",
+                            "aria-label": ""
+                          },
+                          domProps: { value: _vm.loc2_address },
+                          on: {
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.loc2_address = $event.target.value
+                            }
+                          }
+                        })
+                      ]),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "input-group  pt-1 " }, [
+                        _vm._m(15),
+                        _vm._v(" "),
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.loc2_fasele_az_shahrestan,
+                              expression: "loc2_fasele_az_shahrestan"
+                            }
+                          ],
+                          staticClass:
+                            "my-1 py-1 pr-1 form-control badge-pill ",
+                          attrs: {
+                            type: "Number",
+                            placeholder: "فاصله از شهرستان (کیلومتر)",
+                            id: "loc2-fasele-input",
+                            oninput: "validity.valid",
+                            min: "0",
+                            "aria-label": ""
+                          },
+                          domProps: { value: _vm.loc2_fasele_az_shahrestan },
+                          on: {
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.loc2_fasele_az_shahrestan =
+                                $event.target.value
+                            }
+                          }
+                        })
+                      ]),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "input-group  pt-1 " }, [
+                        _vm._m(16),
+                        _vm._v(" "),
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.masafate_kooch,
+                              expression: "masafate_kooch"
+                            }
+                          ],
+                          staticClass:
+                            "my-1 py-1 pr-1 form-control badge-pill ",
+                          attrs: {
+                            type: "Number",
+                            placeholder: "مسافت کوچ (کیلومتر)",
+                            id: "masafate_kooch",
+                            oninput: "validity.valid",
+                            min: "0",
+                            "aria-label": ""
+                          },
+                          domProps: { value: _vm.masafate_kooch },
+                          on: {
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.masafate_kooch = $event.target.value
+                            }
+                          }
+                        })
+                      ])
+                    ]
+                  )
+                : _vm._e()
+            ])
+          ]
+        ),
+        _vm._v(" "),
+        _c("div", { staticClass: "img-container  w-100" }, [
+          _c(
+            "form",
+            {
+              staticClass: "uploader-container mx-2 mt-2 p-2 flex-column",
+              attrs: {
+                id: "uploader",
+                enctype: "multipart/form-data",
+                role: "form",
+                method: "post"
+              },
+              on: {
+                drop: function($event) {
+                  _vm.uploader.removeClass("hover")
+                  _vm.filePreview($event, "img-input")
+                },
+                click: function($event) {
+                  return _vm.openFileChooser($event, "img-input")
+                }
+              }
+            },
+            [
+              _c("h5", { staticClass: "uploader-message p-2 text-center  " }, [
+                _vm._v(
+                  "\n                    تصاویر مدرسه...\n                "
+                )
+              ]),
+              _vm._v(" "),
+              _c("h6", { staticClass: "uploader-message  text-center  " }, [
+                _vm._v(" حداکثر 3 عکس ")
+              ]),
+              _vm._v(" "),
+              _c("h6", { staticClass: "uploader-message  text-center  " }, [
+                _vm._v(" حجم عکس زیر 2MB ")
+              ]),
+              _vm._v(" "),
+              _c("h6", { staticClass: "uploader-message  text-center  " }, [
+                _vm._v(" فرمت jpg یا  png ")
+              ]),
+              _vm._v(" "),
+              _c(
+                "div",
+                { staticClass: "progress w-100 justify-content-end hide" },
+                [
+                  _c(
+                    "div",
+                    {
+                      staticClass:
+                        "p-2 w-auto progress-bar  progress-bar-striped bg-success ",
+                      style: "width:" + _vm.percentCompleted + "%",
+                      attrs: { role: "progressbar" }
+                    },
+                    [
+                      _vm._v(
+                        _vm._s(_vm.percentCompleted) + "%\n                    "
+                      )
+                    ]
+                  )
+                ]
+              )
+            ]
+          ),
+          _vm._v(" "),
+          _c("input", {
+            staticClass: "col-12 hide ",
+            staticStyle: { opacity: "0" },
+            attrs: {
+              id: "img-input",
+              accept: ".png, .jpg, .jpeg",
+              type: "file",
+              name: "images[]",
+              multiple: ""
+            },
+            on: {
+              change: function($event) {
+                return _vm.filePreview($event, "img-input")
+              }
+            }
+          }),
+          _vm._v(" "),
+          _c(
+            "div",
+            { staticClass: "img-container row   mx-2   p-2   " },
+            _vm._l(_vm.docs, function(doc, index) {
+              return _c(
+                "div",
+                { staticClass: "thumb-container col-md-4 col-sm-6 " },
+                [
+                  _c("a", { attrs: { href: doc, "data-lity": "" } }, [
+                    _c("img", {
+                      staticClass: "img-thumbnail ",
+                      attrs: { id: "img-" + index, src: doc, alt: "" }
+                    })
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "button",
+                    {
+                      staticClass: "btn close-btn bg-danger text-white",
+                      attrs: { id: "del-" + index },
+                      on: {
+                        click: function($event) {
+                          return _vm.removeImage(index, "img-input")
+                        }
+                      }
+                    },
+                    [
+                      _c("i", {
+                        staticClass: "fa fa-window-close text-white",
+                        attrs: { "aria-hidden": "true" }
+                      })
+                    ]
+                  )
+                ]
+              )
+            }),
+            0
+          )
+        ]),
+        _vm._v(" "),
+        _c("vue-recaptcha", {
+          ref: "recaptcha",
+          staticClass: "mb-1 mx-2",
+          attrs: { sitekey: _vm.sitekey },
+          on: { verify: _vm.onVerify }
+        }),
+        _vm._v(" "),
+        _c(
+          "div",
+          { staticClass: "modal-footer justify-content-center col-12" },
+          [
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-primary mx-1  btn-block  ",
+                attrs: { type: "button" },
+                on: {
+                  click: function($event) {
+                    return _vm.$root.$emit("hoozeRequest", _vm.params)
+                  }
+                }
+              },
+              [_vm._v("ذخیره\n            ")]
+            )
+          ]
+        )
+      ],
+      1
+    )
+  ])
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      { staticClass: "input-group-prepend   btn-group-vertical p-1" },
+      [_c("i", { staticClass: "fa fa-search   text-primary  " })]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("p", { staticClass: "divider text-center " }, [
+      _c("span", [_vm._v("کد مدرسه")])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("p", { staticClass: "divider text-center " }, [
+      _c("span", [_vm._v("کد فضا")])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("p", { staticClass: "divider text-center " }, [
+      _c("span", [_vm._v("سال تاسیس")])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("p", { staticClass: "divider text-center " }, [
+      _c("span", [_vm._v("تعداد دانش آموز")])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("p", { staticClass: "divider text-center " }, [
+      _c("span", [_vm._v("تعداد پایه تحصیلی")])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("p", { staticClass: "divider text-center " }, [
+      _c("span", [_vm._v("تعداد همکاران")])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      { staticClass: "input-group-prepend   btn-group-vertical p-1" },
+      [_c("i", { staticClass: "fa fa-map-marker  text-primary  " })]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      { staticClass: "input-group-prepend   btn-group-vertical p-1" },
+      [_c("i", { staticClass: "fa fa-map-marker  text-primary  " })]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      { staticClass: "input-group-prepend   btn-group-vertical p-1" },
+      [_c("i", { staticClass: "fa fa-address-book  text-primary  " })]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      { staticClass: "input-group-prepend   btn-group-vertical p-1" },
+      [_c("i", { staticClass: "fa fa-road  text-primary  " })]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("p", { staticClass: "divider  " }, [
+      _c("span", { staticClass: "text-danger" }, [_vm._v("    مکان قشلاق   ")])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      { staticClass: "input-group-prepend   btn-group-vertical p-1" },
+      [_c("i", { staticClass: "fa fa-map-marker  text-primary text-danger " })]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      { staticClass: "input-group-prepend   btn-group-vertical p-1" },
+      [_c("i", { staticClass: "fa fa-map-marker  text-primary text-danger " })]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      { staticClass: "input-group-prepend   btn-group-vertical p-1" },
+      [_c("i", { staticClass: "fa fa-address-book  text-danger  " })]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      { staticClass: "input-group-prepend   btn-group-vertical p-1" },
+      [_c("i", { staticClass: "fa fa-road  text-danger  " })]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      { staticClass: "input-group-prepend   btn-group-vertical p-1" },
+      [_c("i", { staticClass: "fa fa-ruler  text-danger  " })]
+    )
+  }
+]
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/school-edit.vue?vue&type=template&id=25496648&":
+/*!**************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/school-edit.vue?vue&type=template&id=25496648& ***!
+  \**************************************************************************************************************************************************************************************************************/
 /*! exports provided: render, staticRenderFns */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -44416,11 +47480,33 @@ var render = function() {
     "div",
     { staticClass: "search-container d-inline-block col-md-4" },
     [
-      _vm._m(0),
+      _c(
+        "p",
+        {
+          directives: [
+            {
+              name: "show",
+              rawName: "v-show",
+              value: !_vm.simple_search,
+              expression: "!simple_search"
+            }
+          ],
+          staticClass: "divider "
+        },
+        [_c("span", [_vm._v("مرتب سازی")])]
+      ),
       _vm._v(" "),
       _c(
         "div",
         {
+          directives: [
+            {
+              name: "show",
+              rawName: "v-show",
+              value: !_vm.simple_search,
+              expression: "!simple_search"
+            }
+          ],
           staticClass:
             "btn-group btn-group-toggle mx-1  row col-12 justify-content-center ",
           attrs: { "data-toggle": "buttons" }
@@ -44515,11 +47601,33 @@ var render = function() {
         ]
       ),
       _vm._v(" "),
-      _vm._m(1),
+      _c(
+        "p",
+        {
+          directives: [
+            {
+              name: "show",
+              rawName: "v-show",
+              value: !_vm.simple_search,
+              expression: "!simple_search"
+            }
+          ],
+          staticClass: "divider   "
+        },
+        [_c("span", [_vm._v("فیلتـــر")])]
+      ),
       _vm._v(" "),
       _c(
         "div",
         {
+          directives: [
+            {
+              name: "show",
+              rawName: "v-show",
+              value: !_vm.simple_search,
+              expression: "!simple_search"
+            }
+          ],
           staticClass:
             "filters-container btn-group btn-group-toggle row  col-md-12 justify-content-center",
           attrs: { "data-toggle": "buttons" }
@@ -44749,200 +47857,222 @@ var render = function() {
         ]
       ),
       _vm._v(" "),
-      _c("div", { staticClass: "row px-5" }, [
-        _c(
-          "div",
-          {
-            staticClass:
-              "slider-container col-md-6 col-sm-8  offset-sm-2 offset-md-0"
-          },
-          [
-            _vm._m(2),
-            _vm._v(" "),
-            _c("div", {
-              staticClass: "slider d-block ",
-              attrs: { id: "slider-sal" }
-            }),
-            _vm._v(" "),
-            _c("div", { staticClass: "input-container text-center my-1" }, [
-              _c("input", {
-                directives: [
-                  {
-                    name: "model",
-                    rawName: "v-model",
-                    value: _vm.max_sal,
-                    expression: "max_sal"
-                  }
-                ],
-                staticClass: "price-range-field left-border",
-                attrs: {
-                  type: "number",
-                  min: "1300",
-                  max: "1500",
-                  oninput: "validity.valid",
-                  id: "max_sal"
-                },
-                domProps: { value: _vm.max_sal },
-                on: {
-                  change: function($event) {
-                    return _vm.setSliders(1)
-                  },
-                  paste: function($event) {
-                    return _vm.setSliders(1)
-                  },
-                  keyup: function($event) {
-                    return _vm.setSliders(1)
-                  },
-                  input: function($event) {
-                    if ($event.target.composing) {
-                      return
-                    }
-                    _vm.max_sal = $event.target.value
-                  }
-                }
+      _c(
+        "div",
+        {
+          directives: [
+            {
+              name: "show",
+              rawName: "v-show",
+              value: !_vm.simple_search,
+              expression: "!simple_search"
+            }
+          ],
+          staticClass: "row px-5"
+        },
+        [
+          _c(
+            "div",
+            {
+              staticClass:
+                "slider-container col-md-6 col-sm-8  offset-sm-2 offset-md-0"
+            },
+            [
+              _vm._m(0),
+              _vm._v(" "),
+              _c("div", {
+                staticClass: "slider d-block ",
+                attrs: { id: "slider-sal" }
               }),
               _vm._v(" "),
-              _c("input", {
-                directives: [
-                  {
-                    name: "model",
-                    rawName: "v-model",
-                    value: _vm.min_sal,
-                    expression: "min_sal"
-                  }
-                ],
-                staticClass: "price-range-field right-border ",
-                attrs: {
-                  type: "number",
-                  min: "1300",
-                  max: "1500",
-                  oninput: "validity.valid",
-                  id: "min_sal"
-                },
-                domProps: { value: _vm.min_sal },
-                on: {
-                  change: function($event) {
-                    return _vm.setSliders(1)
-                  },
-                  paste: function($event) {
-                    return _vm.setSliders(1)
-                  },
-                  keyup: function($event) {
-                    return _vm.setSliders(1)
-                  },
-                  input: function($event) {
-                    if ($event.target.composing) {
-                      return
+              _c("div", { staticClass: "input-container text-center my-1" }, [
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.max_sal,
+                      expression: "max_sal"
                     }
-                    _vm.min_sal = $event.target.value
-                  }
-                }
-              })
-            ])
-          ]
-        ),
-        _vm._v(" "),
-        _c(
-          "div",
-          {
-            staticClass:
-              "slider-container col-md-6 col-sm-8 offset-sm-2 offset-md-0 "
-          },
-          [
-            _vm._m(3),
-            _vm._v(" "),
-            _c("div", {
-              staticClass: "slider d-block ",
-              attrs: { id: "slider-tedad" }
-            }),
-            _vm._v(" "),
-            _c("div", { staticClass: "input-container text-center my-1" }, [
-              _c("input", {
-                directives: [
-                  {
-                    name: "model",
-                    rawName: "v-model",
-                    value: _vm.max_tedad,
-                    expression: "max_tedad"
-                  }
-                ],
-                staticClass: "price-range-field left-border",
-                attrs: {
-                  type: "number",
-                  min: "1",
-                  max: "1000",
-                  oninput: "validity.valid",
-                  id: "max_tedad"
-                },
-                domProps: { value: _vm.max_tedad },
-                on: {
-                  change: function($event) {
-                    return _vm.setSliders(2)
+                  ],
+                  staticClass: "price-range-field left-border",
+                  attrs: {
+                    type: "number",
+                    min: "1300",
+                    max: "1500",
+                    oninput: "validity.valid",
+                    id: "max_sal"
                   },
-                  paste: function($event) {
-                    return _vm.setSliders(2)
-                  },
-                  keyup: function($event) {
-                    return _vm.setSliders(2)
-                  },
-                  input: function($event) {
-                    if ($event.target.composing) {
-                      return
+                  domProps: { value: _vm.max_sal },
+                  on: {
+                    change: function($event) {
+                      return _vm.setSliders(1)
+                    },
+                    paste: function($event) {
+                      return _vm.setSliders(1)
+                    },
+                    keyup: function($event) {
+                      return _vm.setSliders(1)
+                    },
+                    input: function($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.max_sal = $event.target.value
                     }
-                    _vm.max_tedad = $event.target.value
                   }
+                }),
+                _vm._v(" "),
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.min_sal,
+                      expression: "min_sal"
+                    }
+                  ],
+                  staticClass: "price-range-field right-border ",
+                  attrs: {
+                    type: "number",
+                    min: "1300",
+                    max: "1500",
+                    oninput: "validity.valid",
+                    id: "min_sal"
+                  },
+                  domProps: { value: _vm.min_sal },
+                  on: {
+                    change: function($event) {
+                      return _vm.setSliders(1)
+                    },
+                    paste: function($event) {
+                      return _vm.setSliders(1)
+                    },
+                    keyup: function($event) {
+                      return _vm.setSliders(1)
+                    },
+                    input: function($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.min_sal = $event.target.value
+                    }
+                  }
+                })
+              ])
+            ]
+          ),
+          _vm._v(" "),
+          _c(
+            "div",
+            {
+              directives: [
+                {
+                  name: "show",
+                  rawName: "v-show",
+                  value: !_vm.simple_search,
+                  expression: "!simple_search"
                 }
+              ],
+              staticClass:
+                "slider-container col-md-6 col-sm-8 offset-sm-2 offset-md-0 "
+            },
+            [
+              _vm._m(1),
+              _vm._v(" "),
+              _c("div", {
+                staticClass: "slider d-block ",
+                attrs: { id: "slider-tedad" }
               }),
               _vm._v(" "),
-              _c("input", {
-                directives: [
-                  {
-                    name: "model",
-                    rawName: "v-model",
-                    value: _vm.min_tedad,
-                    expression: "min_tedad"
-                  }
-                ],
-                staticClass: "price-range-field right-border d-inline",
-                attrs: {
-                  type: "number",
-                  min: "1",
-                  max: "1000",
-                  oninput: "validity.valid",
-                  id: "min_tedad"
-                },
-                domProps: { value: _vm.min_tedad },
-                on: {
-                  change: function($event) {
-                    return _vm.setSliders(2)
-                  },
-                  paste: function($event) {
-                    return _vm.setSliders(2)
-                  },
-                  keyup: function($event) {
-                    return _vm.setSliders(2)
-                  },
-                  input: function($event) {
-                    if ($event.target.composing) {
-                      return
+              _c("div", { staticClass: "input-container text-center my-1" }, [
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.max_tedad,
+                      expression: "max_tedad"
                     }
-                    _vm.min_tedad = $event.target.value
+                  ],
+                  staticClass: "price-range-field left-border",
+                  attrs: {
+                    type: "number",
+                    min: "1",
+                    max: "1000",
+                    oninput: "validity.valid",
+                    id: "max_tedad"
+                  },
+                  domProps: { value: _vm.max_tedad },
+                  on: {
+                    change: function($event) {
+                      return _vm.setSliders(2)
+                    },
+                    paste: function($event) {
+                      return _vm.setSliders(2)
+                    },
+                    keyup: function($event) {
+                      return _vm.setSliders(2)
+                    },
+                    input: function($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.max_tedad = $event.target.value
+                    }
                   }
-                }
-              })
-            ])
-          ]
-        )
-      ]),
+                }),
+                _vm._v(" "),
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.min_tedad,
+                      expression: "min_tedad"
+                    }
+                  ],
+                  staticClass: "price-range-field right-border d-inline",
+                  attrs: {
+                    type: "number",
+                    min: "1",
+                    max: "1000",
+                    oninput: "validity.valid",
+                    id: "min_tedad"
+                  },
+                  domProps: { value: _vm.min_tedad },
+                  on: {
+                    change: function($event) {
+                      return _vm.setSliders(2)
+                    },
+                    paste: function($event) {
+                      return _vm.setSliders(2)
+                    },
+                    keyup: function($event) {
+                      return _vm.setSliders(2)
+                    },
+                    input: function($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.min_tedad = $event.target.value
+                    }
+                  }
+                })
+              ])
+            ]
+          )
+        ]
+      ),
       _vm._v(" "),
-      _vm._m(4),
+      _vm._m(2),
       _vm._v(" "),
       _c(
         "div",
         { staticClass: " row col-12" },
         [
           _c("div", { staticClass: "input-group col-md-6 col-sm-6 pt-1 " }, [
-            _vm._m(5),
+            _vm._m(3),
             _vm._v(" "),
             _c("input", {
               directives: [
@@ -44990,6 +48120,14 @@ var render = function() {
           ]),
           _vm._v(" "),
           _c("dropdown", {
+            directives: [
+              {
+                name: "show",
+                rawName: "v-show",
+                value: !_vm.simple_search,
+                expression: "!simple_search"
+              }
+            ],
             staticClass: "col-md-6 col-sm-6 ",
             attrs: {
               "data-link": this.hoozesLink,
@@ -45002,41 +48140,121 @@ var render = function() {
         1
       ),
       _vm._v(" "),
-      _c("div", { staticClass: "  m-1 mt-4 d-block " }, [
-        _c(
-          "label",
-          {
-            staticClass: "btn bg-gradient-purple   btn-block",
-            attrs: { id: "search", for: "search" },
-            on: {
-              click: function($event) {
-                return _vm.$root.$emit("search")
+      _c("div", { staticClass: "col-12 row mt-4 d-flex " }, [
+        _c("div", { staticClass: "   col-md-8 col-sm-6" }, [
+          _c(
+            "label",
+            {
+              staticClass: "btn bg-gradient-purple   btn-block",
+              attrs: { id: "search", for: "search" },
+              on: {
+                click: function($event) {
+                  return _vm.$root.$emit("search")
+                }
               }
-            }
-          },
-          [_c("i", { staticClass: "fa fa-search" }), _vm._v(" جستجو\n        ")]
-        )
+            },
+            [
+              _c("i", { staticClass: "fa fa-search" }),
+              _vm._v(" جستجو\n            ")
+            ]
+          )
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: " col-md-2 col-sm-2 px-1" }, [
+          _c(
+            "div",
+            {
+              staticClass: "input-group mb-3",
+              attrs: {
+                "data-toggle": "tooltip",
+                "data-placement": "top",
+                title: "تعداد در صفحه"
+              }
+            },
+            [
+              _vm._m(4),
+              _vm._v(" "),
+              _c("input", {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.per_page,
+                    expression: "per_page"
+                  }
+                ],
+                staticClass: "form-control no-radius px-1",
+                attrs: {
+                  type: "number",
+                  "aria-label": "تعداد در صفحه",
+                  min: "1",
+                  oninput: "validity.valid",
+                  id: "per-page"
+                },
+                domProps: { value: _vm.per_page },
+                on: {
+                  input: function($event) {
+                    if ($event.target.composing) {
+                      return
+                    }
+                    _vm.per_page = $event.target.value
+                  }
+                }
+              })
+            ]
+          )
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "   col-md-1 col-sm-2 px-1" }, [
+          _c(
+            "label",
+            {
+              staticClass: "btn bg-gradient-blue   btn-block hov-pointer px-1",
+              attrs: { id: "view", for: "view" },
+              on: {
+                click: function($event) {
+                  _vm.show == "card" ? (_vm.show = "list") : (_vm.show = "card")
+                  _vm.$root.$emit("viewChange", _vm.show)
+                }
+              }
+            },
+            [
+              _c("i", { staticClass: "fa fa-th-large" }),
+              _vm._v(" "),
+              _c("i", { staticClass: "fa fa-th-list" })
+            ]
+          )
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "   col-md-1 col-sm-2 px-1" }, [
+          _c(
+            "label",
+            {
+              staticClass: "btn bg-gradient-blue  btn-block hov-pointer",
+              attrs: { id: "minimize", for: "minimize" },
+              on: {
+                click: function($event) {
+                  _vm.simple_search = !_vm.simple_search
+                }
+              }
+            },
+            [
+              _c("span", {
+                staticClass: "glyphicon ",
+                class: [
+                  _vm.simple_search
+                    ? "glyphicon-arrow-down"
+                    : "glyphicon-arrow-up"
+                ]
+              })
+            ]
+          )
+        ])
       ])
     ]
   )
 }
 var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("p", { staticClass: "divider " }, [
-      _c("span", [_vm._v("مرتب سازی")])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("p", { staticClass: "divider   " }, [
-      _c("span", [_vm._v("فیلتـــر")])
-    ])
-  },
   function() {
     var _vm = this
     var _h = _vm.$createElement
@@ -45070,6 +48288,14 @@ var staticRenderFns = [
       { staticClass: "input-group-prepend   btn-group-vertical p-1" },
       [_c("i", { staticClass: "fa fa-search   text-primary  " })]
     )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "input-group-addon left-border p-1" }, [
+      _c("span", { staticClass: "input-group-text " }, [_vm._v("تعداد")])
+    ])
   }
 ]
 render._withStripped = true
@@ -45296,20 +48522,42 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: " m-panel container-fluid" }, [
-    _vm._m(0),
+    _c("div", { staticClass: "row col-12 " }, [
+      _vm._m(0),
+      _vm._v(" "),
+      _c("div", { staticClass: " col-md-4" }, [
+        _c(
+          "div",
+          {
+            staticClass: "panel-part",
+            on: {
+              click: function($event) {
+                return _vm.view("schools")
+              }
+            }
+          },
+          [_vm._m(1)]
+        )
+      ]),
+      _vm._v(" "),
+      _vm._m(2)
+    ]),
     _vm._v(" "),
     _c("div", { staticClass: "row  col-12" }, [
       _c(
         "div",
-        { staticClass: "col-sm-6 col-md-4 user-panel d-flex  flex-column   " },
+        {
+          staticClass:
+            "col-sm-6 col-md-4 user-panel mb-1 d-flex flex-column  justify-content-between "
+        },
         [
-          _vm._m(1),
+          _vm._m(3),
           _vm._v(" "),
           _c(
             "div",
             {
               staticClass:
-                "user-panel-body   px-4 d-flex flex-column align-items-center  "
+                "user-panel-body   px-4  d-flex flex-column align-items-center   "
             },
             [
               _c("p", { staticClass: "h3 font-weight-bold text-primary " }, [
@@ -45322,13 +48570,46 @@ var render = function() {
                     ])
               ]),
               _vm._v(" "),
-              _c("div", { staticClass: "card-divider" })
+              _c("div", { staticClass: "card-divider" }),
+              _vm._v(" "),
+              _c("div", { staticClass: "text-primary  " }, [
+                _vm._v("نام:\n                    "),
+                _vm.user.name
+                  ? _c("span", [_vm._v(" " + _vm._s(_vm.user.name))])
+                  : _c("span", [
+                      _c("i", {
+                        staticClass: "fas  fa-question-circle text-danger"
+                      })
+                    ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "text-primary " }, [
+                _vm._v("نام خانوادگی:\n                    "),
+                _vm.user.family
+                  ? _c("span", [_vm._v(" " + _vm._s(_vm.user.family))])
+                  : _c("span", [
+                      _c("i", {
+                        staticClass: "fas  fa-question-circle text-danger"
+                      })
+                    ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "text-primary " }, [
+                _vm._v("شماره تلفن:\n                    "),
+                _vm.user.phone_number
+                  ? _c("span", [_vm._v(" " + _vm._s(_vm.user.phone_number))])
+                  : _c("span", [
+                      _c("i", {
+                        staticClass: "fas  fa-question-circle text-danger"
+                      })
+                    ])
+              ])
             ]
           )
         ]
       ),
       _vm._v(" "),
-      _vm._m(2)
+      _vm._m(4)
     ])
   ])
 }
@@ -45337,77 +48618,27 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "row col-12 " }, [
-      _c("div", { staticClass: "   col-md-4 " }, [
-        _c("div", { staticClass: "panel-part" }, [
-          _c(
-            "div",
-            {
-              staticClass:
-                " colored-half bg-primary d-flex flex-column align-items-center  justify-content-between"
-            },
-            [
-              _c("div", { staticClass: "image-container    " }, [
-                _c("img", {
-                  staticClass: "image  ",
-                  attrs: { src: "/storage/img/white-user.png", alt: "" }
-                })
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "h5 pt-1 text-white" }, [
-                _vm._v("کاربران")
-              ])
-            ]
-          )
-        ])
-      ]),
-      _vm._v(" "),
-      _c("div", { staticClass: " col-md-4" }, [
-        _c("div", { staticClass: "panel-part" }, [
-          _c(
-            "div",
-            {
-              staticClass:
-                " colored-half bg-green d-flex flex-column align-items-center  justify-content-between"
-            },
-            [
-              _c("div", { staticClass: "image-container    " }, [
-                _c("img", {
-                  staticClass: "image  ",
-                  attrs: { src: "/storage/img/white-user.png", alt: "" }
-                })
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "h5 pt-1 text-white" }, [
-                _vm._v("مدارس")
-              ])
-            ]
-          )
-        ])
-      ]),
-      _vm._v(" "),
-      _c("div", { staticClass: " col-md-4" }, [
-        _c("div", { staticClass: "panel-part" }, [
-          _c(
-            "div",
-            {
-              staticClass:
-                " colored-half bg-red d-flex flex-column align-items-center  justify-content-between"
-            },
-            [
-              _c("div", { staticClass: "image-container    " }, [
-                _c("img", {
-                  staticClass: "image  ",
-                  attrs: { src: "/storage/img/white-user.png", alt: "" }
-                })
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "h5 pt-1 text-white" }, [
-                _vm._v("گزارشات")
-              ])
-            ]
-          )
-        ])
+    return _c("div", { staticClass: "   col-md-4 " }, [
+      _c("div", { staticClass: "panel-part" }, [
+        _c(
+          "div",
+          {
+            staticClass:
+              " colored-half bg-primary d-flex flex-column align-items-center  justify-content-between"
+          },
+          [
+            _c("div", { staticClass: "image-container    " }, [
+              _c("img", {
+                staticClass: "image  ",
+                attrs: { src: "/storage/img/white-user.png", alt: "" }
+              })
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "h5 pt-1 text-white" }, [
+              _vm._v("کاربران")
+            ])
+          ]
+        )
       ])
     ])
   },
@@ -45417,7 +48648,60 @@ var staticRenderFns = [
     var _c = _vm._self._c || _h
     return _c(
       "div",
-      { staticClass: "user-panel-header bg-gradient-blue    " },
+      {
+        staticClass:
+          " colored-half bg-green d-flex flex-column align-items-center  justify-content-between"
+      },
+      [
+        _c("div", { staticClass: "image-container    " }, [
+          _c("img", {
+            staticClass: "image  ",
+            attrs: { src: "/storage/img/white-user.png", alt: "" }
+          })
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "h5 pt-1 text-white" }, [_vm._v("مدارس")])
+      ]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: " col-md-4" }, [
+      _c("div", { staticClass: "panel-part" }, [
+        _c(
+          "div",
+          {
+            staticClass:
+              " colored-half bg-red d-flex flex-column align-items-center  justify-content-between"
+          },
+          [
+            _c("div", { staticClass: "image-container    " }, [
+              _c("img", {
+                staticClass: "image  ",
+                attrs: { src: "/storage/img/white-user.png", alt: "" }
+              })
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "h5 pt-1 text-white" }, [
+              _vm._v("گزارشات")
+            ])
+          ]
+        )
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      {
+        staticClass:
+          "user-panel-header bg-gradient-blue  d-flex flex-column align-items-center "
+      },
       [
         _c("div", { staticClass: "user-image-container" }, [
           _c("img", {
@@ -58285,6 +61569,93 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/js/components/school-edit.vue":
+/*!*************************************************!*\
+  !*** ./resources/js/components/school-edit.vue ***!
+  \*************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _school_edit_vue_vue_type_template_id_25496648___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./school-edit.vue?vue&type=template&id=25496648& */ "./resources/js/components/school-edit.vue?vue&type=template&id=25496648&");
+/* harmony import */ var _school_edit_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./school-edit.vue?vue&type=script&lang=js& */ "./resources/js/components/school-edit.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _school_edit_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./school-edit.vue?vue&type=style&index=0&lang=css& */ "./resources/js/components/school-edit.vue?vue&type=style&index=0&lang=css&");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
+  _school_edit_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _school_edit_vue_vue_type_template_id_25496648___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _school_edit_vue_vue_type_template_id_25496648___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/components/school-edit.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/components/school-edit.vue?vue&type=script&lang=js&":
+/*!**************************************************************************!*\
+  !*** ./resources/js/components/school-edit.vue?vue&type=script&lang=js& ***!
+  \**************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_school_edit_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./school-edit.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/school-edit.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_school_edit_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/school-edit.vue?vue&type=style&index=0&lang=css&":
+/*!**********************************************************************************!*\
+  !*** ./resources/js/components/school-edit.vue?vue&type=style&index=0&lang=css& ***!
+  \**********************************************************************************/
+/*! no static exports found */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_school_edit_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/style-loader!../../../node_modules/css-loader??ref--6-1!../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../node_modules/postcss-loader/src??ref--6-2!../../../node_modules/vue-loader/lib??vue-loader-options!./school-edit.vue?vue&type=style&index=0&lang=css& */ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/school-edit.vue?vue&type=style&index=0&lang=css&");
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_school_edit_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_school_edit_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__);
+/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_school_edit_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_school_edit_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_school_edit_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a); 
+
+/***/ }),
+
+/***/ "./resources/js/components/school-edit.vue?vue&type=template&id=25496648&":
+/*!********************************************************************************!*\
+  !*** ./resources/js/components/school-edit.vue?vue&type=template&id=25496648& ***!
+  \********************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_school_edit_vue_vue_type_template_id_25496648___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../node_modules/vue-loader/lib??vue-loader-options!./school-edit.vue?vue&type=template&id=25496648& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/school-edit.vue?vue&type=template&id=25496648&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_school_edit_vue_vue_type_template_id_25496648___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_school_edit_vue_vue_type_template_id_25496648___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
 /***/ "./resources/js/components/search-box.vue":
 /*!************************************************!*\
   !*** ./resources/js/components/search-box.vue ***!
@@ -58503,11 +61874,13 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_school_cards_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./components/school-cards.vue */ "./resources/js/components/school-cards.vue");
 /* harmony import */ var _components_school_create_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components/school-create.vue */ "./resources/js/components/school-create.vue");
-/* harmony import */ var _components_login_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./components/login.vue */ "./resources/js/components/login.vue");
-/* harmony import */ var _components_search_box_vue__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/search-box.vue */ "./resources/js/components/search-box.vue");
-/* harmony import */ var _components_pagination_vue__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./components/pagination.vue */ "./resources/js/components/pagination.vue");
-/* harmony import */ var _components_selector_vue__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./components/selector.vue */ "./resources/js/components/selector.vue");
-/* harmony import */ var _components_user_panel_vue__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./components/user-panel.vue */ "./resources/js/components/user-panel.vue");
+/* harmony import */ var _components_school_edit_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./components/school-edit.vue */ "./resources/js/components/school-edit.vue");
+/* harmony import */ var _components_login_vue__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/login.vue */ "./resources/js/components/login.vue");
+/* harmony import */ var _components_search_box_vue__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./components/search-box.vue */ "./resources/js/components/search-box.vue");
+/* harmony import */ var _components_pagination_vue__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./components/pagination.vue */ "./resources/js/components/pagination.vue");
+/* harmony import */ var _components_selector_vue__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./components/selector.vue */ "./resources/js/components/selector.vue");
+/* harmony import */ var _components_user_panel_vue__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./components/user-panel.vue */ "./resources/js/components/user-panel.vue");
+
 
 
 
@@ -58520,11 +61893,12 @@ var app = new Vue({
   components: {
     schoolCards: _components_school_cards_vue__WEBPACK_IMPORTED_MODULE_0__["default"],
     schoolCreate: _components_school_create_vue__WEBPACK_IMPORTED_MODULE_1__["default"],
-    login: _components_login_vue__WEBPACK_IMPORTED_MODULE_2__["default"],
-    searchBox: _components_search_box_vue__WEBPACK_IMPORTED_MODULE_3__["default"],
-    pagination: _components_pagination_vue__WEBPACK_IMPORTED_MODULE_4__["default"],
-    selector: _components_selector_vue__WEBPACK_IMPORTED_MODULE_5__["default"],
-    userPanel: _components_user_panel_vue__WEBPACK_IMPORTED_MODULE_6__["default"]
+    schoolEdit: _components_school_edit_vue__WEBPACK_IMPORTED_MODULE_2__["default"],
+    login: _components_login_vue__WEBPACK_IMPORTED_MODULE_3__["default"],
+    searchBox: _components_search_box_vue__WEBPACK_IMPORTED_MODULE_4__["default"],
+    pagination: _components_pagination_vue__WEBPACK_IMPORTED_MODULE_5__["default"],
+    selector: _components_selector_vue__WEBPACK_IMPORTED_MODULE_6__["default"],
+    userPanel: _components_user_panel_vue__WEBPACK_IMPORTED_MODULE_7__["default"]
   }
 });
 

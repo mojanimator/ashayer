@@ -31027,7 +31027,6 @@ ol {
   margin: 0rem 0.1rem 0.5rem 0.1rem;
   border-radius: 24px 24px 24px 1px;
   padding: 0.5rem 0.5rem;
-  min-height: 18rem;
   max-width: 100%;
 }
 
@@ -31277,11 +31276,10 @@ ol {
 .m-panel .user-panel {
   padding-right: 0;
   padding-left: 0;
-  min-height: 50vh;
   cursor: pointer;
+  overflow: hidden;
   box-shadow: 1px 0px 10px 1px rgba(0, 0, 0, 0.4);
   border-radius: 24px 24px 24px 1px;
-  overflow: hidden;
   -webkit-animation-name: slideUp;
           animation-name: slideUp;
   -webkit-animation-duration: 0.3s;
@@ -31329,10 +31327,9 @@ ol {
 
 .m-panel .user-panel .user-image-container {
   border-radius: 50%;
-  position: absolute;
   top: 40%;
   left: 50%;
-  -webkit-transform: translate(6rem, -6rem);
+  -webkit-transform: translate(0rem, 6rem);
 }
 
 .m-panel .user-panel .user-image-container .user-image {
@@ -31449,6 +31446,19 @@ ol {
   border-bottom-left-radius: 2px !important;
   border-top-right-radius: 2px !important;
   border-bottom-right-radius: 2px !important;
+}
+
+.table td {
+  text-align: center;
+}
+
+.hoverable {
+  transition: 0.3s all ease;
+}
+
+.hoverable:hover {
+  color: #8bc0eb;
+  cursor: pointer;
 }
 
 .selected-item {

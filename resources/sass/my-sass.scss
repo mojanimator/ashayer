@@ -54,6 +54,18 @@
   border-bottom-right-radius: 2px !important;
 }
 
+.table td {
+  text-align: center;
+}
+
+.hoverable {
+  transition: .3s all ease;
+  &:hover {
+    color: lighten($primary, 20%);
+    cursor: pointer;
+  }
+}
+
 .selected-item {
   color: white;
   background: $purple;

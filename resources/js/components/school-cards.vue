@@ -2,121 +2,206 @@
 
     <div class="row  mx-1  gallery">
 
-        <div v-for="s,idx in schools" class="col-12 col-sm-6 col-md-4 col-lg-3 p-1">
+        <div v-show="show=='card'" class="row">
+            <div v-for="s,idx in schools" class="col-12 col-sm-6 col-md-4 col-lg-3 p-1">
 
-            <div class="m-card h-100 d-flex align-items-end flex-column  " :key="s.id" data-toggle="modal"
-                 data-target="#mapModal"
-                 @click="selectedSchool=s">
-                <div class="m-card-header bg-transparent   ">
+                <div class="m-card h-100 d-flex align-items-end flex-column  " :key="s.id" data-toggle="modal"
+                     data-target="#mapModal"
+                     @click="selectedSchool=s">
+                    <div class="m-card-header bg-transparent   ">
 
-                    <div v-if="s.jensiat!=null" class="icon-container d-inline-block" data-toggle="tooltip"
-                         data-placement="top"
-                         title="جنسیت">
-                        <div class="" v-if="s.jensiat=='b'"><i class="fas  fa-lg fa-male   "></i></div>
-                        <div class="" v-else-if="s.jeniat=='g'"><i class="fas fa-lg fa-female"></i></div>
-                        <div class="" v-else>
-                            <i class="fas fa-lg fa-male"></i>
-                            <i class="fas fa-lg fa-female"></i>
+                        <div v-if="s.jensiat!=null" class="icon-container d-inline-block" data-toggle="tooltip"
+                             data-placement="top"
+                             title="جنسیت">
+                            <div class="" v-if="s.jensiat=='b'"><i class="fas  fa-lg fa-male   "></i></div>
+                            <div class="" v-else-if="s.jeniat=='g'"><i class="fas fa-lg fa-female"></i></div>
+                            <div class="" v-else>
+                                <i class="fas fa-lg fa-male"></i>
+                                <i class="fas fa-lg fa-female"></i>
+                            </div>
                         </div>
-                    </div>
-                    <div class="header-left  d-inline-block float-left  ">
+                        <div class="header-left  d-inline-block float-left  ">
                     <span class="right-border px-2 float-left  badge-pill bg-primary   small-1" data-toggle="tooltip"
                           data-placement="top"
                           title="تعداد دانش آموز">
                         {{s.tedad_daneshamooz}}
                     </span>
 
-                        <span v-if="s.is_roozane!=null" class="  float-left px-1 text-white   small-1"
-                              :class="[s.is_roozane ?'bg-success':'bg-dark-gray']">
+                            <span v-if="s.is_roozane!=null" class="  float-left px-1 text-white   small-1"
+                                  :class="[s.is_roozane ?'bg-success':'bg-dark-gray']">
                         {{s.is_roozane ? "روزانه" : "شبانه"}}
                     </span>
-                        <span class="left-border px-2 float-left  badge-pill text-white   small-1 bg-light-red"
-                              data-toggle="tooltip" data-placement="top" title="نوع فضا">
+                            <span class="left-border px-2 float-left  badge-pill text-white   small-1 bg-light-red"
+                                  data-toggle="tooltip" data-placement="top" title="نوع فضا">
                         {{getType(s, "faza")}}
                     </span>
-                    </div>
-                    <img class="back-header-img" src="img/card-header.png" alt="">
-                    <img class="school-img" :src="getImage(s.docs)" alt="">
+                        </div>
+                        <img class="back-header-img" src="/img/card-header.png" alt="">
+                        <img class="school-img" :src="getImage(s.docs)" alt="">
 
 
-                </div>
-
-                <!--<img v-else src="img/school-no.png" alt=""></div>-->
-                <div class="m-card-body  px-2   flex-column align-self-stretch">
-
-                    <p class="text-purple mb-0 text-center"> {{s.name}}</p>
-
-                    <div class="codes d-flex justify-content-center pt-1">
-                        <small class="  left-border badge-pill bg-gray text-white small d-inline-block "
-                        > کد مدرسه:
-                            <span v-if="s.code_madrese"> {{s.code_madrese}}</span>
-                            <span v-else> <i class="fas  fa-question-circle text-white"></i> </span>
-                        </small>
-                        <small class="  right-border badge-pill bg-dark-green text-white small d-inline-block "
-                        >کد فضا:
-                            <span v-if="s.code_faza"> {{s.code_faza}}</span>
-                            <span v-else> <i class="fas  fa-question-circle text-white"></i> </span>
-                        </small>
                     </div>
 
-                    <div class="card-divider"></div>
+                    <!--<img v-else src="img/school-no.png" alt=""></div>-->
+                    <div class="m-card-body  px-2   flex-column align-self-stretch">
 
-                    <p class="card-text text-dark-blue">
-                        <i class="fas  fa-arrow-circle-left"></i> تاسیس:
-                        <span v-if="s.sale_tasis"> {{s.sale_tasis}}</span>
-                        <span v-else> <i class="fas  fa-question-circle text-danger"></i> </span>
-                    </p>
-                    <p class="card-text text-dark-blue">
-                        <i class="fas  fa-arrow-circle-left"></i>حوزه نمایندگی:
-                        <span v-if="s.hooze"> {{s.hooze.name}}</span>
-                        <span v-else> <i class="fas  fa-question-circle text-danger"></i> </span>
-                    </p>
+                        <p class="text-purple mb-0 text-center"> {{s.name}}</p>
 
-                    <p class="card-text text-dark-blue p-type">
-                        <i class="fas  fa-arrow-circle-left"></i> {{getType(s, "kooch")}}
-                        <i v-if="s.schoolable_type==='App\\Koochro'"
-                           class="fas  fa-arrow-circle-left text-dark-red"></i>{{getType(s, "sayyar")}}
-                    </p>
-                    <p class="card-text text-dark-blue p-type">
-                        <i class="fas  fa-arrow-circle-left"></i> تعداد همکاران:
-                        <span v-if="s.tedad_hamkaran"> {{s.tedad_hamkaran}}</span>
-                        <span v-else> <i class="fas  fa-question-circle text-danger"></i> </span>
-                    </p>
-                    <p class="card-text text-dark-blue p-type">
-                        <i class="fas  fa-arrow-circle-left"></i> تعداد پایه تحصیلی:
-                        <span v-if="s.tedad_paye_tahsili"> {{s.tedad_paye_tahsili}}</span>
-                        <span v-else> <i class="fas  fa-question-circle text-danger"></i> </span>
-                    </p>
+                        <div class="codes d-flex justify-content-center pt-1">
+                            <small class="  left-border badge-pill bg-gray text-white small d-inline-block "
+                            > کد مدرسه:
+                                <span v-if="s.code_madrese"> {{s.code_madrese}}</span>
+                                <span v-else> <i class="fas  fa-question-circle text-white"></i> </span>
+                            </small>
+                            <small class="  right-border badge-pill bg-dark-green text-white small d-inline-block "
+                            >کد فضا:
+                                <span v-if="s.code_faza"> {{s.code_faza}}</span>
+                                <span v-else> <i class="fas  fa-question-circle text-white"></i> </span>
+                            </small>
+                        </div>
 
-                    <div class="card-divider"></div>
+                        <div class="card-divider"></div>
 
-                    <div v-if="s.doore" class="doore">
+                        <p class="card-text text-dark-blue">
+                            <i class="fas  fa-arrow-circle-left"></i> تاسیس:
+                            <span v-if="s.sale_tasis"> {{s.sale_tasis}}</span>
+                            <span v-else> <i class="fas  fa-question-circle text-danger"></i> </span>
+                        </p>
+                        <p class="card-text text-dark-blue">
+                            <i class="fas  fa-arrow-circle-left"></i>حوزه نمایندگی:
+                            <span v-if="s.hooze"> {{s.hooze.name}}</span>
+                            <span v-else> <i class="fas  fa-question-circle text-danger"></i> </span>
+                        </p>
+
+                        <p class="card-text text-dark-blue p-type">
+                            <i class="fas  fa-arrow-circle-left"></i> {{getType(s, "kooch")}}
+                            <i v-if="s.schoolable_type==='App\\Koochro'"
+                               class="fas  fa-arrow-circle-left text-dark-red"></i>{{getType(s, "sayyar")}}
+                        </p>
+                        <p class="card-text text-dark-blue p-type">
+                            <i class="fas  fa-arrow-circle-left"></i> تعداد همکاران:
+                            <span v-if="s.tedad_hamkaran"> {{s.tedad_hamkaran}}</span>
+                            <span v-else> <i class="fas  fa-question-circle text-danger"></i> </span>
+                        </p>
+                        <p class="card-text text-dark-blue p-type">
+                            <i class="fas  fa-arrow-circle-left"></i> تعداد پایه تحصیلی:
+                            <span v-if="s.tedad_paye_tahsili"> {{s.tedad_paye_tahsili}}</span>
+                            <span v-else> <i class="fas  fa-question-circle text-danger"></i> </span>
+                        </p>
+
+                        <div class="card-divider"></div>
+
+                        <div v-if="s.doore" class="doore">
                         <span v-for="d in s.doore.split('$')"
                               class="card-text badge-pill bg-purple text-white px-2  mx-1 d-inline-block">{{getType(d, "doore")}}</span>
+                        </div>
+
+                        <p v-if="s.vaziat!=null && s.vaziat!='m'"
+                           class="vaziat card-text badge-pill text-dark-blue text-center  mt-2 "
+                           @click.stop="$root.$emit('dropdownResponse',{'ids':getType(s, 'zamime_ids')})">
+                            <i class="fas  fa-eye "></i>{{getType(s, "zamime")}}
+
+
+                        </p>
+                        <!--search button-->
+                        <div class="  m-1 mt-4 d-block ">
+                            <label id="search" for="search" class="btn bg-gradient-blue   btn-block"
+                                   @click.stop="    $root.$emit('search') ">
+                                <i class="fa fa-edit"></i> ویرایش
+                            </label>
+                        </div>
+
                     </div>
-
-                    <p v-if="s.vaziat!=null && s.vaziat!='m'"
-                       class="vaziat card-text badge-pill text-dark-blue text-center  mt-2 "
-                       @click.stop="$root.$emit('dropdownResponse',{'ids':getType(s, 'zamime_ids')})">
-                        <i class="fas  fa-eye "></i>{{getType(s, "zamime")}}
-
-
-                    </p>
-                    <!--search button-->
-                    <div class="  m-1 mt-4 d-block ">
-                        <label id="search" for="search" class="btn bg-gradient-blue   btn-block"
-                               @click.stop="    $root.$emit('search') ">
-                            <i class="fa fa-edit"></i> ویرایش
-                        </label>
+                    <div class="m-card-footer  bg-transparent      ">
+                        <img class="mb-auto  back-footer-img" src="/img/card-footer.png" alt="">
                     </div>
 
                 </div>
-                <div class="m-card-footer  bg-transparent      ">
-                    <img class="mb-auto  back-footer-img" src="/img/card-footer.png" alt="">
-                </div>
+            </div>
 
+        </div>
+        <div v-show="show=='list'" class="col-12  ">
+            <div class="table-responsive ">
+                <table class="table   table-sm table-bordered table-striped   ">
+                    <!--<caption> لیست مدارس</caption>-->
+                    <thead class="bg-gradient-blue text-center text-white  ">
+                    <tr>
+                        <th scope="col">کد مدرسه</th>
+                        <th scope="col">نام</th>
+                        <th scope="col">کد فضا</th>
+                        <th scope="col">تاسیس</th>
+                        <th scope="col">حوزه نمایندگی</th>
+                        <th scope="col">نوع</th>
+                        <th scope="col">تعداد همکاران</th>
+                        <th scope="col">تعداد پایه تحصیلی</th>
+                        <th scope="col">ضمیمه</th>
+                        <th scope="col">عملیات</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="s,idx in schools" class=" small    ">
+                        <th scope="row" class="text-center ">{{s.code_madrese}}</th>
+                        <td class="align-middle">{{s.name}}</td>
+                        <td class="align-middle">{{s.code_faza}}</td>
+                        <td class="align-middle">{{s.sale_tasis}}</td>
+
+                        <td class="align-middle" v-if="s.hooze">{{s.hooze.name}}</td>
+                        <td class="align-middle" v-else=""><i class="fas  fa-question-circle text-danger"></i></td>
+
+
+                        <td class="align-middle" v-if="s.schoolable_type==='App\\Saabet' ">ثابت</td>
+                        <td class="align-middle" v-else-if="s.schoolable_type==='App\\Koochro' ">کوچ رو
+                            {{getType(s, "sayyar")}}
+                        </td>
+                        <td v-else>---</td>
+
+                        <td class="align-middle" v-if="s.tedad_hamkaran">{{s.tedad_hamkaran}}</td>
+                        <td class="align-middle" v-else=""><i class="fas  fa-question-circle text-danger"></i></td>
+
+                        <td class="align-middle" v-if="s.tedad_paye_tahsili">{{s.tedad_paye_tahsili}}</td>
+                        <td class="align-middle" v-else=""><i class="fas  fa-question-circle text-danger"></i></td>
+
+                        <td class="align-middle" v-if="s.vaziat && s.vaziat.startsWith('a')"
+                            @click.stop="$root.$emit('dropdownResponse',{'ids':getType(s, 'zamime_ids')})">
+                            <span class="  hoverable">است</span>
+                        </td>
+                        <td class="align-middle" v-else-if="s.vaziat && s.vaziat.startsWith('d')"
+                            @click.stop="$root.$emit('dropdownResponse',{'ids':getType(s, 'zamime_ids')})">
+                            <span class="  hoverable">دارد</span>
+                        </td>
+                        <td class="align-middle" v-else-if="s.vaziat && s.vaziat=='m'">
+                            <span class="   "><i class="fas  fa-minus text-danger"></i></span>
+                        </td>
+                        <td class="align-middle" v-else=""><i class="fas  fa-question-circle text-danger"></i></td>
+
+
+                        <td class="align-middle">
+                            <nav class="nav  justify-content-between ">
+                                <div class=" p-1 nav-link text-green hoverable" :key="s.id" data-toggle="modal"
+                                     data-target="#mapModal"
+                                     @click="selectedSchool=s"> نقشه
+                                    <i class="fa fa-edit" aria-hidden="true"></i>
+                                </div>
+                                <div class=" p-1 nav-link text-blue hoverable"
+                                     @click=" "> ویرایش
+                                    <i class="fa fa-edit" aria-hidden="true"></i>
+                                </div>
+
+                                <div class=" p-1 nav-link text-red  hoverable "
+                                     @click="showDialog(0,s)"> حذف
+                                    <i class="fa fa-window-close" aria-hidden="true"></i>
+                                </div>
+                            </nav>
+                        </td>
+
+
+                    </tr>
+
+                    </tbody>
+                </table>
             </div>
         </div>
+
 
         <div class="modal fade px-2 " id="mapModal" tabindex="-1" role="dialog" aria-labelledby="mapModalLabel"
              aria-hidden="true">
@@ -206,18 +291,21 @@
     let kerman = [57.0532, 30.2880];
     export default {
 
-        props: ['schoolsLink'],
+        props: ['schoolsLink', 'panelLink'],
         components: {
             school_map: schoolMap,
         },
         data() {
             return {
+                show: 'list', //card and table
                 schools: [],
                 params: null,
                 selectedSchool: null,
                 map: null,
                 layer: null,
                 bingLayer: null,
+                loading: null,
+                errors: '',
             }
         },
         mounted() {
@@ -226,7 +314,7 @@
             this.setEvents();
             this.initialize_map();
             this.add_marker();
-
+            this.loading = $('.loading-page');
 //
         },
         created() {
@@ -236,6 +324,82 @@
 
         },
         methods: {
+            deleteSchool(school) {
+                this.loading.removeClass('hide');
+
+
+                console.log(this.panelLink + "/delete/s=" + school.id);
+//                console.log(param);
+                axios.post(this.panelLink + "/delete/s=" + school.id, {
+
+                    id: school.id,
+                    schoolable_id: school.schoolable ? school.schoolable.id : 0,
+                    schoolable_type: school.schoolable_type,
+
+                })
+                    .then((response) => {
+//                        console.log(response);
+                        this.loading.addClass('hide');
+                        if (response.status === 200) {
+                            this.showDialog(1);
+
+                        }
+
+                    }).catch((error) => {
+//                    console.log('res error:');
+                    console.log(error);
+                    this.errors = error.message;
+                    this.showDialog();
+                    this.loading.addClass('hide');
+
+                })
+            },
+            showDialog(type, data) {
+                // 0  ready for save
+                // 1  success  save
+                // else show errors
+                if (type === 0)
+                    swal.fire({
+                        title: 'توجه',
+                        text: 'مدرسه حذف شود؟',
+                        type: 'warning',
+                        showCancelButton: true,
+                        showCloseButton: true,
+                        cancelButtonText: 'خیر',
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: ' بله',
+                    }).then((result) => {
+                        if (result.value) {
+                            this.deleteSchool(data);
+                        }
+                    });
+                else if (type === 1) {
+                    swal.fire({
+                        title: 'توجه',
+                        text: ' با موفقیت حذف شد!',
+                        confirmButtonColor: '#60aa2f',
+                        type: 'success',
+                        confirmButtonText: ' باشه',
+                    }).then((result) => {
+                        if (result.value) {
+//                            location.reload();
+                            this.$root.$emit('search');
+                        }
+                    });
+
+                } else {
+                    swal.fire({
+                        title: 'خطایی رخ داد',
+                        html: ` <p   class="text-danger">` + this.errors + `</p>`,
+//                        text: this.errors,
+                        confirmButtonColor: '#d33',
+                        type: 'error',
+                        confirmButtonText: ' باشه',
+                    });
+                }
+            },
+
             add_marker() {
                 console.log("add marker");
 
@@ -406,9 +570,9 @@
                         text = ' نوع: ---';
                 }
                 else if (_for === "sayyar") {
-                    if (school.schoolable.type === 'n')
+                    if (school.schoolable && school.schoolable.type === 'n')
                         text = ' نیمه سیار ';
-                    else if (school.schoolable.type === 's')
+                    else if (school.schoolable && school.schoolable.type === 's')
                         text = ' سیار ';
 
                 }
@@ -497,6 +661,11 @@
                     this.schools = data;
 //                    this.initialize_map();
 //                    this.addMarker();
+                });
+                this.$root.$on('viewChange', (view) => {
+//                    console.log(view);
+                    this.show = view;
+
                 });
 //            console.log(this.data);
 //            console.log(this.banners);

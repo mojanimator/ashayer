@@ -11,6 +11,7 @@
 |
 */
 
+use App\School;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -27,7 +28,7 @@ Route::post('schools/all', 'SchoolController@all')->name('school.all');
 Route::post('schools/search', 'SchoolController@search')->name('school.search');
 Route::post('schools/dropdown', 'SchoolController@dropdown')->name('school.dropdown');
 Route::post('schools/create', 'SchoolController@create')->name('schools.create');
-Route::get('/schools', 'SchoolController@view')->name('school.view');
+
 //Route::post('madrese/all', 'MadreseController@index')->name('madrese.all');
 
 Route::post('hoozes', 'SchoolController@hoozes')->name('school.hoozes');
@@ -46,4 +47,11 @@ Route::get('/init', function () {
 
 Route::get('register/confirm/{token}', 'Auth\RegisterController@confirmEmail');
 
+Route::post('/panel/{username}/delete/s={id}', 'SchoolController@destroy')->name('school.destroy');
 Route::post('/panel/{username}', 'UserController@showPanel')->name('user.panel');
+Route::get('/panel/{username}/schools', 'SchoolController@view')->name('school.view');
+Route::view('/panel/{username}/edit/s={id}', 'school.edit.view', [
+        'school', function ($id) {
+            return School::find($id)->with('docs')->with('hooze')->with('schoolable');
+        }]
+);

@@ -137,7 +137,7 @@
                             anchorXUnits: 'fraction',
                             anchorYUnits: 'fraction',
                             opacity: .9,
-                            src: 'img/marker-school-red.png'
+                            src: '/img/marker-school-red.png'
                         }))
                     });
 //                    console.log(this.s.schoolable);

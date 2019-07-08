@@ -33,7 +33,7 @@
                 <a class="nav-link" href="/banners/create">ساخت</a>
             </li>
             <li class="{{request()->is('schools') ? 'active ':''}}nav-item text-center">
-                <a class="nav-link" href="{{route('school.view')}}">مدارس</a>
+                <a class="nav-link" href="{{route('school.view',['username' =>auth()->user()->username])}}">مدارس</a>
             </li>
             {{--<li class="{{Request::is('map') ? 'active ':''}}nav-item text-center">--}}
             {{--<a class="nav-link" href="{{route('map')}}">نقشه</a>--}}
@@ -106,8 +106,9 @@
 <script src='https://google.com/recaptcha/api.js?hl=fa'></script>
 <script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
 <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/build/ol.js"></script>
-<script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList"></script>
 <script src="{{mix('js/app.js')}}"></script>
+<script
+        src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList"></script>
 @yield('scripts')
 {{--@include('flash')--}}
 {{--@yield('script')--}}

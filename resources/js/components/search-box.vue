@@ -4,9 +4,10 @@
     <div class="search-container d-inline-block col-md-4">
 
 
-        <p class="divider "><span>مرتب سازی</span></p>
+        <p v-show="!simple_search" class="divider "><span>مرتب سازی</span></p>
 
-        <div class="btn-group btn-group-toggle mx-1  row col-12 justify-content-center " data-toggle="buttons">
+        <div v-show="!simple_search" class="btn-group btn-group-toggle mx-1  row col-12 justify-content-center "
+             data-toggle="buttons">
             <label id="new-schools" for="new-schools"
                    class="btn btn-light-blue btn-group-item col-xs-6 left-border  active "
                    @click="by='~n';  $root.$emit('search')  ">
@@ -32,10 +33,11 @@
 
         <!-- search filters-->
 
-        <p class="divider   "><span>فیلتـــر</span></p>
+        <p v-show="!simple_search" class="divider   "><span>فیلتـــر</span></p>
 
         <!--status-->
-        <div class="filters-container btn-group btn-group-toggle row  col-md-12 justify-content-center"
+        <div v-show="!simple_search"
+             class="filters-container btn-group btn-group-toggle row  col-md-12 justify-content-center"
              data-toggle="buttons">
             <div class=" px-2  ">
                 <label class="btn   btn-outline-success  "
@@ -98,7 +100,7 @@
         </div>
 
         <!--range sliders-->
-        <div class="row px-5">
+        <div v-show="!simple_search" class="row px-5">
             <!--slider sale tasis-->
             <div class="slider-container col-md-6 col-sm-8  offset-sm-2 offset-md-0">
                 <p class="divider text-center "><span>سال تاسیس</span></p>
@@ -115,7 +117,7 @@
                 </div>
             </div>
             <!--slider tedad danesh amooz-->
-            <div class="slider-container col-md-6 col-sm-8 offset-sm-2 offset-md-0 ">
+            <div v-show="!simple_search" class="slider-container col-md-6 col-sm-8 offset-sm-2 offset-md-0 ">
                 <p class="divider  text-center"><span>تعداد دانش آموز</span></p>
                 <div id="slider-tedad" class="slider d-block "></div>
                 <div class="input-container text-center my-1">
@@ -148,17 +150,52 @@
             </div>
 
 
-            <dropdown :data-link="this.hoozesLink" :for="'hooze'" :newable="true" :multi="true"
+            <dropdown v-show="!simple_search" :data-link="this.hoozesLink" :for="'hooze'" :newable="true" :multi="true"
                       class="col-md-6 col-sm-6 "></dropdown>
         </div>
         <!--end  search-->
 
         <!--search button-->
-        <div class="  m-1 mt-4 d-block ">
-            <label id="search" for="search" class="btn bg-gradient-purple   btn-block"
-                   @click="    $root.$emit('search') ">
-                <i class="fa fa-search"></i> جستجو
-            </label>
+        <div class="col-12 row mt-4 d-flex ">
+            <div class="   col-md-8 col-sm-6">
+                <label id="search" for="search" class="btn bg-gradient-purple   btn-block"
+                       @click="    $root.$emit('search') ">
+                    <i class="fa fa-search"></i> جستجو
+                </label>
+            </div>
+            <div class=" col-md-2 col-sm-2 px-1">
+
+                <div class="input-group mb-3" data-toggle="tooltip" data-placement="top" title="تعداد در صفحه">
+                    <div class="input-group-addon left-border p-1">
+                        <span class="input-group-text ">تعداد</span>
+                    </div>
+                    <input type="number" class="form-control no-radius px-1"
+                           aria-label="تعداد در صفحه"
+                           v-model="per_page" min="1"
+                           oninput="validity.valid" id="per-page">
+                    <!--<div class="input-group-addon right-border">-->
+                    <!--<span class="input-group-text">.00</span>-->
+                    <!--</div>-->
+                </div>
+            </div>
+            <div class="   col-md-1 col-sm-2 px-1">
+                <label id="view" for="view" class="btn bg-gradient-blue   btn-block hov-pointer px-1"
+                       @click=" show=='card'?show='list':show='card'; $root.$emit('viewChange',show);    ">
+
+                    <i class="fa fa-th-large"></i>
+                    <i class="fa fa-th-list"></i>
+
+                </label>
+            </div>
+            <!--toggle search panel-->
+            <div class="   col-md-1 col-sm-2 px-1">
+                <label id="minimize" for="minimize" class="btn bg-gradient-blue  btn-block hov-pointer"
+                       @click="  simple_search=!simple_search   ">
+                    <span class="glyphicon "
+                          :class="[simple_search?'glyphicon-arrow-down':'glyphicon-arrow-up']"></span>
+                </label>
+            </div>
+
         </div>
         <!--end  search button-->
 
@@ -180,6 +217,10 @@
         },
         data() {
             return {
+
+                show: 'list',
+                simple_search: true, //only school name
+                per_page: 24,
                 sName: '',
 
                 loading: $(".loading-page"),
@@ -319,7 +360,7 @@
 
                 this.loading.removeClass('hide');
                 this.no_result.addClass('hide');
-//                console.log(status);
+
 //                console.log(this.searchName);
 //                console.log(param);
                 axios.post(this.schoolsLink, {
@@ -335,6 +376,7 @@
                     vaziat: vaziat,
                     noe_fazaye_amoozeshi: noe_fazaye_amoozeshi,
                     hooze_namayandegi_id: param['data'],
+                    paginate: this.per_page,
                     page: param['page'],
                     sale_tasis: {'min': this.min_sal, 'max': this.max_sal},
                     tedad_daneshamooz: {'min': this.min_tedad, 'max': this.max_tedad},
@@ -385,10 +427,10 @@
                 // event from dropdown
                 this.$root.$on('dropdownResponse', (params) => {
 //                    console.log(params);
-
                     this.search(params);
 
                 });
+
             },
             setAxiosCsrf() {
                 window.axios.defaults.headers.common['X-CSRF-TOKEN'] =

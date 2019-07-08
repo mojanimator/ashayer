@@ -108,7 +108,7 @@ class SchoolController extends Controller
         $tedad_daneshamooz = $request->tedad_daneshamooz;
 
 //        return $request;
-        if (!$paginate) {
+        if (!$paginate || $paginate > 4294967295) {
             $paginate = 24;
         }
         if (!$page) {
@@ -285,8 +285,43 @@ class SchoolController extends Controller
      * @param  \App\Madrese $madrese
      * @return \Illuminate\Http\Response
      */
-    public function destroy(School $school)
+    public function destroy(Request $request)
     {
-        //
+
+        $request->validate([
+            'id' => 'required|numeric|min:1|max:4294967295',
+            'schoolable_type' => 'required|in:App\\Saabet,App\\Koochro',
+            'schoolable_id' => 'required|numeric|min:1|max:4294967295',
+
+        ], [
+            'id.required' => 'شماره مدرسه نامعتبر است',
+            'id.numeric' => 'شماره مدرسه نامعتبر است',
+            'id.min' => 'شماره مدرسه نامعتبر است',
+            'id.max' => 'شماره مدرسه نامعتبر است',
+            'schoolable_type.required' => 'نوع نامعتبر است',
+            'schoolable_type.in' => 'نوع نامعتبر است',
+            'schoolable_id.required' => 'شماره نوع مدرسه نامعتبر است',
+            'schoolable_id.numeric' => 'شماره نوع مدرسه نامعتبر است',
+            'schoolable_id.min' => 'شماره نوع مدرسه نامعتبر است',
+            'schoolable_id.max' => 'شماره نوع مدرسه نامعتبر است',
+        ]);
+
+        DB::transaction(function () use ($request) {
+
+            if ($request->schoolable_type == "App\\Saabet") {
+                Saabet::where('id', $request->schoolable_id)->delete();
+
+            } elseif ($request->schoolable_type == "App\\Koochro") {
+                Koochro::where('id', $request->schoolable_id)->delete();
+            }
+
+            Doc::where('school_id', $request->id)->delete();
+            School::destroy($request->id);
+            // add school docs
+
+            return "200";
+        });
+
+        return null;
     }
 }

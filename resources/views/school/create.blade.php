@@ -12,7 +12,6 @@
 
         <school-create user="{{auth()->user()}}" schools-link="{{route('school.dropdown')}}"
                        hoozes-link="{{route('school.hoozes')}}" sitekey="{{ config('services.recaptcha.key') }}"
-                       captcha-link="{{asset('assets/botdetect-captcha-lib/simple-botdetect.php')}}"
                        create-school-link="{{route('schools.create')}}"></school-create>
 
         <div class="row  justify-content-center">

@@ -9,7 +9,10 @@
 
         @if(auth()->user())
 
-<user-panel :user="{{auth()->user()}}"></user-panel>
+            <user-panel :user="{{auth()->user()}}"
+                        panel-link="{{route('user.panel',['username' =>auth()->user()->username])}}">
+
+            </user-panel>
 
 
 
