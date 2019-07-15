@@ -65,8 +65,9 @@
 <script>
     import swal from 'sweetalert2/dist/sweetalert2.js';
 
+    let selectedBefore = false;
     export default {
-        props: ['dataLink', 'for', 'multi', 'hooze_namayandegi_id'],
+        props: ['dataLink', 'for', 'multi', 'hooze_namayandegi_id', 'selectedBefore'],
         data() {
             return {
                 data_dropdown: null,
@@ -91,6 +92,7 @@
                 this.placeholder = 'مدارس';
 //            this.setAxiosCsrf();
             this.getData("GET_SCHOOL");
+
 //            this.activeData[0] = true;
 //            this.setEvents();
 //************* hooze parameters
@@ -113,14 +115,17 @@
                 params.zamime = this.selected;
                 this.$root.$emit('selectorResponse', params);
             });
-        },
+        }
+        ,
         beforeDestroy() {
             this.$root.$off('hoozeResponse');
-        },
+        }
+        ,
         updated() {
 
 
-        },
+        }
+        ,
         methods: {
             unselect(id) {
                 for (let i in this.selected)
@@ -128,7 +133,8 @@
                         this.selected.splice(i, 1);
 
                     }
-            },
+            }
+            ,
             setEvents() {
 
 
@@ -152,12 +158,12 @@
                     params.zamime = this.selected;
                     this.$root.$emit('selectorResponse', params);
                 });
-            },
+            }
+            ,
 
             getData(type) {
                 this.loading = true;
                 let params = {};
-
 
                 if (type === "ADD_SCHOOL") {
                     params = {
@@ -188,14 +194,33 @@
 
                         this.data = response.data.data;
                         this.filteredData = this.data;
-//
+
+                        if (!selectedBefore && this.selectedBefore.startsWith('d') || this.selectedBefore.startsWith('a')) {
+                            selectedBefore = this.selectedBefore;
+                            selectedBefore = selectedBefore.split('$').splice(1);
+//                            console.log(selectedBefore);
+                            for (let i in  selectedBefore)
+                                for (let d in this.data) {
+//                                    console.log(selectedBefore[i] + ' , ' + this.data[d].id);
+                                    if (selectedBefore[i] == this.data[d].id) {
+                                        this.selected.push(
+                                            {
+                                                'id': this.data[d].id,
+                                                'name': this.data[d].name
+                                            });
+                                        break;
+                                    }
+                                }
+                        }
+
                         this.loading = false;
                     }).catch((error) => {
                     this.loading = false;
                     console.log(' error:');
                     console.log(error);
                 });
-            },
+            }
+            ,
 
 
             openDropdown(el) {
@@ -204,12 +229,14 @@
                     this.data_dropdown.removeClass('hide');
 
                 }
-            },
+            }
+            ,
             closeDropdown(el) {
 
                 this.data_dropdown.addClass('hide');
 
-            },
+            }
+            ,
 
             selectData(h, hId) {
 
@@ -245,7 +272,8 @@
 //                        console.log(this.selected);
                     }
                 }
-            },
+            }
+            ,
             showDialog(params) {
                 let color;
                 if (params['type'] === 'success')
@@ -267,7 +295,8 @@
 //                            this.saveChanges();
                     }
                 });
-            },
+            }
+            ,
 
         }
 

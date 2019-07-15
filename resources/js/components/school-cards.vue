@@ -2,7 +2,7 @@
 
     <div class="row  mx-1  gallery">
 
-        <div v-show="show=='card'" class="row">
+        <div v-show="show=='card'" class="row mt-1">
             <div v-for="s,idx in schools" class="col-12 col-sm-6 col-md-4 col-lg-3 p-1">
 
                 <div class="m-card h-100 d-flex align-items-end flex-column  " :key="s.id" data-toggle="modal"
@@ -106,7 +106,7 @@
                         <!--search button-->
                         <div class="  m-1 mt-4 d-block ">
                             <label id="search" for="search" class="btn bg-gradient-blue   btn-block"
-                                   @click.stop="    $root.$emit('search') ">
+                                   @click.stop="selectedSchool=s;lastShow=show;show='edit';">
                                 <i class="fa fa-edit"></i> ویرایش
                             </label>
                         </div>
@@ -120,7 +120,8 @@
             </div>
 
         </div>
-        <div v-show="show=='list'" class="col-12  ">
+
+        <div v-show="show=='list'" class="col-12 mt-1   ">
             <div class="table-responsive ">
                 <table class="table   table-sm table-bordered table-striped   ">
                     <!--<caption> لیست مدارس</caption>-->
@@ -133,6 +134,7 @@
                         <th scope="col">حوزه نمایندگی</th>
                         <th scope="col">نوع</th>
                         <th scope="col">تعداد همکاران</th>
+                        <th scope="col"> پایه تحصیلی</th>
                         <th scope="col">تعداد پایه تحصیلی</th>
                         <th scope="col">ضمیمه</th>
                         <th scope="col">عملیات</th>
@@ -140,7 +142,7 @@
                     </thead>
                     <tbody>
                     <tr v-for="s,idx in schools" class=" small    ">
-                        <th scope="row" class="text-center ">{{s.code_madrese}}</th>
+                        <th scope="row" class="text-center align-middle">{{s.code_madrese}}</th>
                         <td class="align-middle">{{s.name}}</td>
                         <td class="align-middle">{{s.code_faza}}</td>
                         <td class="align-middle">{{s.sale_tasis}}</td>
@@ -153,10 +155,19 @@
                         <td class="align-middle" v-else-if="s.schoolable_type==='App\\Koochro' ">کوچ رو
                             {{getType(s, "sayyar")}}
                         </td>
-                        <td v-else>---</td>
+                        <td v-else="" class="align-middle"><i class="fas  fa-question-circle text-danger   "></i></td>
 
                         <td class="align-middle" v-if="s.tedad_hamkaran">{{s.tedad_hamkaran}}</td>
                         <td class="align-middle" v-else=""><i class="fas  fa-question-circle text-danger"></i></td>
+
+                        <td v-if="s.doore" class="align-middle">
+                            <div v-for="d in s.doore.split('$')">
+                                <span>{{getType(d, 'doore')}}</span>
+                            </div>
+                        </td>
+                        <td v-else="" class="align-middle">
+                            <i class="fas  fa-question-circle text-danger"></i>
+                        </td>
 
                         <td class="align-middle" v-if="s.tedad_paye_tahsili">{{s.tedad_paye_tahsili}}</td>
                         <td class="align-middle" v-else=""><i class="fas  fa-question-circle text-danger"></i></td>
@@ -183,7 +194,7 @@
                                     <i class="fa fa-edit" aria-hidden="true"></i>
                                 </div>
                                 <div class=" p-1 nav-link text-blue hoverable"
-                                     @click=" "> ویرایش
+                                     @click="selectedSchool=s;lastShow=show;show='edit';"> ویرایش
                                     <i class="fa fa-edit" aria-hidden="true"></i>
                                 </div>
 
@@ -202,6 +213,13 @@
             </div>
         </div>
 
+        <school_create class="mt-1" v-if=" show=='create'" :sitekey="sitekey"
+                       :hoozes-link="hoozesLink">
+        </school_create>
+
+        <school_edit class="mt-1" v-if="selectedSchool && show=='edit'" :selectedSchool="selectedSchool"
+                     :sitekey="sitekey" :hoozes-link="hoozesLink" :panel-link="panelLink" :schools-link="schoolsLink">
+        </school_edit>
 
         <div class="modal fade px-2 " id="mapModal" tabindex="-1" role="dialog" aria-labelledby="mapModalLabel"
              aria-hidden="true">
@@ -211,8 +229,8 @@
                     <div class="modal-header  ">
 
                         <h5 class="modal-title text-primary "> {{selectedSchool.name}}</h5>
-                        <h5 v-if="(selectedSchool.schoolable_type==='App\\Saabet' && !selectedSchool.schoolable.loc) ||
-                          (selectedSchool.schoolable_type==='App\\Koochro' && !selectedSchool.schoolable.loc_yeylagh)"
+                        <h5 v-if="(selectedSchool.schoolable_type==='App\\Saabet' && (selectedSchool.schoolable===null||!selectedSchool.schoolable.loc)) ||
+                          (selectedSchool.schoolable_type==='App\\Koochro' &&(!selectedSchool.schoolable|| !selectedSchool.schoolable.loc_yeylagh))"
                             class="modal-title text-danger "> اطلاعات مکانی موجود نیست</h5>
                         <i class="glyphicon glyphicon-remove text-danger  clear-btn" data-dismiss="modal"
                            aria-label="Close"
@@ -231,30 +249,30 @@
                              :key="selectedSchool.id+'-modal'">
                             <div v-if="selectedSchool.schoolable_type==='App\\Saabet'">
                                 <p class="small text-primary"> آدرس <i class="fas fa-arrow-circle-left"></i>
-                                    <span v-if="selectedSchool.schoolable.address"> {{selectedSchool.schoolable.address}}</span>
+                                    <span v-if="selectedSchool.schoolable&&selectedSchool.schoolable.address"> {{selectedSchool.schoolable.address}}</span>
                                     <span v-else> <i class="fas  fa-question-circle text-danger"></i> </span>
                                     <i class="fas fa-circle"></i> فاصله از شهرستان
                                     <i class="fas fa-arrow-circle-left"></i>
-                                    <span v-if="selectedSchool.schoolable.fasele_az_shahrestan"> {{selectedSchool.schoolable.fasele_az_shahrestan}} کیلومتر </span>
+                                    <span v-if="selectedSchool.schoolable&&selectedSchool.schoolable.fasele_az_shahrestan"> {{selectedSchool.schoolable.fasele_az_shahrestan}} کیلومتر </span>
                                     <span v-else> <i class="fas  fa-question-circle text-danger"></i> </span>
                                 </p>
                             </div>
                             <div v-else-if="selectedSchool.schoolable_type==='App\\Koochro'">
                                 <p class="small text-primary"> آدرس ییلاق <i class="fas fa-arrow-circle-left"></i>
-                                    <span v-if="selectedSchool.schoolable.address_yeylagh"> {{selectedSchool.schoolable.address_yeylagh}}</span>
+                                    <span v-if="selectedSchool.schoolable&&selectedSchool.schoolable.address_yeylagh"> {{selectedSchool.schoolable.address_yeylagh}}</span>
                                     <span v-else> <i class="fas  fa-question-circle text-danger"></i> </span>
                                     <i class="fas fa-circle"></i> فاصله از شهرستان
                                     <i class="fas fa-arrow-circle-left"></i>
-                                    <span v-if="selectedSchool.schoolable.fasele_az_shahrestan_yeylagh"> {{selectedSchool.schoolable.fasele_az_shahrestan_yeylagh}} کیلومتر </span>
+                                    <span v-if="selectedSchool.schoolable&&selectedSchool.schoolable.fasele_az_shahrestan_yeylagh"> {{selectedSchool.schoolable.fasele_az_shahrestan_yeylagh}} کیلومتر </span>
                                     <span v-else> <i class="fas  fa-question-circle text-danger"></i> </span></p>
                                 <p class="small text-danger"> آدرس قشلاق <i class="fas fa-arrow-circle-left"></i>
-                                    {{selectedSchool.schoolable.address_gheshlagh}}
+                                    {{selectedSchool.schoolable ? selectedSchool.schoolable.address_gheshlagh : ''}}
                                     <i class="fas fa-circle"></i> فاصله از شهرستان
                                     <i class="fas fa-arrow-circle-left"></i>
-                                    <span v-if="selectedSchool.schoolable.fasele_az_shahrestan_gheshlagh"> {{selectedSchool.schoolable.fasele_az_shahrestan_gheshlagh}} کیلومتر </span>
+                                    <span v-if="selectedSchool.schoolable && selectedSchool.schoolable.fasele_az_shahrestan_gheshlagh"> {{selectedSchool.schoolable.fasele_az_shahrestan_gheshlagh}} کیلومتر </span>
                                     <span v-else> <i class="fas  fa-question-circle text-danger"></i> </span></p>
                                 <p class="small text-dark"> مسافت کوچ <i class="fas fa-arrow-circle-left"></i>
-                                    <span v-if="selectedSchool.schoolable.masafate_kooch"> {{selectedSchool.schoolable.masafate_kooch}} کیلومتر </span>
+                                    <span v-if="selectedSchool.schoolable&&selectedSchool.schoolable.masafate_kooch"> {{selectedSchool.schoolable.masafate_kooch}} کیلومتر </span>
                                     <span v-else> <i class="fas  fa-question-circle text-danger"></i> </span></p>
                             </div>
 
@@ -274,6 +292,8 @@
 
 <script>
     import schoolMap from './map.vue';
+    import schoolEdit from './school-edit.vue';
+    import schoolCreate from './school-create.vue';
     import LayerSwitcher from 'ol-layerswitcher/dist/ol-layerswitcher';
     //    import 'ol/ol.css';
     //    import Feature from 'ol/Feature.js';
@@ -291,13 +311,16 @@
     let kerman = [57.0532, 30.2880];
     export default {
 
-        props: ['schoolsLink', 'panelLink'],
+        props: ['schoolsLink', 'panelLink', 'hoozesLink', 'sitekey'],
         components: {
             school_map: schoolMap,
+            school_edit: schoolEdit,
+            school_create: schoolCreate,
         },
         data() {
             return {
                 show: 'list', //card and table
+                lastShow: 'list', //card and table
                 schools: [],
                 params: null,
                 selectedSchool: null,
@@ -306,6 +329,7 @@
                 bingLayer: null,
                 loading: null,
                 errors: '',
+
             }
         },
         mounted() {
@@ -315,7 +339,7 @@
             this.initialize_map();
             this.add_marker();
             this.loading = $('.loading-page');
-//
+
         },
         created() {
 
@@ -328,7 +352,7 @@
                 this.loading.removeClass('hide');
 
 
-                console.log(this.panelLink + "/delete/s=" + school.id);
+//                console.log(this.panelLink + "/delete/s=" + school.id);
 //                console.log(param);
                 axios.post(this.panelLink + "/delete/s=" + school.id, {
 
@@ -348,7 +372,13 @@
                     }).catch((error) => {
 //                    console.log('res error:');
                     console.log(error);
-                    this.errors = error.message;
+                    this.errors = '';
+                    if (error.response && error.response.status === 422)
+                        for (let idx in error.response.data.errors)
+                            this.errors += error.response.data.errors[idx] + '<br>';
+                    else {
+                        this.errors = error;
+                    }
                     this.showDialog();
                     this.loading.addClass('hide');
 

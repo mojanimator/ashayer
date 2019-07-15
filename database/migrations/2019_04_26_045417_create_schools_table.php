@@ -34,7 +34,7 @@ class CreateSchoolsTable extends Migration
 
             $table->timestamp('created_at');
             $table->timestamp('updated_at')->useCurrent();
-
+            $table->softDeletes();
             $table->foreign('hooze_namayandegi_id')->references('id')->on('hoozes');
         });
     }

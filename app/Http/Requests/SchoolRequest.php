@@ -59,6 +59,7 @@ class SchoolRequest extends FormRequest
             'loc2.masire_kooch' => 'nullable|max:65535',
             'loc2.koochro_type' => 'nullable|in:s,n',
 
+            "delDocs" => "sometimes|nullable|array|numeric|between:0,3",
             "docs" => "nullable|array|between:0,3",
             'docs.*' => "base64_image|base64_size:2048",
         ];
@@ -135,6 +136,9 @@ class SchoolRequest extends FormRequest
             'loc2.masire_kooch.max' => 'مسیر کوچ  نامعتبر است',
             'loc2.koochro_type.in' => 'نوع مدرسه کوچ رو نامعتبر است',
 
+            'delDocs.between' => 'تعداد تصاویر حذفی نامعتبر است',
+            'delDocs.numeric' => 'مقدار تصاویر حذفی نامعتبر است',
+            'delDocs.array' => 'نوع تصاویر حذفی نامعتبر است',
 
             'docs.between' => 'تعداد تصاویر نامعتبر است',
             'docs.*.base64_image' => 'فرمت تصویر نا معتبر است',

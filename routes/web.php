@@ -48,8 +48,9 @@ Route::get('/init', function () {
 Route::get('register/confirm/{token}', 'Auth\RegisterController@confirmEmail');
 
 Route::post('/panel/{username}/delete/s={id}', 'SchoolController@destroy')->name('school.destroy');
-Route::post('/panel/{username}', 'UserController@showPanel')->name('user.panel');
+Route::any('/panel/{username}', 'UserController@showPanel')->name('user.panel');
 Route::get('/panel/{username}/schools', 'SchoolController@view')->name('school.view');
+Route::post('/panel/{username}/edit/s={id}', 'SchoolController@edit')->name('school.edit');
 Route::view('/panel/{username}/edit/s={id}', 'school.edit.view', [
         'school', function ($id) {
             return School::find($id)->with('docs')->with('hooze')->with('schoolable');

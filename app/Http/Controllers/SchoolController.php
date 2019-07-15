@@ -262,7 +262,7 @@ class SchoolController extends Controller
      * @param  \App\Madrese $madrese
      * @return \Illuminate\Http\Response
      */
-    public function edit(School $school)
+    public function edit(Request $request)
     {
         //
     }
@@ -274,9 +274,109 @@ class SchoolController extends Controller
      * @param  \App\Madrese $madrese
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, School $school)
+    public function update(SchoolRequest $request)
     {
-        //
+        DB::transaction(function () use ($request) {
+
+            $date = Carbon::now();
+            $s = School::find($request->id);
+            $id = null;
+
+
+            if ($s->schoolable_type != $request->schoolable_type) {
+
+                //school changed from saabet to koochro ->delete saabet add koochro
+                if ($s->schoolable_type == "App\\Saabet" && $request->schoolable_type == "App\\Koochro") {
+                    Saabet::where('school-id', $s->schoolable->id)->first()->delete();
+                    $schoolable = Koochro::create([
+                        'address_yeylagh' => $request->loc1['address'],
+                        'loc_yeylagh' => $request->loc1['pos'],
+                        'fasele_az_shahrestan_yeylagh' => $request->loc1['fasele_az_shahrestan'],
+                        'address_gheshlagh' => $request->loc2['address'],
+                        'loc_gheshlagh' => $request->loc2['pos'],
+                        'fasele_az_shahrestan_gheshlagh' => $request->loc2['fasele_az_shahrestan'],
+                        'type' => $request->loc2['koochro_type'],
+                        'masire_kooch' => $request->loc2['masire_kooch'],
+                        'masafate_kooch' => $request->loc2['masafate_kooch'],
+                        'created_at' => $date,
+                        'updated_at' => $date,
+                    ]);
+                    $id = $schoolable->id;
+
+                } elseif ($s->schoolable_type == "App\\Koochro" && $request->schoolable_type == "App\\Saabet") {
+                    Koochro::where('school-id', $s->schoolable->id)->first()->delete();
+                    $schoolable = Saabet::create([
+                        'address' => $request->loc1['address'],
+                        'loc' => $request->loc1['pos'],
+                        'fasele_az_shahrestan' => $request->loc1['fasele_az_shahrestan'],
+                        'created_at' => $date,
+                        'updated_at' => $date,
+                    ]);
+                    $id = $schoolable->id;
+                }
+
+            } else if ($s->schoolable_type == $request->schoolable_type) {
+
+                if ($s->schoolable_type == "App\\Saabet") {
+                    $schoolable = Saabet::find($s->schoolable->id);
+
+                    $schoolable->address = $request->loc1['address'];
+                    $schoolable->loc = $request->loc1['pos'];
+                    $schoolable->fasele_az_shahrestan = $request->loc1['fasele_az_shahrestan'];
+                    $schoolable->save();
+                    $schoolable_type = "App\\Saabet";
+
+                    $id = $schoolable->id;
+                } elseif ($s->schoolable_type == "App\\Koochro") {
+                    $schoolable = Koochro::find($s->schoolable->id);
+
+                    $schoolable->address_yeylagh = $request->loc1['address'];
+                    $schoolable->loc_yeylagh = $request->loc1['pos'];
+                    $schoolable->fasele_az_shahrestan_yeylagh = $request->loc1['fasele_az_shahrestan'];
+                    $schoolable->address_gheshlagh = $request->loc2['address'];
+                    $schoolable->loc_gheshlagh = $request->loc2['pos'];
+                    $schoolable->fasele_az_shahrestan_gheshlagh = $request->loc2['fasele_az_shahrestan'];
+                    $schoolable->type = $request->loc2['koochro_type'];
+                    $schoolable->masire_kooch = $request->loc2['masire_kooch'];
+                    $schoolable->masafate_kooch = $request->loc2['masafate_kooch'];
+                    $schoolable->save();
+                    $schoolable_type = "App\\Koochro";
+
+                    $id = $schoolable->id;
+                }
+            }
+            $s->name = $request->sName;
+            $s->schoolable_id = $id;
+            $s->schoolable_type = $request->schoolable_type;
+            $s->is_roozane = $request->is_roozane;
+
+            $s->code_madrese = $request->code_madrese;
+            $s->code_faza = $request->code_faza;
+            $s->sale_tasis = $request->sale_tasis;
+            $s->doore = $request->doore;
+            $s->tedad_daneshamooz = $request->tedad_daneshamooz;
+            $s->vaziat = $request->vaziat;
+            $s->jensiat = $request->jensiat;
+            $s->tedad_paye_tahsili = $request->tedad_paye_tahsili;
+            $s->tedad_hamkaran = $request->tedad_hamkaran;
+            $s->noe_fazaye_amoozeshi = $request->noe_fazaye_amoozeshi;
+            $s->hooze_namayandegi_id = $request->hooze_namayandegi_id;
+            $s->save();
+
+            // add school docs
+            foreach ($request->input('docs') as $d) {
+                $doc = Doc::getFile($d, $request->id, School::class, 'school');
+                //save doc to   folder and database
+                $doc->upload();
+                $doc->saveToDocsDB();
+            }
+            // delete before school docs
+            if ($request->input('delDocs')) {
+                Doc::find($request->input('delDocs'))->delete();
+            }
+        });
+
+        return 200;
     }
 
     /**

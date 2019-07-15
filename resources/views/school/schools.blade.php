@@ -7,33 +7,39 @@
 @section('content')
     <section class=" container-fluid  mt-4   " id="app">
 
-        {{--@if(auth()->user())--}}
-        <search-box schools-link="{{route('school.search')}}"
-                    hoozes-link="{{route('school.hoozes')}}"></search-box>
+        @if(auth()->user())
+            <search-box schools-link="{{route('school.search')}}"
+                        hoozes-link="{{route('school.hoozes')}}"></search-box>
 
-        <pagination></pagination>
-        <school-cards user="{{auth()->user()}} "
-                      panel-link="{{route('user.panel',['username'=>auth()->user()->username])}}"></school-cards>
-        <pagination></pagination>
-        <div class="row  justify-content-center">
-            <div class="no-result text-center py-4 text-danger  hide">نتیــجه ای یافت نشد</div>
-            <div class="loading-page center-block  "></div>
-        </div>
+            <pagination></pagination>
 
-        {{--@else--}}
+            <school-cards user="{{auth()->user()}} "
+                          panel-link="{{route('user.panel',['username'=>auth()->user()->username])}}"
+                          schools-link="{{route('school.dropdown')}}"
+                          hoozes-link="{{route('school.hoozes')}}"
+                          sitekey="{{ config('services.recaptcha.key') }}">
 
-        {{--<div class="no-result text-center py-4 text-danger">--}}
-        {{--<p>--}}
-        {{--<strong>--}}
-        {{--لطفا ابتدا--}}
-        {{--<a href="{{route('login')}}">وارد</a>--}}
-        {{--شوید یا--}}
-        {{--<a href="{{route('register')}}">ثبت نام</a>--}}
-        {{--کنید--}}
-        {{--</strong>--}}
-        {{--</p>--}}
-        {{--</div>--}}
-        {{--@endif--}}
+            </school-cards>
+            <pagination></pagination>
+            <div class="row  justify-content-center">
+                <div class="no-result text-center py-4 text-danger  hide">نتیــجه ای یافت نشد</div>
+                <div class="loading-page center-block  "></div>
+            </div>
+
+        @else
+
+            <div class="no-result text-center py-4 text-danger">
+                <p>
+                    <strong>
+                        لطفا ابتدا
+                        <a href="{{route('login')}}">وارد</a>
+                        شوید یا
+                        <a href="{{route('register')}}">ثبت نام</a>
+                        کنید
+                    </strong>
+                </p>
+            </div>
+        @endif
     </section>
 
 

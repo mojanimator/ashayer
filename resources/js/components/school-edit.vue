@@ -2,8 +2,12 @@
 
     <div class="search-container">
 
-        <div class=" row col-12">
+        <div class="modal-header d-flex justify-content-end  ">
+            <i class=" glyphicon glyphicon-remove text-danger  clear-btn p-1   "
+               @click="$parent.show=$parent.lastShow "></i>
+        </div>
 
+        <div class=" row col-12">
             <!--<p class="divider  "><span>نام مدرسه</span></p>-->
             <div class="input-group col-md-6 col-sm-6 pt-1 ">
                 <div class="input-group-prepend   btn-group-vertical p-1">
@@ -20,7 +24,8 @@
 
             <!--hoozes-->
             <dropdown :data-link="this.hoozesLink" :for="'hooze'" :newable="true" :multi="false"
-                      class="col-md-6 col-sm-6 "></dropdown>
+                      :hooze="selectedSchool.hooze? selectedSchool.hooze.name:''" ref="edit"
+                      class="col-md-6 col-sm-6 " :listID="'edit'"></dropdown>
 
             <div class="col-md-6 col-sm-6 my-1">
                 <p class="divider text-center "><span>کد مدرسه</span></p>
@@ -88,11 +93,13 @@
                      data-toggle="buttons">
                     <label id="roozane" for="roozane"
                            class="btn btn-outline-success  col-xs-6   left-border   "
+                           :class="{'active':selectedSchool.is_roozane==1}"
                            @click="is_roozane=true;  ">
                         <input type="radio" name="options" autocomplete="off" class=" ">روزانه
                     </label>
                     <label id="shabane" for="shabane"
                            class="btn btn-outline-dark  col-xs-6   right-border  "
+                           :class="{'active':selectedSchool.is_roozane==0}"
                            @click=" is_roozane=false ;">
                         <input type="radio" name="options" autocomplete="off" class=" ">شبانه
                     </label>
@@ -102,12 +109,15 @@
                      data-toggle="buttons">
 
                     <label class="btn   btn-outline-dark-green  left-border mr-1 "
+                           :class="{'active':selectedSchool.doore && selectedSchool.doore.includes('0')}"
                            @click=" doore['ebte']=!doore['ebte']; "> ابتدایی
                     </label>
                     <label class="btn   btn-outline-dark-red  no-radius "
+                           :class="{'active':selectedSchool.doore && selectedSchool.doore.includes('1')}"
                            @click="doore['mote1']=!doore['mote1']; "> متوسطه ۱
                     </label>
                     <label class="btn   btn-outline-dark-blue   right-border ml-1"
+                           :class="{'active':selectedSchool.doore && selectedSchool.doore.includes('2')}"
                            @click="doore['mote2']=!doore['mote2']; "> متوسطه ۲
                     </label>
                 </div>
@@ -115,9 +125,11 @@
                 <div class="btn-group   btn-group-toggle    col-md-6    justify-content-center "
                      data-toggle="buttons">
                     <label class="btn   btn-outline-dark-green  left-border mr-1 "
+                           :class="{'active':selectedSchool.jensiat && selectedSchool.jensiat.includes('b')}"
                            @click=" jensiat['b']=!jensiat['b']; "> پسرانه
                     </label>
                     <label class="btn   btn-outline-dark-red  right-border  "
+                           :class="{'active':selectedSchool.jensiat && selectedSchool.jensiat.includes('g')}"
                            @click="jensiat['g']=!jensiat['g']; ">دخترانه
                     </label>
                 </div>
@@ -126,16 +138,19 @@
                      data-toggle="buttons">
                     <label id="chador" for="chador"
                            class="btn btn-outline-dark-green  col-xs-6   left-border   "
+                           :class="{'active':selectedSchool.noe_fazaye_amoozeshi =='c'}"
                            @click="noe_faza='c'; ">
                         <input type="radio" name="options" autocomplete="off" class=" ">چادر
                     </label>
                     <label id="kanex" for="kanex"
                            class="btn btn-outline-dark-red  col-xs-6   no-radius  "
+                           :class="{'active':selectedSchool.noe_fazaye_amoozeshi =='k'}"
                            @click=" noe_faza='k';">
                         <input type="radio" name="options" autocomplete="off" class=" ">کانکس
                     </label>
                     <label id="sakhteman" for="sakhteman"
                            class="btn btn-outline-dark-blue  col-xs-6   right-border  "
+                           :class="{'active':selectedSchool.noe_fazaye_amoozeshi =='s'}"
                            @click=" noe_faza='s'; ">
                         <input type="radio" name="options" autocomplete="off" class=" ">ساختمان
                     </label>
@@ -149,17 +164,20 @@
                          data-toggle="buttons">
                         <label id="mostaghel" for="mostaghel"
                                class="btn btn-outline-dark-green  col-xs-6   left-border   "
+                               :class="{'active':selectedSchool.vaziat && selectedSchool.vaziat.includes('m')}"
                                @click=" params.vaziat='m';  ">
                             <input type="radio" name="options" autocomplete="off" class=" ">مستقل
                         </label>
                         <label id="zamd" for="zamd"
                                class="btn btn-outline-dark-red  col-xs-6   no-radius  "
+                               :class="{'active':selectedSchool.vaziat && selectedSchool.vaziat.includes('d')}"
                                @click=" params.vaziat='d' ;  ">
                             <input type="radio" name="options" autocomplete="off" class=" ">ضمیمه دارد
                         </label>
                         <label id="zama" for="zama"
                                class="btn btn-outline-dark-blue  col-xs-6   right-border  "
-                               @click=" params.vaziat='a' ;   ">
+                               :class="{'active':selectedSchool.vaziat && selectedSchool.vaziat.includes('a')}"
+                               @click=" params.vaziat='a' ;   " @loadend="console.log('hi')">
                             <input type="radio" name="options" autocomplete="off" class=" ">ضمیمه است
                         </label>
                     </div>
@@ -167,7 +185,8 @@
                 <div class=" "
                      v-if="params.vaziat=='d' || params.vaziat=='a'">
                     <!--schools-->
-                    <selector :data-link="this.schoolsLink" :for="'school'" :newable="true"
+                    <selector :data-link="schoolsLink" :for="'school'" :newable="true"
+                              :selectedBefore="selectedSchool.vaziat"
                               class=" "></selector>
                 </div>
             </div>
@@ -178,12 +197,14 @@
                 <div class=" btn-group btn-group-toggle    col-12  justify-content-center mt-4  px-5 "
                      data-toggle="buttons">
                     <label id="saabet" for="roozane"
-                           class="btn btn-outline-success    col-md-6    left-border   active"
+                           class="btn btn-outline-success    col-md-6    left-border   "
+                           :class="{'active':selectedSchool.schoolable_type =='App\\Saabet'}"
                            @click=" schoolable_type= 'App\\Saabet' ;marker('del',2); ">
                         <input type="radio" name="options" autocomplete="off" class=" ">ثابت
                     </label>
                     <label id="koochroo" for="shabane"
                            class="btn btn-outline-dark    col-md-6    right-border  "
+                           :class="{'active':selectedSchool.schoolable_type =='App\\Koochro'}"
                            @click=" schoolable_type= 'App\\Koochro'; marker('add',2);">
                         <input type="radio" name="options" autocomplete="off" class=" ">کوچ رو
                     </label>
@@ -198,11 +219,13 @@
                      data-toggle="buttons">
                     <label id="sayyar" for="sayyar"
                            class="btn btn-outline-success    col-md-6    left-border    "
+                           :class="{'active':selectedSchool.schoolable && selectedSchool.schoolable.type =='s'}"
                            @click=" koochro_type= 's' ;  ">
                         <input type="radio" name="options" autocomplete="off" class=" ">سیار
                     </label>
                     <label id="nime-sayyar" for="nime-sayyar"
                            class="btn btn-outline-dark    col-md-6    right-border  "
+                           :class="{'active':selectedSchool.schoolable && selectedSchool.schoolable.type =='n'}"
                            @click=" koochro_type= 'n';  ">
                         <input type="radio" name="options" autocomplete="off" class=" ">نیمه سیار
                     </label>
@@ -321,6 +344,18 @@
                        @change="filePreview($event,'img-input')"/>
 
                 <div class="img-container row   mx-2   p-2   ">
+                    <div v-for="(doc,index) in beforeDocs" class="thumb-container col-md-4 col-sm-6 ">
+                        <a :href="doc" data-lity>
+                            <img :id="'img-'+index" class="img-thumbnail "
+                                 :src="doc"
+                                 alt="">
+                        </a>
+
+                        <button :id="'del-'+index" class="btn close-btn bg-danger text-white"
+                                @click="removeImage(index,'img-input-before')">
+                            <i class="fa fa-window-close text-white" aria-hidden="true"></i>
+                        </button>
+                    </div>
                     <div v-for="(doc,index) in docs" class="thumb-container col-md-4 col-sm-6 ">
                         <a :href="doc" data-lity>
                             <img :id="'img-'+index" class="img-thumbnail "
@@ -389,11 +424,12 @@
     let coordMarker1, coordMarker2;
     let tmpCoord1, tmpCoord2;
     let docs = [];
+    let beforeDocs = [];
 
     let captcha;
     export default {
 
-        props: ['schoolsLink', 'createSchoolLink', 'hoozesLink', 'sitekey'],
+        props: ['selectedSchool', 'schoolsLink', 'panelLink', 'hoozesLink', 'sitekey'],
         components: {
             school_map: schoolMap,
             dropdown,
@@ -422,6 +458,8 @@
                 loading: $('.loading-page'),
                 percentCompleted: 0,
                 docs: [],
+                beforeDocs: [],
+                delDocs: [],
                 IMG_LIMIT: 3,
                 SIZE_LIMIT: 2, //MB
                 params: {doore: '', jensiat: '', hooze: '', zamime: [], vaziat: ''},
@@ -453,29 +491,119 @@
         },
         mounted() {
 //            this.getSchools();
-
-
             this.initialize_map();
+
+
+            this.sName = this.selectedSchool.name;
+            this.code_madrese = this.selectedSchool.code_madrese;
+            this.code_faza = this.selectedSchool.code_faza;
+            this.sale_tasis = this.selectedSchool.sale_tasis;
+            this.tedad_daneshamooz = this.selectedSchool.tedad_daneshamooz;
+            this.tedad_paye_tahsili = this.selectedSchool.tedad_paye_tahsili;
+            this.tedad_hamkaran = this.selectedSchool.tedad_hamkaran;
+            if (this.selectedSchool.is_roozane === 1)
+                this.is_roozane = true;
+            else if (this.selectedSchool.is_roozane === 0)
+                this.is_roozane = false;
+            else
+                this.is_roozane = '';
+
+            if (this.selectedSchool.vaziat)
+                if (this.selectedSchool.vaziat.includes('m'))
+                    this.params.vaziat = 'm';
+                else if (this.selectedSchool.vaziat.includes('a'))
+                    this.params.vaziat = 'a';
+                else if (this.selectedSchool.vaziat.includes('d'))
+                    this.params.vaziat = 'd';
+                else
+                    this.params.vaziat = '';
+
+            if (this.selectedSchool.doore.includes('0'))
+                this.doore['ebte'] = true;
+            if (this.selectedSchool.doore.includes('1'))
+                this.doore['mote1'] = true;
+            if (this.selectedSchool.doore.includes('2'))
+                this.doore['mote2'] = true;
+
+            if (this.selectedSchool.jensiat === 'b')
+                this.jensiat['b'] = true;
+            else if (this.selectedSchool.jensiat === 'g')
+                this.jensiat['g'] = true;
+            else {
+                this.jensiat['b'] = false;
+                this.jensiat['g'] = false;
+            }
+
+            if (this.selectedSchool.noe_fazaye_amoozeshi === 's')
+                this.noe_faza = 's';
+            else if (this.selectedSchool.noe_fazaye_amoozeshi === 'k')
+                this.noe_faza = 'k';
+            else if (this.selectedSchool.noe_fazaye_amoozeshi === 'c')
+                this.noe_faza = 'c';
+            else this.noe_faza = '';
+
+            if (this.selectedSchool.schoolable_type === 'App\\Saabet') {
+                this.schoolable_type = 'App\\Saabet';
+                if (this.selectedSchool.schoolable) {
+                    this.loc1_address = this.selectedSchool.schoolable.address;
+                    this.loc1_fasele_az_shahrestan = this.selectedSchool.schoolable.fasele_az_shahrestan;
+                    if (this.selectedSchool.schoolable.loc) {
+                        this.loc1_lon_input = this.selectedSchool.schoolable.loc.split(',')[0];
+                        this.loc1_lat_input = this.selectedSchool.schoolable.loc.split(',')[1];
+                    }
+                }
+            } else if (this.selectedSchool.schoolable_type === 'App\\Koochro') {
+//                console.log('Koochro');
+                this.schoolable_type = 'App\\Koochro';
+                this.marker('add', 2);
+                if (this.selectedSchool.schoolable) {
+                    this.loc1_address = this.selectedSchool.schoolable.address;
+                    this.loc1_fasele_az_shahrestan = this.selectedSchool.schoolable.fasele_az_shahrestan;
+                    this.loc2_address = this.selectedSchool.schoolable.address;
+                    this.loc2_fasele_az_shahrestan = this.selectedSchool.schoolable.fasele_az_shahrestan;
+                    this.masafate_kooch = this.selectedSchool.schoolable.masafate_kooch;
+                    if (this.selectedSchool.schoolable.loc_yeylagh || this.selectedSchool.schoolable.loc_gheshlagh) {
+                        this.loc1_lon_input = this.selectedSchool.schoolable.loc_yeylagh.split(',')[0];
+                        this.loc1_lat_input = this.selectedSchool.schoolable.loc_yeylagh.split(',')[1];
+                        this.loc2_lon_input = this.selectedSchool.schoolable.loc_gheshlagh.split(',')[0];
+                        this.loc2_lat_input = this.selectedSchool.schoolable.loc_gheshlagh.split(',')[1];
+                    }
+                }
+            }
+
+            this.docs = [];
+            this.beforeDocs = [];
+            docs = [];
+            this.delDocs = [];
+            if (this.selectedSchool.docs) {
+                for (let i in this.selectedSchool.docs) {
+                    this.beforeDocs.push('/storage/' + this.selectedSchool.docs[i].path);
+                }
+            }
+
+
             this.setEvents();
-//            this.setSliders(0);
+            //            this.setSliders(0);
             this.uploader = $('#uploader');
             this.loading = $('.loading-page');
-//            this.loading.removeClass('hide');
+            //            this.loading.removeClass('hide');
 
-//            let captchaLink = this.captchaLink;
-//            console.log(captchaLink);
-//            $(document).ready(function () {
-////                // DOM ready
-//                captcha = $('#botdetect-captcha').captcha({
-//                    captchaEndpoint:
-//                    captchaLink
-//                });
-//            });
+            //            let captchaLink = this.captchaLink;
+            //            console.log(captchaLink);
+            //            $(document).ready(function () {
+            ////                // DOM ready
+            //                captcha = $('#botdetect-captcha').captcha({
+            //                    captchaEndpoint:
+            //                    captchaLink
+            //                });
+            //            });
 
-        },
+        }
+        ,
         created() {
 
-        },
+        }
+        ,
         updated() {
             //add listeners to input loc 2 after showing
             if (this.schoolable_type === 'App\\Koochro') {
@@ -503,16 +631,29 @@
                         [Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]]);
                 });
             }
-        },
+        }
+        ,
         methods: {
             onVerify(token) {
 //                console.log(event);
                 this.recaptcha = token;
-            },
+            }
+            ,
             removeImage(idx, from) {
-                if (from === 'img-input')
+                if (from === 'img-input') {
+//                    for (let i in this.selectedSchool.docs)
+//                        if (this.docs[idx].includes(this.selectedSchool.docs[i].path)) {
+//                            this.delDocs.push(this.selectedSchool.docs[i].id);
+////                            console.log(this.delDocs);
+//                        }
                     this.docs.splice(idx, 1);
-            },
+//                    docs.splice(idx, 1);
+
+                } else if (from === 'img-input-before') {
+                    this.beforeDocs.splice(idx, 1);
+                }
+            }
+            ,
             openFileChooser(event, from) {
 //                send fake click for browser file
                 let image_input = document.getElementById(from);
@@ -525,7 +666,8 @@
                     let evt = new Event("click", {"bubbles": false, "cancelable": true});
                     image_input.dispatchEvent(evt);
                 }
-            },
+            }
+            ,
             filePreview(e, from) {
                 let files;
                 if (event.dataTransfer) {
@@ -549,7 +691,8 @@
                             this.docs = docs;
                         }
                     }
-            },
+            }
+            ,
             checkInputs(params) {
 
                 //check all inputs
@@ -661,7 +804,7 @@
             }
             ,
             checkDocs(files, from) {
-                return true;
+
                 // from certs-input 3 files 4 mb
                 // from agent-input 2 files 4mb
                 let message = '';
@@ -745,9 +888,10 @@
                 this.loading.removeClass('hide');
 
 //                console.log(this.recaptcha);
-                axios.post(this.createSchoolLink, {
+                axios.post(this.panelLink + '/edit/s=' + this.selectedSchool.id, {
 //                    userEnteredCaptchaCode: captcha.userEnteredCaptchaCode,
 //                    captchaId: captcha.captchaId,
+                    id: this.selectedSchool.id,
                     recaptcha: this.recaptcha,
                     sName: this.sName,
                     hooze: this.params.hooze,
@@ -776,6 +920,7 @@
                         koochro_type: this.koochro_type,
                     },
                     docs: this.docs,
+                    delDocs: this.delDocs,
                     noe_faza: this.noe_faza,
 
 
@@ -858,7 +1003,7 @@
                         anchorYUnits: 'fraction',
                         scale: .5,
                         opacity: .9,
-                        src: '../img/marker-school-blue.png'
+                        src: '/img/marker-school-blue.png'
                     }))
                 });
                 let iconStyle2 = new ol.style.Style({
@@ -868,7 +1013,7 @@
                         anchorYUnits: 'fraction',
                         opacity: .9,
                         scale: .5,
-                        src: '../img/marker-school-red.png'
+                        src: '/img/marker-school-red.png'
                     }))
                 });
                 let lineStyle = new ol.style.Style({

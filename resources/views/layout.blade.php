@@ -32,9 +32,12 @@
             <li class="{{request()->is('banners/create') ? 'active ':''}} nav-item text-center">
                 <a class="nav-link" href="/banners/create">ساخت</a>
             </li>
-            <li class="{{request()->is('schools') ? 'active ':''}}nav-item text-center">
-                <a class="nav-link" href="{{route('school.view',['username' =>auth()->user()->username])}}">مدارس</a>
-            </li>
+            @if(auth()->user())
+                <li class="{{request()->is('schools') ? 'active ':''}}nav-item text-center">
+                    <a class="nav-link"
+                       href="{{route('school.view',['username' =>auth()->user()->username])}}">مدارس</a>
+                </li>
+            @endif
             {{--<li class="{{Request::is('map') ? 'active ':''}}nav-item text-center">--}}
             {{--<a class="nav-link" href="{{route('map')}}">نقشه</a>--}}
             {{--</li>--}}

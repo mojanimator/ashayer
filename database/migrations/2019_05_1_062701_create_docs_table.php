@@ -21,7 +21,7 @@ class CreateDocsTable extends Migration
             $table->string('path');
 
             $table->timestamps();
-
+            $table->softDeletes();
             $table->foreign('school_id')->references('id')->on('schools');
             $table->foreign('uploader_id')->references('id')->on('users');
         });

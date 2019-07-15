@@ -28,6 +28,7 @@ class CreateKoochrosTable extends Migration
             $table->integer('masafate_kooch')->unsigned()->nullable()->default(null);
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent();
+            $table->softDeletes();
         });
     }
 

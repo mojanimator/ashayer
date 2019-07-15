@@ -22,13 +22,13 @@
                 </div>
             </div>
 
-            <ul class="list-group mt-2  hide" ref="listItems" id="list-data">
+            <ul class="list-group mt-2  hide" ref="listItems" :id="'list-data-'+listID">
                 <li v-for="h in   this.filteredData" class="list-group-item  hooze-items"
-                    :id="'h'+h['id']" :ref="'h'+h['id']" :key="h['id']"
+                    :id="'h'+listID+h['id']" :ref="'h'+listID+h['id']" :key="h['id']"
+                    :class="{'active':hooze==h['name']}"
                     @mousedown.prevent="sData='';selectData(h,h['id'])">
                     {{h['name']}}
                 </li>
-
             </ul>
         </div>
     </div>
@@ -36,17 +36,17 @@
 </template>
 
 <script>
-
+    let selectedBefore = false;
     export default {
-        props: ['dataLink', 'for', 'multi'],
+        props: ['dataLink', 'for', 'multi', 'hooze', 'listID'],
         data() {
             return {
+                sData: this.hooze ? this.hooze : '',
                 data_dropdown: null,
                 province_input: null,
                 placeholder: '',
                 filteredData: [],
                 data: [],
-                sData: '',
                 activeData: [false],
                 offset: -1, // in multi=false همه نمایندگی ها not exist
                 backspace: false,
@@ -58,10 +58,14 @@
 
 
         mounted() {
+            this.data_dropdown = $('#list-data-' + this.listID);
+            this.data_input = $('#dataInput');
+
             if (this.multi && this.for === 'hooze') {
                 this.sData = 'همه نمایندگی ها ';
                 this.offset = 0;
             }
+
             if (this.for === 'hooze')
                 this.placeholder = 'حوزه نمایندگی';
             else if (this.for === 'school')
@@ -71,8 +75,7 @@
 //            this.activeData[0] = true;
             this.setEvents();
 //************* hooze parameters
-            this.data_dropdown = $('#list-data');
-            this.data_input = $('#dataInput');
+
             this.data_input.on('keydown', (e) => {
                 if (e.keyCode === 8) {
                     this.backspace = true;
@@ -133,13 +136,15 @@
                     params: {}
                 })
                     .then((response) => {
-//                        console.log(response);
                         this.data = response.data;
                         if (this.multi && this.for === 'hooze') //multi is for  search , not create
                             this.data.unshift({'name': 'همه نمایندگی ها', 'id': 0});
                         this.filteredData = this.data;
-//                        console.log(this.filteredData);
-
+//                        console.log(selectedBefore);
+                        if (this.listID === 'edit')
+                            for (let i = 0; i < this.data.length; i++)
+                                this.activeData[i + 1] = this.data[i].name === this.hooze
+//                        console.log(this.activeData);
                     }).catch((error) => {
                     console.log(' error:');
                     console.log(error);
@@ -168,12 +173,11 @@
                         this.activeData.find((t, index) => {
                             if (t) {
                                 i++;
-//                                selected = selected + index + ','
-
                                 selected.push(index + this.offset);
                             }
 
                         });
+
                         if (selected.length === 0)
                             this.params['h'] = [];//no filter on types
                         else
@@ -223,7 +227,8 @@
                 }
                 else {
 
-                    let item = $('#h' + hId + '.hooze-items');
+                    let item = $('#h' + this.listID + hId);
+
                     item.toggleClass('active');
 
                     if (!this.multi) {
@@ -234,7 +239,8 @@
                         }
 
                         for (let i = 1; i < this.data.length; i++)
-                            this.activeData[i] = ($(this.$refs['h' + i]).hasClass('active'));
+                            this.activeData[i] = ($(this.$refs['h' + this.listID + i]).hasClass('active'));
+
                     }
                     else {
 
@@ -259,7 +265,7 @@
 //                    this.activeData[0] = false;//only for undefined error!
                         for (let i = 1; i < this.data.length; i++)
 //                        this.activeData[i] = ($('#h' + i).hasClass('active'));
-                            this.activeData[i] = ($(this.$refs['h' + i]).hasClass('active'));
+                            this.activeData[i] = ($(this.$refs['h' + this.listID + i]).hasClass('active'));
 //                        console.log(this.$refs['h' + i]);
 //                    console.log(this.activeData);
                     }

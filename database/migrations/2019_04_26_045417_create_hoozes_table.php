@@ -19,9 +19,9 @@ class CreateHoozesTable extends Migration
             $table->integer('parent_id')->unsigned()->nullable()->default(null);
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent();
+            $table->softDeletes();
 
             $table->foreign('parent_id')->references('id')->on('hoozes');
-
         });
     }
 

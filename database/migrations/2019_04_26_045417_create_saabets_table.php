@@ -20,6 +20,7 @@ class CreateSaabetsTable extends Migration
             $table->integer('fasele_az_shahrestan')->unsigned()->nullable()->default(null);
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent();
+            $table->softDeletes();
         });
     }
 
