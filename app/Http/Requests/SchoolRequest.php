@@ -26,13 +26,14 @@ class SchoolRequest extends FormRequest
     public function rules()
     {
 
+
         $isKoochroo = $this->input('schoolable_type') == "App\\Koochro" ? true : false;
         $regexLocation = "/^[-+]?[0-9]{1,7}(\\.[0-9]+)?,[-+]?[0-9]{1,7}(\\.[0-9]+)?$/";
         $regexZamime = "^(a|d)\\$\\d+(\\$\\d+)*$"; //a or d and
         $rules = [
             'recaptcha' => ['required', new  Recaptcha()],
 
-            'sName' => 'required|unique:schools,name|max:100',
+            'sName' => 'required|max:100' . $this->input('mode') == 'create' ? '|unique:schools,name' : '',
             'hooze' => 'nullable |numeric|min:1|max:4294967295',
             'code_madrese' => 'nullable|numeric|min:1|max:4294967295',
             'code_faza' => 'nullable|numeric|min:1|max:4294967295',
@@ -59,7 +60,8 @@ class SchoolRequest extends FormRequest
             'loc2.masire_kooch' => 'nullable|max:65535',
             'loc2.koochro_type' => 'nullable|in:s,n',
 
-            "delDocs" => "sometimes|nullable|array|numeric|between:0,3",
+            "delDocs" => "sometimes|nullable|array|between:0,3",
+            "delDocs.*" => "numeric",
             "docs" => "nullable|array|between:0,3",
             'docs.*' => "base64_image|base64_size:2048",
         ];
@@ -75,7 +77,7 @@ class SchoolRequest extends FormRequest
 
     public function messages()
     {
-        $isAgent = $this->input('is_agent');
+//        $isAgent = $this->input('is_agent');
 
         $messages = [
             'recaptcha.required' => 'لطفا گزینه من ربات نیستم را تایید نمایید',
@@ -137,7 +139,7 @@ class SchoolRequest extends FormRequest
             'loc2.koochro_type.in' => 'نوع مدرسه کوچ رو نامعتبر است',
 
             'delDocs.between' => 'تعداد تصاویر حذفی نامعتبر است',
-            'delDocs.numeric' => 'مقدار تصاویر حذفی نامعتبر است',
+            'delDocs.*.numeric' => 'مقدار تصاویر حذفی نامعتبر است',
             'delDocs.array' => 'نوع تصاویر حذفی نامعتبر است',
 
             'docs.between' => 'تعداد تصاویر نامعتبر است',

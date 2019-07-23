@@ -2,6 +2,12 @@
 
 namespace App\Providers;
 
+use App\Policies\SchoolPolicy;
+use App\Policies\UserPolicy;
+use App\School;
+use App\User;
+use function foo\func;
+
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
@@ -13,7 +19,8 @@ class AuthServiceProvider extends ServiceProvider
      * @var array
      */
     protected $policies = [
-        // 'App\Model' => 'App\Policies\ModelPolicy',
+        School::class => SchoolPolicy::class,
+        User::class => UserPolicy::class
     ];
 
     /**
@@ -24,6 +31,16 @@ class AuthServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->registerPolicies();
+
+        Gate::define('isSuperuser', function ($user) {
+            return $user->role_id == 1;
+        });
+        Gate::define('isSupevisor', function ($user) {
+            return $user->role_id == 2;
+        });
+        Gate::define('isUser', function ($user) {
+            return $user->role_id == 3;
+        });
 
         //
     }

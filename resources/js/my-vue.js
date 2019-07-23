@@ -6,6 +6,8 @@ import searchBox from './components/search-box.vue'
 import pagination from './components/pagination.vue'
 import selector from './components/selector.vue'
 import userPanel from './components/user-panel.vue'
+import registerForm from './components/register.vue'
+
 
 const app = new Vue({
     el: '#app',
@@ -19,5 +21,7 @@ const app = new Vue({
         pagination,
         selector,
         userPanel,
+        registerForm,
+        
     }
 });

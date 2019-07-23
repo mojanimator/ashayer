@@ -29,6 +29,7 @@ $icon-font-path: '../fonts/';
 @import 'search-box';
 @import 'dropdown';
 @import 'panel';
+@import 'register';
 @import 'my-sass';
 
 @font-face {
@@ -40,6 +41,11 @@ $icon-font-path: '../fonts/';
   font-weight: normal;
   font-style: normal;
 }
+
+//iframe {
+//  width: 100% !important;
+//  height: 5rem;
+//}
 
 html, body {
   height: 100%;

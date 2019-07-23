@@ -21,7 +21,7 @@ class User extends Authenticatable implements Auditable
 
     protected $table = 'users';
     protected $fillable = [
-        'username', 'name', 'family', 'email', 'password', 'img', 'verified', 'token', 'phone_number',
+        'username', 'name', 'family', 'email', 'password', 'img', 'verified', 'token', 'phone_number', 'role', 'expires_at'
     ];
 
     /**
@@ -30,7 +30,7 @@ class User extends Authenticatable implements Auditable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password', 'remember_token', 'token',
     ];
 
     /**
@@ -41,4 +41,9 @@ class User extends Authenticatable implements Auditable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function role()
+    {
+        return $this->hasOne(Role::class);
+    }
 }

@@ -5,6 +5,7 @@ use App\Koochro;
 use App\Saabet;
 use App\School;
 use App\User;
+
 use Illuminate\Support\Str;
 use Faker\Generator as Faker;
 
@@ -21,6 +22,7 @@ use Faker\Generator as Faker;
 $factory->define(School::class, function (\Faker\Generator $faker) {
 //    $i = $faker->imageUrl();
 //    $date = jdate();
+//    Carbon\Carbon::setLocale(config('app.locale'));
     $date = Carbon\Carbon::now();
     return [
         'province_id' => 1,

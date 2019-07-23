@@ -19,18 +19,23 @@ class CreateUsersTable extends Migration
             $table->string('email', 50);
             $table->string('phone_number', 50);
             $table->string('name', 50);
+            $table->string('role', 2)->nullable();
             $table->string('family', 100);
             $table->string('password', 255);
             $table->string('token')->nullable();
             $table->boolean('verified')->default(false);
-            $table->string('role', 20)->default('0'); //default regular user
+//            $table->integer('role_id')->unsigned()->default(3); //default regular user
             $table->softDeletes();
             $table->rememberToken();
 //            $table->string('created_at');
 //            $table->string('updated_at');
-
+            $table->dateTime('expires_at')->nullable()->default(null);
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent();
+
+
+//            $table->foreign('role_id')->references('id')->on('roles');
+
 //            $table->timestamps();
         });
     }

@@ -31399,6 +31399,42 @@ ol {
   /* IE6-9 fallback on horizontal gradient */
 }
 
+.register-form input[type=checkbox] {
+  display: none;
+}
+
+.register-form input[type=checkbox] + .btn-group > label span {
+  width: 20px;
+}
+
+.register-form input[type=checkbox] + .btn-group > label span:first-child {
+  display: none;
+}
+
+.register-form input[type=checkbox] + .btn-group > label span:last-child {
+  display: inline-block;
+}
+
+.register-form input[type=checkbox]:checked + .btn-group > label span:first-child {
+  display: inline-block;
+}
+
+.register-form input[type=checkbox]:checked + .btn-group > label span:last-child {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .register-form label {
+    font-size: 0.5rem !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .register-form label {
+    font-size: 0.8rem !important;
+  }
+}
+
 .border-all {
   border-top-right-radius: 24px !important;
   border-bottom-right-radius: 24px !important;

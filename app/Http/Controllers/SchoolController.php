@@ -6,12 +6,13 @@ use App\Doc;
 use App\Hooze;
 use App\Http\Requests\SchoolRequest;
 use App\Koochro;
-use App\Madrese;
 use App\Saabet;
 use App\School;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+
 
 class SchoolController extends Controller
 {
@@ -165,7 +166,9 @@ class SchoolController extends Controller
      */
     public function create(SchoolRequest $request)
     {
-
+//        if (Gate::denies('isSuperuser')) {
+//            abort(404, ' مجوز دسترسی ندارید!');
+//        }
 
         DB::transaction(function () use ($request) {
             $date = Carbon::now();
@@ -276,6 +279,11 @@ class SchoolController extends Controller
      */
     public function update(SchoolRequest $request)
     {
+//        if (!Gate::allows('isSuperuser')) {
+//        if (Gate::denies('isSuperuser')) {
+//            abort(404, ' مجوز دسترسی ندارید!');
+//        }
+
         DB::transaction(function () use ($request) {
 
             $date = Carbon::now();
@@ -318,7 +326,7 @@ class SchoolController extends Controller
             } else if ($s->schoolable_type == $request->schoolable_type) {
 
                 if ($s->schoolable_type == "App\\Saabet") {
-                    $schoolable = Saabet::find($s->schoolable->id);
+                    $schoolable = Saabet::findOrFail($s->schoolable_id);
 
                     $schoolable->address = $request->loc1['address'];
                     $schoolable->loc = $request->loc1['pos'];
@@ -328,7 +336,7 @@ class SchoolController extends Controller
 
                     $id = $schoolable->id;
                 } elseif ($s->schoolable_type == "App\\Koochro") {
-                    $schoolable = Koochro::find($s->schoolable->id);
+                    $schoolable = Koochro::findOrFail($s->schoolable_id);
 
                     $schoolable->address_yeylagh = $request->loc1['address'];
                     $schoolable->loc_yeylagh = $request->loc1['pos'];
@@ -374,9 +382,10 @@ class SchoolController extends Controller
             if ($request->input('delDocs')) {
                 Doc::find($request->input('delDocs'))->delete();
             }
+            return 200;
         });
 
-        return 200;
+
     }
 
     /**

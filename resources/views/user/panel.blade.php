@@ -22,6 +22,7 @@
 
 
 
+
         @else
 
             <div class="no-result text-center py-4 text-danger">

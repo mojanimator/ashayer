@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
@@ -25,6 +26,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+//        Carbon::setLocale(config('app.locale'));
         //
         Schema::defaultStringLength(191); //NEW: Increase StringLength
 //        $this->app->bind('path.public', function () {

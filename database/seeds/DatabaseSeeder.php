@@ -2,6 +2,7 @@
 
 use App\Doc;
 use App\Koochro;
+use App\Role;
 use App\Saabet;
 use App\School;
 use Illuminate\Database\Seeder;
@@ -39,9 +40,25 @@ class DatabaseSeeder extends Seeder
         factory(Doc::class, 30)->create();
 
         DB::table('users')->insert([
-            ['username' => 'mojraj', 'email' => 'moj2raj2@gmail.com', 'phone_number' => '0917',
+            ['id' => 1, 'username' => 'mojraj', 'email' => 'moj2raj2@gmail.com', 'phone_number' => '0917',
                 'name' => 'مجتبی', 'family' => 'رجبی', 'password' => '$2y$10$ES608U3ByfwiJlLmoJSYvuScaf2depjcMSk0PBNmCTCMMGX3J6EDW',
                 'verified' => '1', 'role' => '0'],
         ]);
+
+
+        Role::create([
+            'user_id' => 1,
+
+            'permissions' => json_encode(['all']),
+            'hooze_ids' => json_encode(['all'])
+        ]);
+//        Role::create([
+//            'user_id' => 'Supevisor',
+//
+//            'permissions' => json_encode([
+//                'view-schools'
+//            ]),
+//            'hooze_ids' => json_encode(['all'])
+//        ]);
     }
 }

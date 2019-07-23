@@ -32,6 +32,10 @@ var _userPanel = require('./components/user-panel.vue');
 
 var _userPanel2 = _interopRequireDefault(_userPanel);
 
+var _register = require('./components/register.vue');
+
+var _register2 = _interopRequireDefault(_register);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var app = new Vue({
@@ -45,7 +49,9 @@ var app = new Vue({
         searchBox: _searchBox2.default,
         pagination: _pagination2.default,
         selector: _selector2.default,
-        userPanel: _userPanel2.default
+        userPanel: _userPanel2.default,
+        registerForm: _register2.default
+
     }
 });
 //# sourceMappingURL=my-vue.js.map

@@ -24,7 +24,7 @@
                         <i class="fas fa-spinner fa-pulse"></i>
                     </div>
                 </div>
-                <div class="add-btn input-group-addon  " @click=" getData('ADD_SCHOOL')">
+                <div v-if="newable" class="add-btn input-group-addon  " @click=" getData('ADD_SCHOOL')">
 
                     <i class="fas fa-plus-square    text-success  "></i>
 
@@ -67,7 +67,7 @@
 
     let selectedBefore = false;
     export default {
-        props: ['dataLink', 'for', 'multi', 'hooze_namayandegi_id', 'selectedBefore'],
+        props: ['dataLink', 'for', 'multi', 'hooze_namayandegi_id', 'selectedBefore', 'newable'],
         data() {
             return {
                 data_dropdown: null,
@@ -88,10 +88,15 @@
 
         mounted() {
 
-            if (this.for === 'school')
+            if (this.for === 'school') {
                 this.placeholder = 'مدارس';
 //            this.setAxiosCsrf();
-            this.getData("GET_SCHOOL");
+                this.getData("GET_SCHOOL");
+            } else if (this.for === 'hooze') {
+                this.placeholder = 'حوزه ها';
+//            this.setAxiosCsrf();
+                this.getData("GET_HOOZE");
+            }
 
 //            this.activeData[0] = true;
 //            this.setEvents();
@@ -176,10 +181,15 @@
                         hooze_namayandegi_id: this.hooze_namayandegi_id,
                         command: 'get'
                     }
+                } else if (type === "GET_HOOZE") {
+                    params = {
+                        hooze_namayandegi_id: this.hooze_namayandegi_id,
+                        command: 'get'
+                    };
+
                 }
 
-                axios.post(this.dataLink, params
-                )
+                axios.post(this.dataLink, params)
                     .then((response) => {
 //                        console.log(response);
 
@@ -192,10 +202,14 @@
                         if (response.data.type === 'success')
                             this.sData = '';
 
-                        this.data = response.data.data;
+                        if (this.for === 'school')
+                            this.data = response.data.data;
+                        if (this.for === 'hooze')
+                            this.data = response.data;
+
                         this.filteredData = this.data;
 
-                        if (!selectedBefore && this.selectedBefore.startsWith('d') || this.selectedBefore.startsWith('a')) {
+                        if (!selectedBefore && this.selectedBefore && this.selectedBefore.startsWith('d') || this.selectedBefore && this.selectedBefore.startsWith('a')) {
                             selectedBefore = this.selectedBefore;
                             selectedBefore = selectedBefore.split('$').splice(1);
 //                            console.log(selectedBefore);
@@ -271,6 +285,10 @@
                         this.selected.push(h);
 //                        console.log(this.selected);
                     }
+                }
+                if (this.for === 'hooze' && this.selected.length > 0) {
+                    this.placeholder = 'حوزه ها';
+                    this.$parent.hoozes_all = false;
                 }
             }
             ,

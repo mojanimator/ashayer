@@ -5,7 +5,7 @@
 
 
 @section('content')
-    <section class=" container-fluid  mt-4   " id="app">
+    <section class=" container-fluid  mt-4   ">
 
         @if(auth()->user())
             <search-box schools-link="{{route('school.search')}}"

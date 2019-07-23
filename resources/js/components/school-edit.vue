@@ -891,6 +891,7 @@
                 axios.post(this.panelLink + '/edit/s=' + this.selectedSchool.id, {
 //                    userEnteredCaptchaCode: captcha.userEnteredCaptchaCode,
 //                    captchaId: captcha.captchaId,
+                    mode: 'edit',
                     id: this.selectedSchool.id,
                     recaptcha: this.recaptcha,
                     sName: this.sName,
@@ -905,6 +906,7 @@
                     doore: this.params.doore,
                     jensiat: this.params.jensiat,
                     schoolable_type: this.schoolable_type,
+                    schoolable_id: this.selectedSchool.schoolable?this.selectedSchool.schoolable.id:'',
                     vaziat: this.params.vaziat,
                     loc1: {
                         pos: this.loc1_lon_input && this.loc1_lat_input ? this.loc1_lon_input + "," + this.loc1_lat_input : "",

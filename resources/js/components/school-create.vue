@@ -748,6 +748,7 @@
                 axios.post(this.createSchoolLink, {
 //                    userEnteredCaptchaCode: captcha.userEnteredCaptchaCode,
 //                    captchaId: captcha.captchaId,
+                    mode: 'create',
                     recaptcha: this.recaptcha,
                     sName: this.sName,
                     hooze: this.params.hooze,
