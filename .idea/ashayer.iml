@@ -60,6 +60,7 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/psr/log" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/psr/simple-cache" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/psy/psysh" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/queueworker/sansdaemon" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/ralouphie/getallheaders" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/ramsey/uuid" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/sebastian/code-unit-reverse-lookup" />
@@ -174,6 +175,7 @@
           <root url="file://$MODULE_DIR$/vendor/psr/log" />
           <root url="file://$MODULE_DIR$/vendor/psr/simple-cache" />
           <root url="file://$MODULE_DIR$/vendor/psy/psysh" />
+          <root url="file://$MODULE_DIR$/vendor/queueworker/sansdaemon" />
           <root url="file://$MODULE_DIR$/vendor/ralouphie/getallheaders" />
           <root url="file://$MODULE_DIR$/vendor/ramsey/uuid" />
           <root url="file://$MODULE_DIR$/vendor/sebastian/code-unit-reverse-lookup" />
@@ -272,6 +274,7 @@
           <root url="file://$MODULE_DIR$/vendor/psr/log" />
           <root url="file://$MODULE_DIR$/vendor/psr/simple-cache" />
           <root url="file://$MODULE_DIR$/vendor/psy/psysh" />
+          <root url="file://$MODULE_DIR$/vendor/queueworker/sansdaemon" />
           <root url="file://$MODULE_DIR$/vendor/ralouphie/getallheaders" />
           <root url="file://$MODULE_DIR$/vendor/ramsey/uuid" />
           <root url="file://$MODULE_DIR$/vendor/sebastian/code-unit-reverse-lookup" />

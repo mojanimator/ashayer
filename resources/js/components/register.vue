@@ -274,6 +274,77 @@
                     </div>
                 </div>
 
+                <div class="row   ">
+                    <div class="  col-md-4 col-sm-6 ">
+                        <input :checked="  access_create_hoozes" type="checkbox"
+                               name="check-access-create-hoozes"
+                               id="check-access-create-hoozes"
+                               autocomplete="off"
+                               @click="access_all=false;access_create_hoozes=!access_create_hoozes"/>
+                        <div class=" btn-group w-100">
+                            <label for="check-access-create-hoozes"
+                                   class=" btn btn-outline-gray left-border hov-pointer">
+                                <span class=" glyphicon glyphicon-ok  "></span>
+                                <span class=" "></span>
+                            </label>
+                            <label for="check-access-create-hoozes"
+                                   class=" btn btn-purple   right-border hov-pointer w-100">
+                                ساخت حوزه ها</label>
+                        </div>
+                    </div>
+                    <div class="  col-md-4 col-sm-6 ">
+                        <input :checked="  access_edit_hoozes" type="checkbox"
+                               name="check-access-edit-hoozes"
+                               id="check-access-edit-hoozes"
+                               autocomplete="off" @click="access_all=false;access_edit_hoozes=!access_edit_hoozes"/>
+                        <div class=" btn-group w-100">
+                            <label for="check-access-edit-hoozes" class=" btn btn-outline-gray left-border hov-pointer">
+                                <span class=" glyphicon glyphicon-ok  "></span>
+                                <span class=" "></span>
+                            </label>
+                            <label for="check-access-edit-hoozes"
+                                   class=" btn btn-orange text-white   right-border hov-pointer w-100">
+                                ویرایش حوزه ها</label>
+                        </div>
+                    </div>
+                    <div class="  col-md-4 col-sm-6 ">
+                        <input :checked="  access_remove_hoozes" type="checkbox"
+                               name="check-access-remove-hoozes"
+                               id="check-access-remove-hoozes"
+                               autocomplete="off"
+                               @click="access_all=false;access_remove_hoozes=!access_remove_hoozes"/>
+                        <div class=" btn-group w-100">
+                            <label for="check-access-remove-hoozes"
+                                   class=" btn btn-outline-gray left-border hov-pointer">
+                                <span class=" glyphicon glyphicon-ok  "></span>
+                                <span class=" "></span>
+                            </label>
+                            <label for="check-access-remove-hoozes"
+                                   class=" btn btn-red   right-border hov-pointer w-100">
+                                حذف حوزه ها</label>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row  ">
+                    <div class="  col-md-4 col-sm-6 ">
+                        <input :checked="  access_view_reports" type="checkbox"
+                               name="check-access-view-reports"
+                               id="check-access-view-reports"
+                               autocomplete="off" @click="access_all=false;access_view_reports=!access_view_reports"/>
+                        <div class=" btn-group w-100">
+                            <label for="check-access-view-reports"
+                                   class=" btn btn-outline-gray left-border hov-pointer">
+                                <span class=" glyphicon glyphicon-ok  "></span>
+                                <span class=" "></span>
+                            </label>
+                            <label for="check-access-view-reports"
+                                   class=" btn btn-blue   right-border hov-pointer w-100">
+                                مشاهده کاربران</label>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -404,7 +475,10 @@
                 access_create_users: false,
                 access_edit_users: false,
                 access_remove_users: false,
-
+                access_create_hoozes: false,
+                access_edit_hoozes: false,
+                access_remove_hoozes: false,
+                access_view_reports: false,
                 hoozes_all: false,
                 deactivate_user: false,
                 date: '',
@@ -519,6 +593,10 @@
                     this.access_create_users = true;
                     this.access_edit_users = true;
                     this.access_remove_users = true;
+                    this.access_create_hoozes = true;
+                    this.access_edit_hoozes = true;
+                    this.access_remove_hoozes = true;
+                    this.access_view_reports = true;
                 }
                 else {
                     this.access_view_schools = false;
@@ -529,6 +607,10 @@
                     this.access_create_users = false;
                     this.access_edit_users = false;
                     this.access_remove_users = false;
+                    this.access_create_hoozes = false;
+                    this.access_edit_hoozes = false;
+                    this.access_remove_hoozes = false;
+                    this.access_view_reports = false;
                 }
             },
             submit() {
@@ -550,13 +632,18 @@
                         access_edit_schools: this.access_edit_schools,
                         access_remove_schools: this.access_remove_schools,
                         access_view_users: this.access_view_users,
-                        access_create_users: this.access_edit_users,
+                        access_create_users: this.access_create_users,
                         access_edit_users: this.access_edit_users,
                         access_remove_users: this.access_remove_users,
+                        access_create_hoozes: this.access_create_hoozes,
+                        access_edit_hoozes: this.access_edit_hoozes,
+                        access_remove_hoozes: this.access_remove_hoozes,
+                        access_view_reports: this.access_view_reports,
                         hoozes_all: this.hoozes_all,
-                        hoozes: this.$refs.selector.selected.map(function (item) {
-                            return item.id;
-                        }),
+                        hoozes:
+                            this.$refs.selector.selected.map(function (item) {
+                                return item.id;
+                            }),
                         deactivate_user: this.deactivate_user,
                         ex_date: this.date,
                     }

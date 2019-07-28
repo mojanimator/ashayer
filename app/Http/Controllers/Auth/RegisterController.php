@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Jobs\SendEmailJob;
 use App\Mail\RegisterUserMail;
 use App\Role;
 use App\Rules\Recaptcha;
@@ -85,6 +86,10 @@ class RegisterController extends Controller
             'access_create_users' => 'required|boolean',
             'access_edit_users' => 'required|boolean',
             'access_remove_users' => 'required|boolean',
+            'access_create_hoozes' => 'required|boolean',
+            'access_edit_hoozes' => 'required|boolean',
+            'access_remove_hoozes' => 'required|boolean',
+            'access_view_reports' => 'required|boolean',
             'hoozes_all' => 'required|boolean',
             'deactivate_user' => 'required|boolean',
             "hoozes" => "nullable|array",
@@ -136,6 +141,14 @@ class RegisterController extends Controller
             'access_edit_users.boolean' => 'پارامتر دسترسی نامعتبر است',
             'access_remove_users.required' => 'پارامتر دسترسی نامعتبر است',
             'access_remove_users.boolean' => 'پارامتر دسترسی نامعتبر است',
+            'access_create_hoozes.required' => 'پارامتر دسترسی نامعتبر است',
+            'access_create_hoozes.boolean' => 'پارامتر دسترسی نامعتبر است',
+            'access_remove_hoozes.required' => 'پارامتر دسترسی نامعتبر است',
+            'access_remove_hoozes.boolean' => 'پارامتر دسترسی نامعتبر است',
+            'access_view_reports.required' => 'پارامتر دسترسی نامعتبر است',
+            'access_view_reports.boolean' => 'پارامتر دسترسی نامعتبر است',
+            'access_edit_hoozes.required' => 'پارامتر دسترسی نامعتبر است',
+            'access_edit_hoozes.boolean' => 'پارامتر دسترسی نامعتبر است',
             'hoozes_all.required' => 'پارامتر دسترسی نامعتبر است',
             'hoozes_all.boolean' => 'پارامتر دسترسی نامعتبر است',
             'deactivate_user.required' => 'پارامتر دسترسی نامعتبر است',
@@ -155,7 +168,7 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        $date = Carbon::now();
+//        $date = Carbon::now();
         $user = null;
         DB::transaction(function () use ($data, & $user) {
             $user = User::create([
@@ -164,9 +177,10 @@ class RegisterController extends Controller
                 'family' => $data['family'],
                 'email' => $data['email'],
                 'phone_number' => $data['phone_number'],
-                'role' => $data['access_all'] == true && $data['hoozes_all'] == true ? 0 : null, //superuser
+                'inline_role' => $data['access_all'] == true && $data['hoozes_all'] == true ? 0 : null, //superuser
                 'password' => Hash::make($data['password']),
                 'token' => bin2hex(openssl_random_pseudo_bytes(30)),
+                'deleted_at' => $data['deactivate_user'] ? Carbon::now() : null,
                 'expires_at' => $data['ex_date'] ? CalendarUtils::createCarbonFromFormat('Y/m/d', $data['ex_date'])->addDays(1)->timezone('Asia/Tehran') : null,
             ]);
 
@@ -179,10 +193,10 @@ class RegisterController extends Controller
 
             Role::create([
                 'user_id' => $user->id,
-                'permissions' => json_encode($this->create_access($data)),
-                'hooze_ids' => $data['hoozes_all'] == true ? json_encode(['all']) : json_encode($data['hoozes']),
+                'permissions' => $this->create_access($data),
+                'hooze_ids' => $data['hoozes_all'] == true ? ['all'] : $data['hoozes'],
             ]);
-
+//            dispatch(new SendEmailJob($user))->onQueue('default');
             Mail::to($user->email)->send(new RegisterUserMail($user->token));
 //            Mail::to($user->email)->queue(new OrderShipped($order));
         });
@@ -235,6 +249,16 @@ class RegisterController extends Controller
                 array_push($roles, 'eu');
             if ($data['access_remove_users'] == true)
                 array_push($roles, 'ru');
+            if ($data['access_create_hoozes'] == true)
+                array_push($roles, 'ch');
+            if ($data['access_edit_hoozes'] == true)
+                array_push($roles, 'eh');
+            if ($data['access_remove_hoozes'] == true)
+                array_push($roles, 'rh');
+            if ($data['access_view_reports'] == true)
+                array_push($roles, 'vr');
+
+
         }
         return $roles;
     }
@@ -259,7 +283,9 @@ class RegisterController extends Controller
         $user = User::where('token', $request->token)->first();
 //        return redirect('login')->with('flash-success', $user->token);
         if ($user) {
+//            dispatch(new SendEmailJob($user))->onQueue('default');
             Mail::to($user->email)->send(new RegisterUserMail($user->token));
+
             return redirect('login')->with('flash-success', 'برای تکمیل ثبت نام لطفا ایمیل خود را تایید کنید پیام تایید ایمیل  برای شما ارسال شد');
         } else {
             return redirect('login')->with('flash-error', 'کاربر وجود ندارد!');

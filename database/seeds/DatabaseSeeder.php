@@ -42,15 +42,26 @@ class DatabaseSeeder extends Seeder
         DB::table('users')->insert([
             ['id' => 1, 'username' => 'mojraj', 'email' => 'moj2raj2@gmail.com', 'phone_number' => '0917',
                 'name' => 'مجتبی', 'family' => 'رجبی', 'password' => '$2y$10$ES608U3ByfwiJlLmoJSYvuScaf2depjcMSk0PBNmCTCMMGX3J6EDW',
-                'verified' => '1', 'role' => '0'],
+                'verified' => '1', 'inline_role' => '0'],
+        ]);
+        DB::table('users')->insert([
+            ['id' => 2, 'username' => 'sharifi', 'email' => 'sharifinia.cse@gmail.com', 'phone_number' => '0917',
+                'name' => 'محمد', 'family' => 'شریفی', 'password' => '$2y$10$ES608U3ByfwiJlLmoJSYvuScaf2depjcMSk0PBNmCTCMMGX3J6EDW',
+                'verified' => '1', 'inline_role' => '0'],
         ]);
 
 
         Role::create([
             'user_id' => 1,
 
-            'permissions' => json_encode(['all']),
-            'hooze_ids' => json_encode(['all'])
+            'permissions' => (['all']),
+            'hooze_ids' => (['all'])
+        ]);
+        Role::create([
+            'user_id' => 2,
+
+            'permissions' => (["cs", "cu", "eu"]),
+            'hooze_ids' => ([1, 4, 5, 9, 12])
         ]);
 //        Role::create([
 //            'user_id' => 'Supevisor',

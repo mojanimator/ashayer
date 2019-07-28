@@ -31578,6 +31578,7 @@ ol {
   transition: 0.3s all ease;
   content: url("/img/loading.gif");
   top: 50vh;
+  left: 50vw;
   width: 8rem;
   height: 8rem;
   overflow: hidden;

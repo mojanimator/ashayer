@@ -1,6 +1,6 @@
 <template>
 
-    <div class="dropdowns col-md-6 col-sm-6">
+    <div class="dropdowns  w-100">
 
 
         <!--                             dropdown hooze               -->
@@ -23,7 +23,7 @@
             </div>
 
             <ul class="list-group mt-2  hide" ref="listItems" :id="'list-data-'+listID">
-                <li v-for="h in   this.filteredData" class="list-group-item  hooze-items"
+                <li v-for="h  in   this.filteredData" class="list-group-item  hooze-items"
                     :id="'h'+listID+h['id']" :ref="'h'+listID+h['id']" :key="h['id']"
                     :class="{'active':hooze==h['name']}"
                     @mousedown.prevent="sData='';selectData(h,h['id'])">
@@ -37,8 +37,9 @@
 
 <script>
     let selectedBefore = false;
+    let selected = '';
     export default {
-        props: ['dataLink', 'for', 'multi', 'hooze', 'listID'],
+        props: ['dataLink', 'for', 'multi', 'hooze', 'listID', 'beforeSelected'],
         data() {
             return {
                 sData: this.hooze ? this.hooze : '',
@@ -47,6 +48,7 @@
                 placeholder: '',
                 filteredData: [],
                 data: [],
+                selected: [],
                 activeData: [false],
                 offset: -1, // in multi=false همه نمایندگی ها not exist
                 backspace: false,
@@ -58,6 +60,7 @@
 
 
         mounted() {
+//            console.log(this.beforeSelected);
             this.data_dropdown = $('#list-data-' + this.listID);
             this.data_input = $('#dataInput');
 
@@ -66,8 +69,10 @@
                 this.offset = 0;
             }
 
-            if (this.for === 'hooze')
+            else if (this.for === 'hooze') {
                 this.placeholder = 'حوزه نمایندگی';
+//                this.offset = 0;
+            }
             else if (this.for === 'school')
                 this.placeholder = 'مدارس';
 //            this.setAxiosCsrf();
@@ -99,15 +104,8 @@
                 //hoozeRequest->hoozeResponse->selectorResponse
                 this.$root.$on('hoozeRequest', params => {
 
-                    let i = 0;
-                    params.hooze = '';
-                    this.activeData.find((t, index) => {
-                        if (t) {
-                            i++;
-                            params.hooze = index;
+                    params.hooze = selected[0].id;
 
-                        }
-                    });
 
                     if (params.vaziat === 'd' || params.vaziat === 'a') //school selector is not available
                         this.$root.$emit('hoozeResponse', params);
@@ -122,9 +120,9 @@
                         this.params['page'] = params['page'];
 
                     if ((this.multi && !this.activeData[0]) || !this.multi)
-                        for (let i in this.activeData)
-                            if (this.activeData[i])
-                                this.params['data'].push(i);
+                        for (let i in selected)
+
+                            this.params['data'].push(selected[i].id);
 
 //                    console.log(this.params);
                     this.$root.$emit('dropdownResponse', this.params);
@@ -133,9 +131,10 @@
 
             getData() {
                 axios.post(this.dataLink, {
-                    params: {}
+                    'for': 'dropdown',
                 })
                     .then((response) => {
+//                        console.log(response);
                         this.data = response.data;
                         if (this.multi && this.for === 'hooze') //multi is for  search , not create
                             this.data.unshift({'name': 'همه نمایندگی ها', 'id': 0});
@@ -144,6 +143,15 @@
                         if (this.listID === 'edit')
                             for (let i = 0; i < this.data.length; i++)
                                 this.activeData[i + 1] = this.data[i].name === this.hooze
+                        if (this.beforeSelected) {
+                            for (let i = 0; i < this.data.length; i++)
+                                if (this.data[i].id === this.beforeSelected) {
+                                    this.sData = this.data[i].name;
+                                    this.selected.push({id: this.data[i].id, name: this.sData})
+                                }
+
+                        }
+                        selected = this.selected;
 //                        console.log(this.activeData);
                     }).catch((error) => {
                     console.log(' error:');
@@ -165,15 +173,17 @@
                     let i = 0;
                     let selected = [];
 //                    this.activeData[0] = false; //dont count in find
-                    if (this.activeData[0] === true) {
+                    if (this.multi && this.activeData[0] === true) {
 //                        console.log('h');
                         this.sData = 'همه نمایندگی ها ';
                         this.params['h'] = [];//no filter on types
                     } else {
+//                        console.log(this.activeData);
                         this.activeData.find((t, index) => {
                             if (t) {
+//                                console.log(index);
                                 i++;
-                                selected.push(index + this.offset);
+                                selected.push(this.data[index + this.offset]);
                             }
 
                         });
@@ -184,14 +194,14 @@
                             this.params['h'] = selected;
 //                            this.params['t'] = selected.slice(0, -1) + ')';
 
-//                        console.log(this.params['h']);
+                        console.log(selected);
                         if (i < 4) {
                             this.sData = '';
                             for (let i in selected) {
-//                                console.log(selected[i]);
-                                this.sData += this.filteredData[selected[i]]['name'] + ', ';
+                                this.sData += selected[i].name + ', ';
                             }
                             this.sData = this.sData.slice(0, this.sData.length - 2); //remove last ,
+//                            console.log(this.sData);
 
                         }
                         else if (i > 0)
@@ -199,6 +209,7 @@
 //                        else
 //                            this.sData = '';
                     }
+                    this.selected = selected;
                     this.data_dropdown.addClass('hide');
                 }
             },
@@ -232,15 +243,16 @@
                     item.toggleClass('active');
 
                     if (!this.multi) {
-
+                        this.activeData[0] = false;
                         if (item.hasClass('active')) {
                             $('.hooze-items').removeClass('active');
                             item.addClass('active');
                         }
 
-                        for (let i = 1; i < this.data.length; i++)
-                            this.activeData[i] = ($(this.$refs['h' + this.listID + i]).hasClass('active'));
-
+                        for (let i = 0; i < this.data.length; i++)
+                            this.activeData[i + 1] = ($(this.$refs['h' + this.listID + this.data[i].id]).hasClass('active'));
+//                        console.log(this.activeData);
+                        this.closeDropdown('h');
                     }
                     else {
 

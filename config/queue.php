@@ -35,6 +35,7 @@ return [
         ],
 
         'database' => [
+//            'driver' => 'sync',
             'driver' => 'database',
             'table' => 'jobs',
             'queue' => 'default',

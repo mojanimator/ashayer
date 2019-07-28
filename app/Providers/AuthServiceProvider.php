@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Hooze;
 use App\Policies\SchoolPolicy;
 use App\Policies\UserPolicy;
+use App\Policies\HoozePolicy;
 use App\School;
 use App\User;
 use function foo\func;
@@ -20,7 +22,8 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         School::class => SchoolPolicy::class,
-        User::class => UserPolicy::class
+        User::class => UserPolicy::class,
+        Hooze::class => HoozePolicy::class,
     ];
 
     /**

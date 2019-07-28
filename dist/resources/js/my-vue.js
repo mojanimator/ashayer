@@ -36,6 +36,10 @@ var _register = require('./components/register.vue');
 
 var _register2 = _interopRequireDefault(_register);
 
+var _hoozesForm = require('./components/hoozes-form.vue');
+
+var _hoozesForm2 = _interopRequireDefault(_hoozesForm);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var app = new Vue({
@@ -50,7 +54,8 @@ var app = new Vue({
         pagination: _pagination2.default,
         selector: _selector2.default,
         userPanel: _userPanel2.default,
-        registerForm: _register2.default
+        registerForm: _register2.default,
+        hoozesForm: _hoozesForm2.default
 
     }
 });

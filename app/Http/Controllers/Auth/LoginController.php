@@ -74,4 +74,12 @@ class LoginController extends Controller
     {
         return $this->username;
     }
+
+    protected function validateLogin(Request $request)
+    {
+        $request->validate([
+            $this->username() => 'required|string',
+            'password' => 'required|string',
+        ]);
+    }
 }

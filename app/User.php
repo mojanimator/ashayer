@@ -2,14 +2,21 @@
 
 namespace App;
 
+
+use App\Notifications\MyResetPassword;
+use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use OwenIt\Auditing\Contracts\Auditable;
 
-class User extends Authenticatable implements Auditable
+use OwenIt\Auditing\Contracts\Auditable;
+use Illuminate\Auth\Notifications\ResetPassword as ResetPasswordNotification;
+
+class User extends Authenticatable implements Auditable, CanResetPassword
 {
+
+    use \Illuminate\Auth\Passwords\CanResetPassword;
     use Notifiable;
     use \OwenIt\Auditing\Auditable;
     use SoftDeletes;
@@ -21,7 +28,8 @@ class User extends Authenticatable implements Auditable
 
     protected $table = 'users';
     protected $fillable = [
-        'username', 'name', 'family', 'email', 'password', 'img', 'verified', 'token', 'phone_number', 'role', 'expires_at'
+        'username', 'name', 'family', 'email', 'password', 'img', 'verified',
+        'token', 'phone_number', 'inline_role', 'expires_at', 'deleted_at'
     ];
 
     /**
@@ -40,7 +48,13 @@ class User extends Authenticatable implements Auditable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+
     ];
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new MyResetPassword($token));
+    }
 
     public function role()
     {

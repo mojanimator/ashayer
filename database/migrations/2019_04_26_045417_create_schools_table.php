@@ -19,7 +19,7 @@ class CreateSchoolsTable extends Migration
             $table->integer('schoolable_id')->unsigned()->default('0');
             $table->string('schoolable_type', 20)->nullable()->default(null);
             $table->boolean('is_roozane')->nullable()->default(true);
-            $table->string('name', 100);
+            $table->string('name', 100)->index();
             $table->integer('code_madrese')->unsigned()->nullable()->default(null);
             $table->integer('code_faza')->unsigned()->nullable()->default(null);
             $table->smallInteger('sale_tasis')->unsigned()->nullable()->default(null);
@@ -30,7 +30,7 @@ class CreateSchoolsTable extends Migration
             $table->smallInteger('tedad_paye_tahsili')->unsigned()->nullable()->default(null);
             $table->mediumInteger('tedad_hamkaran')->unsigned()->nullable()->default(null);
             $table->string('noe_fazaye_amoozeshi', 10)->nullable()->default(null); //'c', 's', 'k' chador sakhteman kaneks
-            $table->integer('hooze_namayandegi_id')->unsigned()->nullable()->default(null);
+            $table->integer('hooze_namayandegi_id')->unsigned()->nullable()->default(null)->index();;
 
             $table->timestamp('created_at');
             $table->timestamp('updated_at')->useCurrent();

@@ -19,11 +19,12 @@
             {{ Session::get('flash-warning') }}
 
 
-            <div>برای ارسال مجدد <a href="{{Route('resend.mail' ,['token'=>Session::get('token')])}}">کلیک کنید</a>
+            <div>برای ارسال مجدد <a id="retry" href="{{Route('resend.mail' ,['token'=>Session::get('token')])}}">کلیک
+                    کنید</a>
             </div>
         </div>
     @endif
-
+    <div class="loading-page hide "></div>
     <div class="container mt-4">
         <div class="row justify-content-center">
             <div class="col-md-12">
@@ -75,7 +76,7 @@
                                 </div>
                             </div>
 
-                            <div class="form-group row">
+                            <div class="form-group row col-12">
                                 <div class="col-md-6 offset-md-4">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="remember"
@@ -109,4 +110,12 @@
     </div>
 
 
+@endsection
+@section('scripts')
+    <script>
+        $("#retry").click(function () {
+            $(".loading-page").removeClass('hide');
+        });
+
+    </script>
 @endsection

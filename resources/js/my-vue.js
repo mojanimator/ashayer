@@ -7,6 +7,7 @@ import pagination from './components/pagination.vue'
 import selector from './components/selector.vue'
 import userPanel from './components/user-panel.vue'
 import registerForm from './components/register.vue'
+import hoozesForm from './components/hoozes-form.vue'
 
 
 const app = new Vue({
@@ -22,6 +23,7 @@ const app = new Vue({
         selector,
         userPanel,
         registerForm,
-        
+        hoozesForm,
+
     }
 });

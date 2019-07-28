@@ -1,9 +1,9 @@
 <template>
     <div class=" m-panel container-fluid">
         <div class="row col-12 ">
-            <div class="   col-md-4 ">
+            <div class="   col-md-6 col-lg-4 ">
                 <div class="panel-part">
-                    <div class=" colored-half bg-primary d-flex flex-column align-items-center  justify-content-between">
+                    <div class=" colored-half p-1 bg-primary d-flex flex-column align-items-center  justify-content-between">
                         <div class="image-container    ">
                             <img class="image  " src="/storage/img/white-user.png" alt="">
                         </div>
@@ -11,21 +11,31 @@
                     </div>
                 </div>
             </div>
-            <div class=" col-md-4">
+            <div class=" col-md-6 col-lg-4">
                 <div class="panel-part" @click="view('schools')">
-                    <div class=" colored-half bg-green d-flex flex-column align-items-center  justify-content-between">
+                    <div class=" colored-half  p-1 bg-purple d-flex flex-column align-items-center  justify-content-between">
                         <div class="image-container    ">
-                            <img class="image  " src="/storage/img/white-user.png" alt="">
+                            <img class="image  " src="/storage/img/white-school.png" alt="">
                         </div>
                         <div class="h5 pt-1 text-white">مدارس</div>
                     </div>
                 </div>
             </div>
-            <div class=" col-md-4">
-                <div class="panel-part">
-                    <div class=" colored-half bg-red d-flex flex-column align-items-center  justify-content-between">
+            <div class=" col-md-6 col-lg-4">
+                <div class="panel-part" @click="view('hoozes')">
+                    <div class=" colored-half  p-1 bg-red d-flex flex-column align-items-center  justify-content-between">
                         <div class="image-container    ">
-                            <img class="image  " src="/storage/img/white-user.png" alt="">
+                            <img class="image  " src="/storage/img/white-hoozes.png" alt="">
+                        </div>
+                        <div class="h5 pt-1 text-white">حوزه ها</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="panel-part    " @click="view('reports')">
+                    <div class=" colored-half p-1 bg-secondary d-flex flex-column align-items-center  justify-content-between">
+                        <div class="image-container    ">
+                            <img class="image  " src="/storage/img/white-reports.png" alt="">
                         </div>
                         <div class="h5 pt-1 text-white">گزارشات</div>
                     </div>
@@ -34,7 +44,7 @@
 
         </div>
         <div class="row  col-12">
-            <div class="col-sm-6 col-md-4 user-panel mb-1 d-flex flex-column  justify-content-between ">
+            <div class="col-sm-6 col-md-6 col-lg-4 user-panel mb-1 d-flex flex-column  justify-content-between ">
                 <div class="user-panel-header bg-gradient-blue  d-flex flex-column align-items-center ">
                     <div class="user-image-container">
                         <img class="user-image" src="/storage/img/blue-user.png" alt="">
@@ -64,16 +74,7 @@
                 </div>
 
             </div>
-            <div class="col-sm-8">
-                <div class="panel-part mt-0 pl-0 ">
-                    <div class=" colored-half bg-red d-flex flex-column align-items-center  justify-content-between">
-                        <div class="image-container    ">
-                            <img class="image  " src="/storage/img/white-user.png" alt="">
-                        </div>
-                        <div class="h5 pt-1 text-white">گزارشات</div>
-                    </div>
-                </div>
-            </div>
+
 
         </div>
     </div>
@@ -106,6 +107,10 @@
             view(v) {
                 let link;
                 if (v === 'schools')
+                    link = this.panelLink + "/" + v;
+                else if (v === 'hoozes')
+                    link = this.panelLink + "/" + v;
+                else if (v === 'reports')
                     link = this.panelLink + "/" + v;
                 window.location.href = link;
 //                axios.get(link, {})

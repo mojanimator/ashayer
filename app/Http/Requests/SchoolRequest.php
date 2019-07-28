@@ -34,7 +34,7 @@ class SchoolRequest extends FormRequest
             'recaptcha' => ['required', new  Recaptcha()],
 
             'sName' => 'required|max:100' . $this->input('mode') == 'create' ? '|unique:schools,name' : '',
-            'hooze' => 'nullable |numeric|min:1|max:4294967295',
+            'hooze' => 'nullable|numeric|min:1|max:4294967295',
             'code_madrese' => 'nullable|numeric|min:1|max:4294967295',
             'code_faza' => 'nullable|numeric|min:1|max:4294967295',
             'sale_tasis' => 'nullable|numeric|min:1300|max:1500',

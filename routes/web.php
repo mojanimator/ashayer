@@ -11,9 +11,13 @@
 |
 */
 
+use App\Hooze;
 use App\School;
+use App\User;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use App\Policies\SchoolPolicy;
 
@@ -53,20 +57,49 @@ Route::get('/init', function () {
 Route::get('register/confirm/{token}', 'Auth\RegisterController@confirmEmail');
 
 Route::post('/panel/{username}/delete/s={id}', 'SchoolController@destroy')
-    ->name('school.destroy')->middleware('SchoolPolicy@delete');
+    ->name('school.destroy')->middleware('can:delete,App\School');
 Route::any('/panel/{username}', 'UserController@showPanel')
     ->name('user.panel')->middleware('auth');
 Route::get('/panel/{username}/schools', 'SchoolController@view')
     ->name('school.view')->middleware('can:view,App\School');
 Route::post('/panel/{username}/edit/s={id}', 'SchoolController@update')
     ->name('school.edit')->middleware('SchoolPolicy@edit');
-//Route::view('/panel/{username}/edit/s={id}', 'school.edit.view', [
-//        'school', function ($id) {
-//            return School::find($id)->with('docs')->with('hooze')->with('schoolable');
-//        }]
-//);
-//Route::get('mailable', function () {
-//    $invoice = App\User::find(1);
+
+
+Route::get('/panel/{username}/hoozes', 'HoozeController@view')
+    ->name('hooze.view')->middleware('can:viewAny,App\Hooze');
+Route::post('/panel/{username}/hoozes', 'HoozeController@search')
+    ->name('hooze.search');
+Route::post('/panel/{username}/hoozes/delete/h={id}', 'HoozeController@destroy')
+    ->name('hooze.destroy')->middleware('can:delete,App\Hooze,id');
+Route::post('/panel/{username}/hoozes/edit/h={id}', 'HoozeController@update')
+    ->name('hooze.edit')->middleware('can:edit,App\Hooze,id');
+Route::post('/panel/{username}/hoozes/create', 'HoozeController@create')
+    ->name('hooze.create')->middleware('can:create,App\Hooze');
+
+Route::get('mailable', function () {
+    $invoice = App\User::find(1);
+
+    return new App\Mail\RegisterUserMail($invoice);
+});
+Route::get('test', function () {
+//    $user = User::find($id);
+    $parent_hooze_id = Hooze::find(9)->first();
+//    if (Gate::allows('edit', [Hooze::class, 3]))
+//        return 't';
+
+//    $roles = $user->role()->first()->permissions;
 //
-//    return new App\Mail\RegisterUserMail($invoice);
-//});
+//    echo gettype($roles);
+////    echo($roles);
+//    foreach ($roles as $role)
+//        echo $role . '<br>';
+//    echo $user->role()->first();
+//    $roles = $user->role->permissions;
+//    if (in_array('su', $roles)) echo true; else  echo 'false';
+//    foreach ($roles as $role)
+//        if ($role == 'cs') {
+//            echo $role;
+//            break;
+//        }
+});

@@ -6082,8 +6082,9 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 var selectedBefore = false;
+var selected = '';
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ['dataLink', 'for', 'multi', 'hooze', 'listID'],
+  props: ['dataLink', 'for', 'multi', 'hooze', 'listID', 'beforeSelected'],
   data: function data() {
     return {
       sData: this.hooze ? this.hooze : '',
@@ -6092,6 +6093,7 @@ var selectedBefore = false;
       placeholder: '',
       filteredData: [],
       data: [],
+      selected: [],
       activeData: [false],
       offset: -1,
       // in multi=false همه نمایندگی ها not exist
@@ -6104,15 +6106,17 @@ var selectedBefore = false;
   mounted: function mounted() {
     var _this = this;
 
+    //            console.log(this.beforeSelected);
     this.data_dropdown = $('#list-data-' + this.listID);
     this.data_input = $('#dataInput');
 
     if (this.multi && this["for"] === 'hooze') {
       this.sData = 'همه نمایندگی ها ';
       this.offset = 0;
-    }
+    } else if (this["for"] === 'hooze') {
+      this.placeholder = 'حوزه نمایندگی'; //                this.offset = 0;
+    } else if (this["for"] === 'school') this.placeholder = 'مدارس'; //            this.setAxiosCsrf();
 
-    if (this["for"] === 'hooze') this.placeholder = 'حوزه نمایندگی';else if (this["for"] === 'school') this.placeholder = 'مدارس'; //            this.setAxiosCsrf();
 
     this.getData(); //            this.activeData[0] = true;
 
@@ -6140,24 +6144,15 @@ var selectedBefore = false;
 
       //hoozeRequest->hoozeResponse->selectorResponse
       this.$root.$on('hoozeRequest', function (params) {
-        var i = 0;
-        params.hooze = '';
-
-        _this2.activeData.find(function (t, index) {
-          if (t) {
-            i++;
-            params.hooze = index;
-          }
-        });
-
+        params.hooze = selected[0].id;
         if (params.vaziat === 'd' || params.vaziat === 'a') //school selector is not available
           _this2.$root.$emit('hoozeResponse', params);else _this2.$root.$emit('selectorResponse', params);
       });
       this.$root.$on('search', function (params) {
         _this2.params['data'] = [];
         if (params !== undefined) _this2.params['page'] = params['page'];
-        if (_this2.multi && !_this2.activeData[0] || !_this2.multi) for (var i in _this2.activeData) {
-          if (_this2.activeData[i]) _this2.params['data'].push(i);
+        if (_this2.multi && !_this2.activeData[0] || !_this2.multi) for (var i in selected) {
+          _this2.params['data'].push(selected[i].id);
         } //                    console.log(this.params);
 
         _this2.$root.$emit('dropdownResponse', _this2.params);
@@ -6167,8 +6162,9 @@ var selectedBefore = false;
       var _this3 = this;
 
       axios.post(this.dataLink, {
-        params: {}
+        'for': 'dropdown'
       }).then(function (response) {
+        //                        console.log(response);
         _this3.data = response.data;
         if (_this3.multi && _this3["for"] === 'hooze') //multi is for  search , not create
           _this3.data.unshift({
@@ -6179,7 +6175,22 @@ var selectedBefore = false;
 
         if (_this3.listID === 'edit') for (var i = 0; i < _this3.data.length; i++) {
           _this3.activeData[i + 1] = _this3.data[i].name === _this3.hooze;
-        } //                        console.log(this.activeData);
+        }
+
+        if (_this3.beforeSelected) {
+          for (var _i = 0; _i < _this3.data.length; _i++) {
+            if (_this3.data[_i].id === _this3.beforeSelected) {
+              _this3.sData = _this3.data[_i].name;
+
+              _this3.selected.push({
+                id: _this3.data[_i].id,
+                name: _this3.sData
+              });
+            }
+          }
+        }
+
+        selected = _this3.selected; //                        console.log(this.activeData);
       })["catch"](function (error) {
         console.log(' error:');
         console.log(error);
@@ -6197,37 +6208,42 @@ var selectedBefore = false;
       if (el === 'h') {
         this.filteredData = this.data;
         var i = 0;
-        var selected = []; //                    this.activeData[0] = false; //dont count in find
+        var _selected = []; //                    this.activeData[0] = false; //dont count in find
 
-        if (this.activeData[0] === true) {
+        if (this.multi && this.activeData[0] === true) {
           //                        console.log('h');
           this.sData = 'همه نمایندگی ها ';
           this.params['h'] = []; //no filter on types
         } else {
+          //                        console.log(this.activeData);
           this.activeData.find(function (t, index) {
             if (t) {
+              //                                console.log(index);
               i++;
-              selected.push(index + _this4.offset);
+
+              _selected.push(_this4.data[index + _this4.offset]);
             }
           });
-          if (selected.length === 0) this.params['h'] = []; //no filter on types
-          else this.params['h'] = selected; //                            this.params['t'] = selected.slice(0, -1) + ')';
-          //                        console.log(this.params['h']);
+          if (_selected.length === 0) this.params['h'] = []; //no filter on types
+          else this.params['h'] = _selected; //                            this.params['t'] = selected.slice(0, -1) + ')';
+
+          console.log(_selected);
 
           if (i < 4) {
             this.sData = '';
 
-            for (var _i in selected) {
-              //                                console.log(selected[i]);
-              this.sData += this.filteredData[selected[_i]]['name'] + ', ';
+            for (var _i2 in _selected) {
+              this.sData += _selected[_i2].name + ', ';
             }
 
             this.sData = this.sData.slice(0, this.sData.length - 2); //remove last ,
+            //                            console.log(this.sData);
           } else if (i > 0) this.sData = i + ' انتخاب '; //                        else
           //                            this.sData = '';
 
         }
 
+        this.selected = _selected;
         this.data_dropdown.addClass('hide');
       }
     },
@@ -6257,14 +6273,19 @@ var selectedBefore = false;
         item.toggleClass('active');
 
         if (!this.multi) {
+          this.activeData[0] = false;
+
           if (item.hasClass('active')) {
             $('.hooze-items').removeClass('active');
             item.addClass('active');
           }
 
-          for (var _i2 = 1; _i2 < this.data.length; _i2++) {
-            this.activeData[_i2] = $(this.$refs['h' + this.listID + _i2]).hasClass('active');
-          }
+          for (var _i3 = 0; _i3 < this.data.length; _i3++) {
+            this.activeData[_i3 + 1] = $(this.$refs['h' + this.listID + this.data[_i3].id]).hasClass('active');
+          } //                        console.log(this.activeData);
+
+
+          this.closeDropdown('h');
         } else {
           if (hId === 0) {
             if (all.hasClass('active')) {
@@ -6283,9 +6304,9 @@ var selectedBefore = false;
             }
           } //                    this.activeData[0] = false;//only for undefined error!
 
-          for (var _i3 = 1; _i3 < this.data.length; _i3++) {
+          for (var _i4 = 1; _i4 < this.data.length; _i4++) {
             //                        this.activeData[i] = ($('#h' + i).hasClass('active'));
-            this.activeData[_i3] = $(this.$refs['h' + this.listID + _i3]).hasClass('active');
+            this.activeData[_i4] = $(this.$refs['h' + this.listID + _i4]).hasClass('active');
           } //                        console.log(this.$refs['h' + i]);
           //                    console.log(this.activeData);
 
@@ -6302,6 +6323,546 @@ var selectedBefore = false;
     },
     setAxiosCsrf: function setAxiosCsrf() {
       window.axios.defaults.headers.common['X-CSRF-TOKEN'] = $('meta[name="csrf-token"]').prop('content');
+    }
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/hoozes-form.vue?vue&type=script&lang=js&":
+/*!**********************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/hoozes-form.vue?vue&type=script&lang=js& ***!
+  \**********************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _map_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./map.vue */ "./resources/js/components/map.vue");
+/* harmony import */ var _school_edit_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./school-edit.vue */ "./resources/js/components/school-edit.vue");
+/* harmony import */ var _pagination_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./pagination.vue */ "./resources/js/components/pagination.vue");
+/* harmony import */ var _school_create_vue__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./school-create.vue */ "./resources/js/components/school-create.vue");
+/* harmony import */ var _dropdown_vue__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./dropdown.vue */ "./resources/js/components/dropdown.vue");
+/* harmony import */ var ol_layerswitcher_dist_ol_layerswitcher__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ol-layerswitcher/dist/ol-layerswitcher */ "./node_modules/ol-layerswitcher/dist/ol-layerswitcher.js");
+/* harmony import */ var ol_layerswitcher_dist_ol_layerswitcher__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(ol_layerswitcher_dist_ol_layerswitcher__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var vue_recaptcha__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! vue-recaptcha */ "./node_modules/vue-recaptcha/dist/vue-recaptcha.es.js");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+
+
+
+ //    import 'ol/ol.css';
+//    import Feature from 'ol/Feature.js';
+//    import Map from 'ol/Map.js';
+//    import Overlay from 'ol/Overlay.js';
+//    import View from 'ol/View.js';
+//    import Point from 'ol/geom/Point.js';
+//    import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer.js';
+//    import TileJSON from 'ol/source/TileJSON.js';
+//    import VectorSource from 'ol/source/Vector.js';
+//    import {Icon, Style} from 'ol/style.js';
+
+var map;
+var layer;
+var kerman = [57.0532, 30.2880];
+/* harmony default export */ __webpack_exports__["default"] = ({
+  props: ['schoolsLink', 'panelLink', 'hoozesLink', 'sitekey', 'canEdit', 'canDelete', 'roles'],
+  components: {
+    school_map: _map_vue__WEBPACK_IMPORTED_MODULE_0__["default"],
+    school_edit: _school_edit_vue__WEBPACK_IMPORTED_MODULE_1__["default"],
+    school_create: _school_create_vue__WEBPACK_IMPORTED_MODULE_3__["default"],
+    pagination: _pagination_vue__WEBPACK_IMPORTED_MODULE_2__["default"],
+    VueRecaptcha: vue_recaptcha__WEBPACK_IMPORTED_MODULE_6__["default"],
+    dropdown: _dropdown_vue__WEBPACK_IMPORTED_MODULE_4__["default"]
+  },
+  data: function data() {
+    return {
+      hName: '',
+      per_page: 24,
+      show: 'list',
+      //card and table
+      orderBy: '',
+      direction: 'ASC',
+      hoozes: [],
+      hooze_ids: [],
+      params: null,
+      selectedHooze: {},
+      map: null,
+      layer: null,
+      bingLayer: null,
+      loading: null,
+      errors: '',
+      recaptcha: "",
+      createHoozeName: ""
+    };
+  },
+  mounted: function mounted() {
+    this.setEvents();
+    this.loading = $('.loading-page');
+    this.getHoozes(); //            console.log(this.canEdit === '1' ? 'y' : 'n');
+
+    this.hooze_ids = JSON.parse(this.roles).hooze_ids;
+  },
+  created: function created() {},
+  updated: function updated() {},
+  methods: {
+    onVerify: function onVerify(token) {
+      //                console.log(event);
+      this.recaptcha = token;
+    },
+    deleteHooze: function deleteHooze(hooze) {
+      var _this = this;
+
+      this.loading.removeClass('hide'); //                console.log(this.panelLink + "/delete/s=" + school.id);
+      //                console.log(param);
+
+      axios.post(this.hoozesLink + "/delete/h=" + hooze.id, {
+        id: hooze.id
+      }).then(function (response) {
+        //                        console.log(response);
+        _this.loading.addClass('hide');
+
+        if (response.status === 200) {
+          _this.showDialog(1);
+        }
+      })["catch"](function (error) {
+        //                    console.log('res error:');
+        console.log(error);
+        _this.errors = '';
+        if (error.response && error.response.status === 422) for (var idx in error.response.data.errors) {
+          _this.errors += error.response.data.errors[idx] + '<br>';
+        } else if (error.response && error.response.status === 403) //                        for (let idx in error.response.data.message)
+          _this.errors += error.response.data.message + '<br>';else {
+          _this.errors = error;
+        }
+
+        _this.showDialog();
+
+        _this.loading.addClass('hide');
+      });
+    },
+    editHooze: function editHooze(id) {
+      var _this2 = this;
+
+      this.loading.removeClass('hide'); //                console.log(this.panelLink + "/delete/s=" + school.id);
+      //                console.log(this.$refs.dropdown.sData + this.$refs.dropdown.selected[0].id);
+
+      axios.post(this.hoozesLink + "/edit/h=" + id, {
+        id: id,
+        name: this.selectedHooze.name,
+        parent_id: this.$refs.dropdown.selected.length > 0 ? this.$refs.dropdown.selected[0].id : '',
+        recaptcha: this.recaptcha,
+        type: 'edit'
+      }).then(function (response) {
+        //                        console.log(response);
+        if (response.status === 200) {//                            this.showDialog(1);
+        }
+
+        _this2.loading.addClass('hide');
+
+        _this2.$refs.recaptcha.reset();
+
+        location.reload();
+      })["catch"](function (error) {
+        //                    console.log('res error:');
+        console.log(error);
+        _this2.errors = '';
+        if (error.response && error.response.status === 422) for (var idx in error.response.data.errors) {
+          _this2.errors += error.response.data.errors[idx] + '<br>';
+        } else if (error.response && error.response.status === 403) //                        for (let idx in error.response.data.message)
+          _this2.errors += error.response.data.message + '<br>';else {
+          _this2.errors = error;
+        }
+
+        _this2.showDialog();
+
+        _this2.loading.addClass('hide');
+
+        _this2.$refs.recaptcha.reset();
+      });
+    },
+    createHooze: function createHooze() {
+      var _this3 = this;
+
+      this.loading.removeClass('hide'); //                console.log(this.panelLink + "/delete/s=" + school.id);
+      //                console.log(this.$refs.dropdown.sData + this.$refs.dropdown.selected[0].id);
+
+      axios.post(this.hoozesLink + "/create", {
+        name: this.createHoozeName,
+        parent_id: this.$refs.dropdown.selected.length > 0 ? this.$refs.dropdown.selected[0].id : '',
+        recaptcha: this.recaptcha,
+        type: 'create'
+      }).then(function (response) {
+        //                        console.log(response);
+        if (response.status === 200) {//                            this.showDialog(1);
+        }
+
+        _this3.loading.addClass('hide');
+
+        _this3.$refs.recaptcha.reset();
+
+        location.reload();
+      })["catch"](function (error) {
+        //                    console.log('res error:');
+        console.log(error);
+        _this3.errors = '';
+        if (error.response && error.response.status === 422) for (var idx in error.response.data.errors) {
+          _this3.errors += error.response.data.errors[idx] + '<br>';
+        } else if (error.response && error.response.status === 403) //                        for (let idx in error.response.data.message)
+          _this3.errors += error.response.data.message + '<br>';else {
+          _this3.errors = error;
+        }
+
+        _this3.showDialog();
+
+        _this3.loading.addClass('hide');
+
+        _this3.$refs.recaptcha.reset();
+      });
+    },
+    showDialog: function showDialog(type, data) {
+      var _this4 = this;
+
+      // 0  ready for save
+      // 1  success  save
+      // else show errors
+      if (type === 0) swal.fire({
+        title: 'توجه',
+        text: 'حوزه حذف شود؟',
+        type: 'warning',
+        showCancelButton: true,
+        showCloseButton: true,
+        cancelButtonText: 'خیر',
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: ' بله'
+      }).then(function (result) {
+        if (result.value) {
+          _this4.deleteHooze(data);
+        }
+      });else if (type === 1) {
+        swal.fire({
+          title: 'توجه',
+          text: ' با موفقیت حذف شد!',
+          confirmButtonColor: '#60aa2f',
+          type: 'success',
+          confirmButtonText: ' باشه'
+        }).then(function (result) {
+          if (result.value) {
+            //                            location.reload();
+            _this4.getHoozes();
+          }
+        });
+      } else {
+        swal.fire({
+          title: 'خطایی رخ داد',
+          html: " <p   class=\"text-danger\">" + this.errors + "</p>",
+          //                        text: this.errors,
+          confirmButtonColor: '#d33',
+          type: 'error',
+          confirmButtonText: ' باشه'
+        });
+      }
+    },
+    cancel: function cancel() {
+      $("#mapModal").removeClass('show');
+    },
+    getHoozes: function getHoozes() {
+      var _this5 = this;
+
+      this.loading.removeClass('hide');
+      axios.post(this.hoozesLink, {
+        name: this.hName,
+        paginate: this.per_page,
+        page: this.page,
+        sortBy: this.orderBy,
+        direction: this.direction
+      }).then(function (response) {
+        _this5.loading.addClass('hide'); //                        console.log(response);
+
+
+        if (response.status === 200) {
+          //
+          _this5.hoozes = response.data.data;
+          _this5.selectedHooze = _this5.hoozes[0];
+          _this5.paginator = {
+            current_page: response.data['current_page'],
+            first_page_url: response.data['first_page_url'],
+            next_page_url: response.data['next_page_url'],
+            prev_page_url: response.data['prev_page_url'],
+            last_page_url: response.data['last_page_url'],
+            last_page: response.data['last_page'],
+            from: response.data['from'],
+            to: response.data['to'],
+            total: response.data['total']
+          };
+
+          _this5.$root.$emit('paginationChange', _this5.paginator);
+        }
+      })["catch"](function (error) {
+        _this5.loading.addClass('hide');
+
+        _this5.errors += '<br>'; // maybe is not empty from javascript validate
+
+        if (error.response && error.response.status === 422) for (var idx in error.response.data.errors) {
+          _this5.errors += error.response.data.errors[idx] + '<br>';
+        } else {
+          _this5.errors = error;
+        }
+
+        _this5.showDialog(); //                    console.log(error);
+        //                    console.log(error.response);
+
+      });
+    },
+    setEvents: function setEvents() {
+      var _this6 = this;
+
+      this.$root.$on('hoozesChange', function (data) {
+        //                    console.log(data);
+        _this6.hoozes = data; //                    this.initialize_map();
+        //                    this.addMarker();
+      });
+      this.$root.$on('viewChange', function (view) {
+        //                    console.log(view);
+        _this6.show = view;
+      });
+      this.$root.$on('search', function (params) {
+        if (params !== undefined) _this6.page = params['page'];
+
+        _this6.getHoozes();
+      }); //
     }
   }
 });
@@ -7304,6 +7865,77 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -7342,6 +7974,10 @@ var regOnlyNumber = /^[0-9]*[0-9]*$/;
       access_create_users: false,
       access_edit_users: false,
       access_remove_users: false,
+      access_create_hoozes: false,
+      access_edit_hoozes: false,
+      access_remove_hoozes: false,
+      access_view_reports: false,
       hoozes_all: false,
       deactivate_user: false,
       date: '',
@@ -7413,6 +8049,10 @@ var regOnlyNumber = /^[0-9]*[0-9]*$/;
         this.access_create_users = true;
         this.access_edit_users = true;
         this.access_remove_users = true;
+        this.access_create_hoozes = true;
+        this.access_edit_hoozes = true;
+        this.access_remove_hoozes = true;
+        this.access_view_reports = true;
       } else {
         this.access_view_schools = false;
         this.access_view_users = false;
@@ -7422,6 +8062,10 @@ var regOnlyNumber = /^[0-9]*[0-9]*$/;
         this.access_create_users = false;
         this.access_edit_users = false;
         this.access_remove_users = false;
+        this.access_create_hoozes = false;
+        this.access_edit_hoozes = false;
+        this.access_remove_hoozes = false;
+        this.access_view_reports = false;
       }
     },
     submit: function submit() {
@@ -7444,9 +8088,13 @@ var regOnlyNumber = /^[0-9]*[0-9]*$/;
         access_edit_schools: this.access_edit_schools,
         access_remove_schools: this.access_remove_schools,
         access_view_users: this.access_view_users,
-        access_create_users: this.access_edit_users,
+        access_create_users: this.access_create_users,
         access_edit_users: this.access_edit_users,
         access_remove_users: this.access_remove_users,
+        access_create_hoozes: this.access_create_hoozes,
+        access_edit_hoozes: this.access_edit_hoozes,
+        access_remove_hoozes: this.access_remove_hoozes,
+        access_view_reports: this.access_view_reports,
         hoozes_all: this.hoozes_all,
         hoozes: this.$refs.selector.selected.map(function (item) {
           return item.id;
@@ -11337,6 +11985,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 var EventBus = new Vue();
 /* harmony default export */ __webpack_exports__["default"] = ({
   //        extends: bannerCards,
@@ -11350,7 +11999,7 @@ var EventBus = new Vue();
   methods: {
     view: function view(v) {
       var link;
-      if (v === 'schools') link = this.panelLink + "/" + v;
+      if (v === 'schools') link = this.panelLink + "/" + v;else if (v === 'hoozes') link = this.panelLink + "/" + v;else if (v === 'reports') link = this.panelLink + "/" + v;
       window.location.href = link; //                axios.get(link, {})
       //                    .then((response) => {
       //                        console.log(response);
@@ -62820,7 +63469,7 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "dropdowns col-md-6 col-sm-6" }, [
+  return _c("div", { staticClass: "dropdowns  w-100" }, [
     _c(
       "div",
       { staticClass: "dropdown-content ", attrs: { id: "hDropdown" } },
@@ -62941,6 +63590,748 @@ var staticRenderFns = [
       "div",
       { staticClass: "input-group-prepend   btn-group-vertical p-1" },
       [_c("i", { staticClass: "fa fa-search text-primary  " })]
+    )
+  }
+]
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/hoozes-form.vue?vue&type=template&id=534a5f96&":
+/*!**************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/hoozes-form.vue?vue&type=template&id=534a5f96& ***!
+  \**************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    { staticClass: "row  mx-1  gallery" },
+    [
+      _vm.show == "list"
+        ? _c("div", { staticClass: "search-container d-inline-block col-12" }, [
+            _vm._m(0),
+            _vm._v(" "),
+            _c("div", { staticClass: " row col-12" }, [
+              _c(
+                "div",
+                { staticClass: "input-group col-md-6 col-sm-6 pt-1 " },
+                [
+                  _vm._m(1),
+                  _vm._v(" "),
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.hName,
+                        expression: "hName"
+                      }
+                    ],
+                    staticClass: "my-1 py-1 pr-1 form-control border",
+                    attrs: {
+                      type: "text",
+                      placeholder: "نام حوزه ",
+                      id: "name-input",
+                      "aria-label": "SearchName"
+                    },
+                    domProps: { value: _vm.hName },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.hName = $event.target.value
+                      }
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    {
+                      staticClass: " input-group-append  btn-group-vertical   "
+                    },
+                    [
+                      _c("i", {
+                        staticClass:
+                          " glyphicon glyphicon-remove text-danger  clear-btn p-1",
+                        on: {
+                          click: function($event) {
+                            _vm.hName = ""
+                            _vm.getHoozes()
+                          }
+                        }
+                      })
+                    ]
+                  )
+                ]
+              ),
+              _vm._v(" "),
+              _c("div", { staticClass: " mt-2  col-md-6 col-sm-6" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "btn bg-gradient-purple   btn-block",
+                    attrs: { id: "search", for: "search" },
+                    on: {
+                      click: function($event) {
+                        _vm.orderBy = ""
+                        _vm.getHoozes()
+                      }
+                    }
+                  },
+                  [
+                    _c("i", { staticClass: "fa fa-search" }),
+                    _vm._v(" جستجو\n                ")
+                  ]
+                )
+              ])
+            ]),
+            _vm._v(" "),
+            _c(
+              "div",
+              { staticClass: "col-12 row mt-4 d-flex " },
+              [
+                _c("div", { staticClass: " col-md-6 col-sm-6 px-1" }, [
+                  _c(
+                    "div",
+                    {
+                      staticClass: "input-group mb-3",
+                      attrs: {
+                        "data-toggle": "tooltip",
+                        "data-placement": "top",
+                        title: "تعداد در صفحه"
+                      }
+                    },
+                    [
+                      _vm._m(2),
+                      _vm._v(" "),
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.per_page,
+                            expression: "per_page"
+                          }
+                        ],
+                        staticClass: "form-control no-radius px-1",
+                        attrs: {
+                          type: "number",
+                          "aria-label": "تعداد در صفحه",
+                          min: "1",
+                          oninput: "validity.valid",
+                          id: "per-page"
+                        },
+                        domProps: { value: _vm.per_page },
+                        on: {
+                          input: function($event) {
+                            if ($event.target.composing) {
+                              return
+                            }
+                            _vm.per_page = $event.target.value
+                          }
+                        }
+                      })
+                    ]
+                  )
+                ]),
+                _vm._v(" "),
+                _c("pagination", { staticClass: " col-md-6 col-sm-6 px-1" })
+              ],
+              1
+            )
+          ])
+        : _vm._e(),
+      _vm._v(" "),
+      _c(
+        "div",
+        {
+          directives: [
+            {
+              name: "show",
+              rawName: "v-show",
+              value: _vm.show == "list",
+              expression: "show=='list'"
+            }
+          ],
+          staticClass: " row col-12"
+        },
+        [
+          _c("div", { staticClass: " mt-2  col-md-6 col-sm-6" }, [
+            _c(
+              "label",
+              {
+                staticClass: "btn btn-success   btn-block hov-pointer",
+                attrs: { id: "create", for: "search" },
+                on: {
+                  click: function($event) {
+                    _vm.show = "create"
+                  }
+                }
+              },
+              [
+                _c("i", { staticClass: "fa fa-plus" }),
+                _vm._v(" حوزه جدید\n            ")
+              ]
+            )
+          ])
+        ]
+      ),
+      _vm._v(" "),
+      _c(
+        "div",
+        {
+          directives: [
+            {
+              name: "show",
+              rawName: "v-show",
+              value: _vm.show == "list",
+              expression: "show=='list'"
+            }
+          ],
+          staticClass: "col-12 mt-1   "
+        },
+        [
+          _c("div", { staticClass: "table-responsive " }, [
+            _c(
+              "table",
+              {
+                staticClass: "table   table-sm table-bordered table-striped   "
+              },
+              [
+                _c(
+                  "thead",
+                  { staticClass: "bg-gradient-blue text-center text-white  " },
+                  [
+                    _c("tr", [
+                      _c("th", { attrs: { scope: "col" } }, [_vm._v("کد ")]),
+                      _vm._v(" "),
+                      _c(
+                        "th",
+                        {
+                          staticClass: "hov-pointer",
+                          attrs: { scope: "col" },
+                          on: {
+                            click: function($event) {
+                              _vm.orderBy = "name"
+                              _vm.direction == "ASC"
+                                ? (_vm.direction = "DESC")
+                                : (_vm.direction = "ASC")
+                              _vm.getHoozes()
+                            }
+                          }
+                        },
+                        [_vm._v("نام\n                    ")]
+                      ),
+                      _vm._v(" "),
+                      _c("th", { attrs: { scope: "col" } }, [
+                        _vm._v("حوزه والد")
+                      ]),
+                      _vm._v(" "),
+                      _c("th", { attrs: { scope: "col" } }, [_vm._v("عملیات")])
+                    ])
+                  ]
+                ),
+                _vm._v(" "),
+                _c(
+                  "tbody",
+                  _vm._l(_vm.hoozes, function(h, idx) {
+                    return _c("tr", { staticClass: " small    " }, [
+                      _c(
+                        "th",
+                        {
+                          staticClass: "text-center align-middle",
+                          attrs: { scope: "row" }
+                        },
+                        [_vm._v(_vm._s(h.id))]
+                      ),
+                      _vm._v(" "),
+                      _c("td", { staticClass: "align-middle" }, [
+                        _vm._v(_vm._s(h.name))
+                      ]),
+                      _vm._v(" "),
+                      h.parent
+                        ? _c("td", { staticClass: "align-middle" }, [
+                            _vm._v(_vm._s(h.parent.name))
+                          ])
+                        : _c("td", { staticClass: "align-middle" }, [
+                            _c("i", {
+                              staticClass: "fas  fa-question-circle text-danger"
+                            })
+                          ]),
+                      _vm._v(" "),
+                      _c("td", { staticClass: "align-middle" }, [
+                        _c(
+                          "nav",
+                          { staticClass: "nav  justify-content-between " },
+                          [
+                            _c(
+                              "div",
+                              {
+                                staticClass:
+                                  " p-1 nav-link text-blue hoverable  ",
+                                class: {
+                                  "ui-state-disabled":
+                                    _vm.canEdit !== "1" ||
+                                    (h.parent_id &&
+                                      !_vm.hooze_ids.includes(h.parent_id))
+                                },
+                                on: {
+                                  click: function($event) {
+                                    _vm.selectedHooze = h
+                                    _vm.show = "edit"
+                                  }
+                                }
+                              },
+                              [
+                                _vm._v(
+                                  " ویرایش\n                                "
+                                ),
+                                _c("i", {
+                                  staticClass: "fa fa-edit",
+                                  attrs: { "aria-hidden": "true" }
+                                })
+                              ]
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "div",
+                              {
+                                staticClass:
+                                  " p-1 nav-link text-red  hoverable  ",
+                                class: {
+                                  "ui-state-disabled": _vm.canDelete !== "1"
+                                },
+                                on: {
+                                  click: function($event) {
+                                    return _vm.showDialog(0, h)
+                                  }
+                                }
+                              },
+                              [
+                                _vm._v(
+                                  " حذف\n                                "
+                                ),
+                                _c("i", {
+                                  staticClass: "fa fa-window-close",
+                                  attrs: { "aria-hidden": "true" }
+                                })
+                              ]
+                            )
+                          ]
+                        )
+                      ])
+                    ])
+                  }),
+                  0
+                )
+              ]
+            )
+          ])
+        ]
+      ),
+      _vm._v(" "),
+      _vm.show == "create"
+        ? _c("section", { staticClass: "mt-1 w-100" }, [
+            _c("div", { staticClass: "search-container w-100" }, [
+              _c(
+                "div",
+                { staticClass: "modal-header d-flex justify-content-between " },
+                [
+                  _c("h3", { staticClass: "text-primary  " }, [
+                    _vm._v("ساخت حوزه")
+                  ]),
+                  _vm._v(" "),
+                  _c("i", {
+                    staticClass:
+                      " glyphicon glyphicon-remove text-danger  clear-btn p-1   ",
+                    on: {
+                      click: function($event) {
+                        _vm.show = "list"
+                      }
+                    }
+                  })
+                ]
+              ),
+              _vm._v(" "),
+              _c("div", { staticClass: " row col-12" }, [
+                _c(
+                  "div",
+                  { staticClass: "input-group col-md-6 col-sm-6 pt-2 " },
+                  [
+                    _c(
+                      "label",
+                      {
+                        staticClass: "  align-self-center   ",
+                        attrs: {
+                          id: "label-create-hooze-name",
+                          for: "created-name-input"
+                        }
+                      },
+                      [_vm._v(" نام حوزه\n                    ")]
+                    ),
+                    _vm._v(" "),
+                    _vm._m(3),
+                    _vm._v(" "),
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.createHoozeName,
+                          expression: "createHoozeName"
+                        }
+                      ],
+                      staticClass: "my-1 py-1 pr-1 form-control border",
+                      attrs: {
+                        type: "text",
+                        placeholder: "نام حوزه ",
+                        id: "created-name-input",
+                        "aria-label": "SearchName"
+                      },
+                      domProps: { value: _vm.createHoozeName },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.createHoozeName = $event.target.value
+                        }
+                      }
+                    }),
+                    _vm._v(" "),
+                    _c(
+                      "div",
+                      {
+                        staticClass:
+                          " input-group-append  btn-group-vertical   "
+                      },
+                      [
+                        _c("i", {
+                          staticClass:
+                            " glyphicon glyphicon-remove text-danger  clear-btn p-1",
+                          on: {
+                            click: function($event) {
+                              _vm.createHoozeName = ""
+                            }
+                          }
+                        })
+                      ]
+                    )
+                  ]
+                ),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  { staticClass: " input-group col-md-6 col-sm-6 pt-2" },
+                  [
+                    _c(
+                      "label",
+                      {
+                        staticClass: "  align-self-center   ",
+                        attrs: { id: "label-create-parent-hooze-name" }
+                      },
+                      [_vm._v(" حوزه والد\n                    ")]
+                    ),
+                    _vm._v(" "),
+                    _c("dropdown", {
+                      ref: "dropdown",
+                      attrs: {
+                        "data-link": this.hoozesLink,
+                        for: "hooze",
+                        newable: false,
+                        multi: false,
+                        listID: "parent"
+                      }
+                    })
+                  ],
+                  1
+                )
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "row" }, [
+                _c("div", { staticClass: " mt-2  col-md-6 col-sm-6" }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "btn btn-success   btn-block hov-pointer",
+                      attrs: { id: "label-create-btn", for: "edit" },
+                      on: {
+                        click: function($event) {
+                          return _vm.createHooze()
+                        }
+                      }
+                    },
+                    [
+                      _c("i", { staticClass: "fa fa-plus" }),
+                      _vm._v(" ساخت\n                    ")
+                    ]
+                  )
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: " mt-2  col-md-6 col-sm-6 " }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "btn btn-red   btn-block hov-pointer",
+                      attrs: { id: "cancel-create", for: "cancel-edit" },
+                      on: {
+                        click: function($event) {
+                          _vm.show = "list"
+                        }
+                      }
+                    },
+                    [
+                      _c("i", { staticClass: "fa fa-minus" }),
+                      _vm._v(" لغو\n                    ")
+                    ]
+                  )
+                ])
+              ])
+            ])
+          ])
+        : _vm._e(),
+      _vm._v(" "),
+      _vm.selectedHooze && _vm.show == "edit"
+        ? _c("section", { staticClass: "mt-1   col-12" }, [
+            _c("div", { staticClass: "search-container w-100" }, [
+              _c(
+                "div",
+                { staticClass: "modal-header d-flex justify-content-between " },
+                [
+                  _c("h3", { staticClass: "text-primary  " }, [
+                    _vm._v("ویرایش حوزه")
+                  ]),
+                  _vm._v(" "),
+                  _c("i", {
+                    staticClass:
+                      " glyphicon glyphicon-remove text-danger  clear-btn p-1   ",
+                    on: {
+                      click: function($event) {
+                        _vm.show = "list"
+                      }
+                    }
+                  })
+                ]
+              ),
+              _vm._v(" "),
+              _c("div", { staticClass: " row col-12" }, [
+                _c(
+                  "div",
+                  { staticClass: "input-group col-md-6 col-sm-6 pt-2 " },
+                  [
+                    _c(
+                      "label",
+                      {
+                        staticClass: "  align-self-center   ",
+                        attrs: {
+                          id: "label-edit-hooze-name",
+                          for: "selected-name-input"
+                        }
+                      },
+                      [_vm._v(" نام حوزه\n                    ")]
+                    ),
+                    _vm._v(" "),
+                    _vm._m(4),
+                    _vm._v(" "),
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.selectedHooze.name,
+                          expression: "selectedHooze.name"
+                        }
+                      ],
+                      staticClass: "my-1 py-1 pr-1 form-control border",
+                      attrs: {
+                        type: "text",
+                        placeholder: "نام حوزه ",
+                        id: "selected-name-input",
+                        "aria-label": "SearchName"
+                      },
+                      domProps: { value: _vm.selectedHooze.name },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(
+                            _vm.selectedHooze,
+                            "name",
+                            $event.target.value
+                          )
+                        }
+                      }
+                    }),
+                    _vm._v(" "),
+                    _c(
+                      "div",
+                      {
+                        staticClass:
+                          " input-group-append  btn-group-vertical   "
+                      },
+                      [
+                        _c("i", {
+                          staticClass:
+                            " glyphicon glyphicon-remove text-danger  clear-btn p-1",
+                          on: {
+                            click: function($event) {
+                              _vm.selectedHooze.name = ""
+                            }
+                          }
+                        })
+                      ]
+                    )
+                  ]
+                ),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  { staticClass: " input-group col-md-6 col-sm-6 pt-2" },
+                  [
+                    _c(
+                      "label",
+                      {
+                        staticClass: "  align-self-center   ",
+                        attrs: { id: "label-edit-parent-hooze-name" }
+                      },
+                      [_vm._v(" حوزه والد\n                    ")]
+                    ),
+                    _vm._v(" "),
+                    _c("dropdown", {
+                      ref: "dropdown",
+                      attrs: {
+                        "data-link": this.hoozesLink,
+                        for: "hooze",
+                        newable: false,
+                        multi: false,
+                        listID: "parent",
+                        beforeSelected: _vm.selectedHooze.parent_id
+                      }
+                    })
+                  ],
+                  1
+                )
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "row" }, [
+                _c("div", { staticClass: " mt-2  col-md-6 col-sm-6" }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "btn btn-blue   btn-block hov-pointer",
+                      attrs: { id: "edit", for: "edit" },
+                      on: {
+                        click: function($event) {
+                          return _vm.editHooze(_vm.selectedHooze.id)
+                        }
+                      }
+                    },
+                    [
+                      _c("i", { staticClass: "fa fa-search" }),
+                      _vm._v(" ثبت\n                    ")
+                    ]
+                  )
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: " mt-2  col-md-6 col-sm-6 " }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "btn btn-red   btn-block hov-pointer",
+                      attrs: { id: "cancel-edit", for: "cancel-edit" },
+                      on: {
+                        click: function($event) {
+                          _vm.show = "list"
+                        }
+                      }
+                    },
+                    [
+                      _c("i", { staticClass: "fa fa-search" }),
+                      _vm._v(" لغو\n                    ")
+                    ]
+                  )
+                ])
+              ])
+            ])
+          ])
+        : _vm._e(),
+      _vm._v(" "),
+      _c("vue-recaptcha", {
+        directives: [
+          {
+            name: "show",
+            rawName: "v-show",
+            value: _vm.show == "create" || _vm.show == "edit",
+            expression: "show=='create'|| show=='edit'"
+          }
+        ],
+        ref: "recaptcha",
+        staticClass: "  mx-4",
+        attrs: { sitekey: _vm.sitekey },
+        on: { verify: _vm.onVerify }
+      })
+    ],
+    1
+  )
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("p", { staticClass: "divider   " }, [
+      _c("span", [_vm._v("جستجو")])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      { staticClass: "input-group-prepend   btn-group-vertical p-1" },
+      [_c("i", { staticClass: "fa fa-search   text-primary  " })]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "input-group-addon left-border p-1" }, [
+      _c("span", { staticClass: "input-group-text " }, [_vm._v("تعداد")])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      { staticClass: "input-group-prepend   btn-group-vertical p-1" },
+      [_c("i", { staticClass: "fa fa-search   text-primary  " })]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      { staticClass: "input-group-prepend   btn-group-vertical p-1" },
+      [_c("i", { staticClass: "fa fa-search   text-primary  " })]
     )
   }
 ]
@@ -63937,6 +65328,90 @@ var render = function() {
               _vm._v(" "),
               _vm._m(8)
             ])
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "row   " }, [
+            _c("div", { staticClass: "  col-md-4 col-sm-6 " }, [
+              _c("input", {
+                attrs: {
+                  type: "checkbox",
+                  name: "check-access-create-hoozes",
+                  id: "check-access-create-hoozes",
+                  autocomplete: "off"
+                },
+                domProps: { checked: _vm.access_create_hoozes },
+                on: {
+                  click: function($event) {
+                    _vm.access_all = false
+                    _vm.access_create_hoozes = !_vm.access_create_hoozes
+                  }
+                }
+              }),
+              _vm._v(" "),
+              _vm._m(9)
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "  col-md-4 col-sm-6 " }, [
+              _c("input", {
+                attrs: {
+                  type: "checkbox",
+                  name: "check-access-edit-hoozes",
+                  id: "check-access-edit-hoozes",
+                  autocomplete: "off"
+                },
+                domProps: { checked: _vm.access_edit_hoozes },
+                on: {
+                  click: function($event) {
+                    _vm.access_all = false
+                    _vm.access_edit_hoozes = !_vm.access_edit_hoozes
+                  }
+                }
+              }),
+              _vm._v(" "),
+              _vm._m(10)
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "  col-md-4 col-sm-6 " }, [
+              _c("input", {
+                attrs: {
+                  type: "checkbox",
+                  name: "check-access-remove-hoozes",
+                  id: "check-access-remove-hoozes",
+                  autocomplete: "off"
+                },
+                domProps: { checked: _vm.access_remove_hoozes },
+                on: {
+                  click: function($event) {
+                    _vm.access_all = false
+                    _vm.access_remove_hoozes = !_vm.access_remove_hoozes
+                  }
+                }
+              }),
+              _vm._v(" "),
+              _vm._m(11)
+            ])
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "row  " }, [
+            _c("div", { staticClass: "  col-md-4 col-sm-6 " }, [
+              _c("input", {
+                attrs: {
+                  type: "checkbox",
+                  name: "check-access-view-reports",
+                  id: "check-access-view-reports",
+                  autocomplete: "off"
+                },
+                domProps: { checked: _vm.access_view_reports },
+                on: {
+                  click: function($event) {
+                    _vm.access_all = false
+                    _vm.access_view_reports = !_vm.access_view_reports
+                  }
+                }
+              }),
+              _vm._v(" "),
+              _vm._m(12)
+            ])
           ])
         ])
       ]),
@@ -63969,7 +65444,7 @@ var render = function() {
               }
             }),
             _vm._v(" "),
-            _vm._m(9)
+            _vm._m(13)
           ])
         ]),
         _vm._v(" "),
@@ -64011,7 +65486,7 @@ var render = function() {
               }
             }),
             _vm._v(" "),
-            _vm._m(10)
+            _vm._m(14)
           ])
         ]),
         _vm._v(" "),
@@ -64071,7 +65546,7 @@ var render = function() {
           ])
         : _vm._e(),
       _vm._v(" "),
-      _vm._m(11)
+      _vm._m(15)
     ],
     1
   )
@@ -64332,6 +65807,119 @@ var staticRenderFns = [
           attrs: { for: "check-access-remove-users" }
         },
         [_vm._v("\n                            حذف کاربران")]
+      )
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: " btn-group w-100" }, [
+      _c(
+        "label",
+        {
+          staticClass: " btn btn-outline-gray left-border hov-pointer",
+          attrs: { for: "check-access-create-hoozes" }
+        },
+        [
+          _c("span", { staticClass: " glyphicon glyphicon-ok  " }),
+          _vm._v(" "),
+          _c("span", { staticClass: " " })
+        ]
+      ),
+      _vm._v(" "),
+      _c(
+        "label",
+        {
+          staticClass: " btn btn-purple   right-border hov-pointer w-100",
+          attrs: { for: "check-access-create-hoozes" }
+        },
+        [_vm._v("\n                            ساخت حوزه ها")]
+      )
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: " btn-group w-100" }, [
+      _c(
+        "label",
+        {
+          staticClass: " btn btn-outline-gray left-border hov-pointer",
+          attrs: { for: "check-access-edit-hoozes" }
+        },
+        [
+          _c("span", { staticClass: " glyphicon glyphicon-ok  " }),
+          _vm._v(" "),
+          _c("span", { staticClass: " " })
+        ]
+      ),
+      _vm._v(" "),
+      _c(
+        "label",
+        {
+          staticClass:
+            " btn btn-orange text-white   right-border hov-pointer w-100",
+          attrs: { for: "check-access-edit-hoozes" }
+        },
+        [_vm._v("\n                            ویرایش حوزه ها")]
+      )
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: " btn-group w-100" }, [
+      _c(
+        "label",
+        {
+          staticClass: " btn btn-outline-gray left-border hov-pointer",
+          attrs: { for: "check-access-remove-hoozes" }
+        },
+        [
+          _c("span", { staticClass: " glyphicon glyphicon-ok  " }),
+          _vm._v(" "),
+          _c("span", { staticClass: " " })
+        ]
+      ),
+      _vm._v(" "),
+      _c(
+        "label",
+        {
+          staticClass: " btn btn-red   right-border hov-pointer w-100",
+          attrs: { for: "check-access-remove-hoozes" }
+        },
+        [_vm._v("\n                            حذف حوزه ها")]
+      )
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: " btn-group w-100" }, [
+      _c(
+        "label",
+        {
+          staticClass: " btn btn-outline-gray left-border hov-pointer",
+          attrs: { for: "check-access-view-reports" }
+        },
+        [
+          _c("span", { staticClass: " glyphicon glyphicon-ok  " }),
+          _vm._v(" "),
+          _c("span", { staticClass: " " })
+        ]
+      ),
+      _vm._v(" "),
+      _c(
+        "label",
+        {
+          staticClass: " btn btn-blue   right-border hov-pointer w-100",
+          attrs: { for: "check-access-view-reports" }
+        },
+        [_vm._v("\n                            مشاهده کاربران")]
       )
     ])
   },
@@ -69448,7 +71036,7 @@ var render = function() {
     _c("div", { staticClass: "row col-12 " }, [
       _vm._m(0),
       _vm._v(" "),
-      _c("div", { staticClass: " col-md-4" }, [
+      _c("div", { staticClass: " col-md-6 col-lg-4" }, [
         _c(
           "div",
           {
@@ -69463,7 +71051,35 @@ var render = function() {
         )
       ]),
       _vm._v(" "),
-      _vm._m(2)
+      _c("div", { staticClass: " col-md-6 col-lg-4" }, [
+        _c(
+          "div",
+          {
+            staticClass: "panel-part",
+            on: {
+              click: function($event) {
+                return _vm.view("hoozes")
+              }
+            }
+          },
+          [_vm._m(2)]
+        )
+      ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "col-md-6 col-lg-4" }, [
+        _c(
+          "div",
+          {
+            staticClass: "panel-part    ",
+            on: {
+              click: function($event) {
+                return _vm.view("reports")
+              }
+            }
+          },
+          [_vm._m(3)]
+        )
+      ])
     ]),
     _vm._v(" "),
     _c("div", { staticClass: "row  col-12" }, [
@@ -69471,10 +71087,10 @@ var render = function() {
         "div",
         {
           staticClass:
-            "col-sm-6 col-md-4 user-panel mb-1 d-flex flex-column  justify-content-between "
+            "col-sm-6 col-md-6 col-lg-4 user-panel mb-1 d-flex flex-column  justify-content-between "
         },
         [
-          _vm._m(3),
+          _vm._m(4),
           _vm._v(" "),
           _c(
             "div",
@@ -69530,9 +71146,7 @@ var render = function() {
             ]
           )
         ]
-      ),
-      _vm._v(" "),
-      _vm._m(4)
+      )
     ])
   ])
 }
@@ -69541,13 +71155,13 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "   col-md-4 " }, [
+    return _c("div", { staticClass: "   col-md-6 col-lg-4 " }, [
       _c("div", { staticClass: "panel-part" }, [
         _c(
           "div",
           {
             staticClass:
-              " colored-half bg-primary d-flex flex-column align-items-center  justify-content-between"
+              " colored-half p-1 bg-primary d-flex flex-column align-items-center  justify-content-between"
           },
           [
             _c("div", { staticClass: "image-container    " }, [
@@ -69573,13 +71187,13 @@ var staticRenderFns = [
       "div",
       {
         staticClass:
-          " colored-half bg-green d-flex flex-column align-items-center  justify-content-between"
+          " colored-half  p-1 bg-purple d-flex flex-column align-items-center  justify-content-between"
       },
       [
         _c("div", { staticClass: "image-container    " }, [
           _c("img", {
             staticClass: "image  ",
-            attrs: { src: "/storage/img/white-user.png", alt: "" }
+            attrs: { src: "/storage/img/white-school.png", alt: "" }
           })
         ]),
         _vm._v(" "),
@@ -69591,29 +71205,45 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: " col-md-4" }, [
-      _c("div", { staticClass: "panel-part" }, [
-        _c(
-          "div",
-          {
-            staticClass:
-              " colored-half bg-red d-flex flex-column align-items-center  justify-content-between"
-          },
-          [
-            _c("div", { staticClass: "image-container    " }, [
-              _c("img", {
-                staticClass: "image  ",
-                attrs: { src: "/storage/img/white-user.png", alt: "" }
-              })
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "h5 pt-1 text-white" }, [
-              _vm._v("گزارشات")
-            ])
-          ]
-        )
-      ])
-    ])
+    return _c(
+      "div",
+      {
+        staticClass:
+          " colored-half  p-1 bg-red d-flex flex-column align-items-center  justify-content-between"
+      },
+      [
+        _c("div", { staticClass: "image-container    " }, [
+          _c("img", {
+            staticClass: "image  ",
+            attrs: { src: "/storage/img/white-hoozes.png", alt: "" }
+          })
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "h5 pt-1 text-white" }, [_vm._v("حوزه ها")])
+      ]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      {
+        staticClass:
+          " colored-half p-1 bg-secondary d-flex flex-column align-items-center  justify-content-between"
+      },
+      [
+        _c("div", { staticClass: "image-container    " }, [
+          _c("img", {
+            staticClass: "image  ",
+            attrs: { src: "/storage/img/white-reports.png", alt: "" }
+          })
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "h5 pt-1 text-white" }, [_vm._v("گزارشات")])
+      ]
+    )
   },
   function() {
     var _vm = this
@@ -69634,34 +71264,6 @@ var staticRenderFns = [
         ])
       ]
     )
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "col-sm-8" }, [
-      _c("div", { staticClass: "panel-part mt-0 pl-0 " }, [
-        _c(
-          "div",
-          {
-            staticClass:
-              " colored-half bg-red d-flex flex-column align-items-center  justify-content-between"
-          },
-          [
-            _c("div", { staticClass: "image-container    " }, [
-              _c("img", {
-                staticClass: "image  ",
-                attrs: { src: "/storage/img/white-user.png", alt: "" }
-              })
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "h5 pt-1 text-white" }, [
-              _vm._v("گزارشات")
-            ])
-          ]
-        )
-      ])
-    ])
   }
 ]
 render._withStripped = true
@@ -82142,6 +83744,75 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/js/components/hoozes-form.vue":
+/*!*************************************************!*\
+  !*** ./resources/js/components/hoozes-form.vue ***!
+  \*************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _hoozes_form_vue_vue_type_template_id_534a5f96___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./hoozes-form.vue?vue&type=template&id=534a5f96& */ "./resources/js/components/hoozes-form.vue?vue&type=template&id=534a5f96&");
+/* harmony import */ var _hoozes_form_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./hoozes-form.vue?vue&type=script&lang=js& */ "./resources/js/components/hoozes-form.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _hoozes_form_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _hoozes_form_vue_vue_type_template_id_534a5f96___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _hoozes_form_vue_vue_type_template_id_534a5f96___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/components/hoozes-form.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/components/hoozes-form.vue?vue&type=script&lang=js&":
+/*!**************************************************************************!*\
+  !*** ./resources/js/components/hoozes-form.vue?vue&type=script&lang=js& ***!
+  \**************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_hoozes_form_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./hoozes-form.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/hoozes-form.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_hoozes_form_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/hoozes-form.vue?vue&type=template&id=534a5f96&":
+/*!********************************************************************************!*\
+  !*** ./resources/js/components/hoozes-form.vue?vue&type=template&id=534a5f96& ***!
+  \********************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_hoozes_form_vue_vue_type_template_id_534a5f96___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../node_modules/vue-loader/lib??vue-loader-options!./hoozes-form.vue?vue&type=template&id=534a5f96& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/hoozes-form.vue?vue&type=template&id=534a5f96&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_hoozes_form_vue_vue_type_template_id_534a5f96___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_hoozes_form_vue_vue_type_template_id_534a5f96___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
 /***/ "./resources/js/components/login.vue":
 /*!*******************************************!*\
   !*** ./resources/js/components/login.vue ***!
@@ -82886,6 +84557,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_selector_vue__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./components/selector.vue */ "./resources/js/components/selector.vue");
 /* harmony import */ var _components_user_panel_vue__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./components/user-panel.vue */ "./resources/js/components/user-panel.vue");
 /* harmony import */ var _components_register_vue__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./components/register.vue */ "./resources/js/components/register.vue");
+/* harmony import */ var _components_hoozes_form_vue__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./components/hoozes-form.vue */ "./resources/js/components/hoozes-form.vue");
+
 
 
 
@@ -82906,7 +84579,8 @@ var app = new Vue({
     pagination: _components_pagination_vue__WEBPACK_IMPORTED_MODULE_5__["default"],
     selector: _components_selector_vue__WEBPACK_IMPORTED_MODULE_6__["default"],
     userPanel: _components_user_panel_vue__WEBPACK_IMPORTED_MODULE_7__["default"],
-    registerForm: _components_register_vue__WEBPACK_IMPORTED_MODULE_8__["default"]
+    registerForm: _components_register_vue__WEBPACK_IMPORTED_MODULE_8__["default"],
+    hoozesForm: _components_hoozes_form_vue__WEBPACK_IMPORTED_MODULE_9__["default"]
   }
 });
 
