@@ -1,34 +1,40 @@
-@extends('layout')
+<footer class="        ">
+    <div class="footer-bg text-white  position-relative   ">
+        <div class="row  col-12   position-absolute bottom-0 mb-2   ">
+            <!-- footer logo -->
+            <div class="col-md-6   text-left col-sm-6 text-center    ">
 
-@section('footer')
+                <div><i class="fa fa-address-book"></i> کرمان - خیابان شهید مصطفی خمینی <br>خیابان شهیدان اعتباری - کوچه
+                    18
+                </div>
+                <div><i class="fa fa-phone"></i> 33244342 - 034</div>
+                <div><i class="fa fa-fax"></i> 33244368 - 034</div>
 
-    <footer class="footer-social-icon text-center section_padding_70 clearfix">
-        <!-- footer logo -->
-        <div class="footer-text">
-            <h2>Ca.</h2>
-        </div>
-        <!-- social icon-->
-        <div class="footer-social-icon">
-            <a href="#"><i class="fa fa-facebook" aria-hidden="true"></i></a>
-            <a href="#"><i class="active fa fa-twitter" aria-hidden="true"></i></a>
-            <a href="#"> <i class="fa fa-instagram" aria-hidden="true"></i></a>
-            <a href="#"><i class="fa fa-google-plus" aria-hidden="true"></i></a>
-        </div>
-        <div class="footer-menu">
-            <nav>
-                <ul>
-                    <li><a href="#">About</a></li>
-                    <li><a href="#">Terms &amp; Conditions</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
-                    <li><a href="#">Contact</a></li>
-                </ul>
-            </nav>
-        </div>
-        <!-- Foooter Text-->
-        <div class="copyright-text">
-            <!-- ***** Removing this text is now allowed! This template is licensed under CC BY 3.0 ***** -->
-            <p>Copyright ©2017 Ca. Designed by <a href="https://colorlib.com" target="_blank">Colorlib</a></p>
-        </div>
-    </footer>
+                <div><i class="fa fa-envelope"></i> 7616858957</div>
 
-@stop
+                <div><i class="fa fa-envelope "></i> edoa777066@kermanedu.ir</div>
+
+            </div>
+
+            <div class="footer-menu col-md-6 col-sm-6 text-center   ">
+                <nav>
+                    <ul class=" ">
+                        <li><a class="nav-link  text-white p-1" href="/">خانه <span class="sr-only"></span></a></li>
+
+                        <li><a class="nav-link text-white p-1" href="#">امکانات</a></li>
+                        <li><a class="nav-link text-white p-1" href="#">ارتباط با ما</a></li>
+                        <li><a class="nav-link text-white p-1" href="#"> اعضای سازمان</a></li>
+                    </ul>
+                </nav>
+            </div>
+            <!-- Foooter Text-->
+
+        </div>
+    </div>
+    <div class="copyright-text row mx-0  justify-content-center  bg-indigo position-relative  ">
+        <p class="mb-0"><a href="http://tazhan.ir" target="_blank" class="text-white small">
+                سامانه سازان تاژان اسپادانا</a>
+            <img src="/img/logo-white.png" style="width: 3rem;height: 3rem" alt=""></p>
+    </div>
+</footer>
+

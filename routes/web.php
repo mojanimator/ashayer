@@ -14,12 +14,14 @@
 use App\Hooze;
 use App\School;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use App\Policies\SchoolPolicy;
+use Morilog\Jalali\Jalalian;
 
 Route::get('/', function () {
     return view('layouts.home');
@@ -30,18 +32,16 @@ Route::get('/school/create', function () {
 
 
 Route::post('schools/all', 'SchoolController@all')->name('school.all');
-Route::post('schools/search', 'SchoolController@search')->name('school.search');
-Route::post('schools/dropdown', 'SchoolController@dropdown')->name('school.dropdown');
-Route::post('schools/create', 'SchoolController@create')->name('schools.create');
+//Route::post('hoozes', 'SchoolController@hoozes')->name('school.hoozes');
+
 
 //Route::post('madrese/all', 'MadreseController@index')->name('madrese.all');
 
-Route::post('hoozes', 'SchoolController@hoozes')->name('school.hoozes');
 
 Auth::routes();
 //Route::get('register', 'Auth\RegisterController@showRegistrationForm')->name('register')->middleware('can:register');
 //Route::post('register', 'Auth\RegisterController@register')->middleware('can:register');
-Route::get('/verifyemail/{token}', 'Auth\RegisterController@verify')->name('verification.mail');
+Route::get('/verifyemail/{token}/{from}', 'Auth\RegisterController@verify')->name('verification.mail');
 Route::get('/resendemail/{token}', 'Auth\RegisterController@resend')->name('resend.mail');
 
 Route::get('/home', 'HomeController@index')->name('home');
@@ -56,14 +56,22 @@ Route::get('/init', function () {
 
 Route::get('register/confirm/{token}', 'Auth\RegisterController@confirmEmail');
 
-Route::post('/panel/{username}/delete/s={id}', 'SchoolController@destroy')
+Route::get('/panel/{username}/users/', 'UserController@view')->name('user.view')->middleware('can:viewAny,App\User');
+Route::post('/panel/{username}/users/create', 'UserController@create')->name('user.register')->middleware('can:createAny,App\User');
+Route::post('/panel/{username}/users/edit', 'UserController@update')->name('user.edit')->middleware('can:editAny,App\User');
+Route::post('/panel/{username}/users', 'UserController@search')->name('user.search');
+Route::post('/panel/{username}/users/delete', 'UserController@destroy')->name('user.delete')->middleware('can:deleteAny,App\User');
+
+Route::post('/panel/{username}/schools/search', 'SchoolController@search')->name('school.search')->middleware('can:viewAny,App\School');
+Route::post('/panel/{username}/schools/dropdown', 'SchoolController@dropdown')->name('school.dropdown')->middleware('can:viewAny,App\School');
+Route::post('/panel/{username}/schools/create', 'SchoolController@create')->name('schools.create')->middleware('can:createAny,App\School');
+Route::get('/panel/{username}/schools', 'SchoolController@view')->name('school.view')->middleware('can:viewAny,App\School');
+Route::post('/panel/{username}/delete', 'SchoolController@destroy')
     ->name('school.destroy')->middleware('can:delete,App\School');
 Route::any('/panel/{username}', 'UserController@showPanel')
     ->name('user.panel')->middleware('auth');
-Route::get('/panel/{username}/schools', 'SchoolController@view')
-    ->name('school.view')->middleware('can:view,App\School');
 Route::post('/panel/{username}/edit/s={id}', 'SchoolController@update')
-    ->name('school.edit')->middleware('SchoolPolicy@edit');
+    ->name('school.edit')->middleware('can:edit,App\School');
 
 
 Route::get('/panel/{username}/hoozes', 'HoozeController@view')
@@ -78,13 +86,18 @@ Route::post('/panel/{username}/hoozes/create', 'HoozeController@create')
     ->name('hooze.create')->middleware('can:create,App\Hooze');
 
 Route::get('mailable', function () {
-    $invoice = App\User::find(1);
+    $invoice = App\User::find(2);
 
-    return new App\Mail\RegisterUserMail($invoice);
+    return new App\Mail\RegisterEditUserMail($invoice);
 });
 Route::get('test', function () {
+    $user = App\User::find(2);
+    $date = new  Carbon ($user->expires_at);
+    $date->toDateString();
+//    $date = Jalalian::now(new DateTimeZone('Asia/Tehran'));
+    return \Morilog\Jalali\CalendarUtils::strftime('Y/m/d', strtotime($user->expires_at));
 //    $user = User::find($id);
-    $parent_hooze_id = Hooze::find(9)->first();
+//    $parent_hooze_id = Hooze::find(9)->first();
 //    if (Gate::allows('edit', [Hooze::class, 3]))
 //        return 't';
 

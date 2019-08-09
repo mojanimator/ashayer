@@ -184,7 +184,8 @@
                 } else if (type === "GET_HOOZE") {
                     params = {
                         hooze_namayandegi_id: this.hooze_namayandegi_id,
-                        command: 'get'
+                        command: 'get',
+                        'for': 'dropdown',
                     };
 
                 }
@@ -208,11 +209,26 @@
                             this.data = response.data;
 
                         this.filteredData = this.data;
-
-                        if (!selectedBefore && this.selectedBefore && this.selectedBefore.startsWith('d') || this.selectedBefore && this.selectedBefore.startsWith('a')) {
+//                        console.log(Array.isArray(this.selectedBefore));
+                        if (!selectedBefore && this.selectedBefore && !Array.isArray(this.selectedBefore) && (this.selectedBefore.startsWith('d') || this.selectedBefore.startsWith('a'))) {
                             selectedBefore = this.selectedBefore;
                             selectedBefore = selectedBefore.split('$').splice(1);
 //                            console.log(selectedBefore);
+                            for (let i in  selectedBefore)
+                                for (let d in this.data) {
+//                                    console.log(selectedBefore[i] + ' , ' + this.data[d].id);
+                                    if (selectedBefore[i] == this.data[d].id) {
+//                                        console.log(selectedBefore[i] + ' , ' + this.data[d].id);
+                                        this.selected.push(
+                                            {
+                                                'id': this.data[d].id,
+                                                'name': this.data[d].name
+                                            });
+                                        break;
+                                    }
+                                }
+                        } else if (!selectedBefore && this.selectedBefore && Array.isArray(this.selectedBefore)) { //for edit user
+                            selectedBefore = this.selectedBefore;
                             for (let i in  selectedBefore)
                                 for (let d in this.data) {
 //                                    console.log(selectedBefore[i] + ' , ' + this.data[d].id);
@@ -226,7 +242,7 @@
                                     }
                                 }
                         }
-
+//                        console.log(this.selected);
                         this.loading = false;
                     }).catch((error) => {
                     this.loading = false;

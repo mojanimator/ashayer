@@ -25,6 +25,23 @@
     //    import {Map, View} from 'ol';
     //    import TileLayer from 'ol/layer/Tile';
     //    import OSM from 'ol/source/OSM';
+    import Map from 'ol/Map.js';
+    import {Style, Icon, Stroke} from 'ol/Style.js';
+    import {Vector as VectorLayer, Group} from 'ol/Layer.js';
+    import View from 'ol/View.js';
+    import {Point, LineString} from 'ol/Geom.js';
+    import {OverviewMap} from 'ol/Control.js';
+    import Feature from 'ol/Feature.js';
+    import {getWidth, getCenter} from 'ol/extent.js';
+    import WMTSCapabilities from 'ol/format/WMTSCapabilities.js';
+    import TileLayer from 'ol/layer/Tile.js';
+    import {get as getProjection, transform, fromLonLat} from 'ol/proj.js';
+
+    import {register} from 'ol/proj/proj4.js';
+    import {OSM, TileImage, TileWMS, XYZ, Vector, BingMaps} from 'ol/source.js';
+    import WMTS, {optionsFromCapabilities} from 'ol/source/WMTS.js';
+    import TileGrid from 'ol/tilegrid/TileGrid.js';
+    import proj4 from 'proj4';
 
     export default {
 
@@ -106,7 +123,7 @@
 //                layer = this.map.getLayers().getArray()[2];
 
                 layer = this.map.getLayers().getArray()[0].getLayers().getArray()[3]; //markers layer
-                if (!this.s.schoolable.loc && !this.s.schoolable.loc_yeylagh) {
+                if (this.s.schoolable && !this.s.schoolable.loc && !this.s.schoolable.loc_yeylagh) {
                     layer.getSource().clear();
                     return;
                 }
@@ -116,23 +133,29 @@
 //                        layer = tLayer;
 //                    }
 //                });
+//                ol.proj.proj4.defs('EPSG:32640', '+proj=utm +zone=40 +datum=WGS84 +units=m +no_defs');
+//                extent = [
+//                    -98570.85212537996,
+//                    2468701.5790765425,
+//                    683268.1076887846,
+//                    2874585.9453238174
+//                ];
 
-                if (this.s.schoolable.loc) { // sabet have one marker
+                if (this.s.schoolable && this.s.schoolable.loc) { // sabet have one marker
                     this.latLng = this.s.schoolable.loc.split(',').map(Number);
-                    let marker1 = new ol.Feature({
-                        geometry: new ol.geom.Point(ol.proj.transform([this.latLng[1], this.latLng[0]], 'EPSG:4326',
-                            'EPSG:3857')),
+                    let marker1 = new Feature({
+                        geometry: new Point([this.latLng[0], this.latLng[1]]),
                         name: this.s.name,
-                        population: this.s.hooze.name,
+                        population: this.s.hooze ? this.s.hooze.name : '',
 
                     });
                     iconFeatures.push(marker1);
-                    this.map.getView().setCenter(ol.proj.fromLonLat([this.latLng[1], this.latLng[0]]), 4);
+                    this.map.getView().setCenter([this.latLng[0], this.latLng[1]], 4);
 
                 }
-                else if (this.s.schoolable.loc_yeylagh) {
-                    let iconStyle = new ol.style.Style({
-                        image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+                else if (this.s.schoolable && this.s.schoolable.loc_yeylagh) {
+                    let iconStyle = new Style({
+                        image: new Icon(/** @type {olx.style.IconOptions} */ ({
                             anchor: [0.5, 1],
                             anchorXUnits: 'fraction',
                             anchorYUnits: 'fraction',
@@ -142,37 +165,37 @@
                     });
 //                    console.log(this.s.schoolable);
                     this.latLng = this.s.schoolable.loc_yeylagh.split(',').map(Number);
-                    let marker1 = new ol.Feature({
-                        geometry: new ol.geom.Point(ol.proj.transform([this.latLng[1], this.latLng[0]], 'EPSG:4326',
-                            'EPSG:3857')),
+                    let marker1 = new Feature({
+//                        geometry: new Point(transform([this.latLng[1], this.latLng[0]], 'EPSG:4326', 'EPSG:3857')),
+                        geometry: new Point([this.latLng[0], this.latLng[1]]),
                         name: this.s.name,
-                        population: this.s.hooze.name,
+                        population: this.s.hooze ? this.s.hooze.name : '',
 
                     });
 
                     this.latLng2 = this.s.schoolable.loc_gheshlagh.split(',').map(Number);
-                    let marker2 = new ol.Feature({
-                        geometry: new ol.geom.Point(ol.proj.transform([this.latLng2[1], this.latLng2[0]], 'EPSG:4326',
-                            'EPSG:3857')),
+                    let marker2 = new Feature({
+                        geometry: new Point([this.latLng2[0], this.latLng2[1]]),
+//                        geometry: new Point(transform([this.latLng2[1], this.latLng2[0]], 'EPSG:4326','EPSG:3857')),
                         name: this.s.name,
-                        population: this.s.hooze.name,
+                        population: this.s.hooze ? this.s.hooze.name : '',
 
 
                     });
                     marker2.setStyle(iconStyle);
 //add line Style(iconStyleyeylagh gheshlagh
-                    let startPt = ol.proj.fromLonLat([this.latLng[1], this.latLng[0]]);
-                    let endPt = ol.proj.fromLonLat([this.latLng2[1], this.latLng2[0]]);
+                    let startPt = [this.latLng[0], this.latLng[1]];
+                    let endPt = [this.latLng2[0], this.latLng2[1]];
 
-                    let style = new ol.style.Style({
-                        stroke: new ol.style.Stroke({
+                    let style = new Style({
+                        stroke: new Stroke({
                             color: '#09ef00',
                             width: 8
                         })
                     });
 
-                    let lineMarker = new ol.Feature({
-                        geometry: new ol.geom.LineString([startPt, endPt]),
+                    let lineMarker = new Feature({
+                        geometry: new LineString([startPt, endPt]),
                         name: 'Line',
                     });
                     lineMarker.setStyle(style);
@@ -182,9 +205,10 @@
                     iconFeatures.push(marker2);
 
                 }
+//                layer.getSource().clear();
                 layer.getSource().clear();
                 layer.getSource().addFeatures(iconFeatures);
-
+//                console.log(layer.getSource().getProjection());
 
 //                    layer.getSource().addFeature(iconFeatures[1]);
 
@@ -196,17 +220,21 @@
             },
 
             initialize_map() {
+                proj4.defs('EPSG:32640', '+proj=utm +zone=40 +datum=WGS84 +units=m +no_defs');
+                register(proj4);
+                let proj32640 = getProjection('EPSG:32640');
+                proj32640.setExtent([-833718.61, 2641854.13, 1543086.51, 4422789.27]); //iran bound(l,b,r,u)
 
                 if (this.map) {
                     this.map.setTarget(null);
                     this.map = null;
                 }
 
-                this.map = new ol.Map({
+                this.map = new Map({
                     target: "map",
                     layers: [
-                        new ol.layer.Tile({
-                            source: new ol.source.OSM(
+                        new TileLayer({
+                            source: new OSM(
 //                                {
 //                                url: "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png"
 //                            }
@@ -225,14 +253,14 @@
             },
 
             add_map_point(lat, lng) {
-                let vectorLayer = new ol.layer.Vector({
-                    source: new ol.source.Vector({
-                        features: [new ol.Feature({
-                            geometry: new ol.geom.Point(ol.proj.transform([parseFloat(lng), parseFloat(lat)], 'EPSG:4326', 'EPSG:3857')),
+                let vectorLayer = new VectorLayer({
+                    source: new Vector({
+                        features: [new Feature({
+                            geometry: new Point(ol.proj.transform([parseFloat(lng), parseFloat(lat)], 'EPSG:4326', 'EPSG:3857')),
                         })]
                     }),
-                    style: new ol.style.Style({
-                        image: new ol.style.Icon({
+                    style: new Style({
+                        image: new Icon({
                             anchor: [0.5, 0.5],
                             anchorXUnits: "fraction",
                             anchorYUnits: "fraction",

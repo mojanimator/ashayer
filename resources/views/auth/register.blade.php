@@ -11,11 +11,13 @@
 
                     <div class="card-body ">
 
-                        <register-form schools-link="{{route('school.dropdown')}}"
-                                       hoozes-link="{{route('school.hoozes')}}"
-                                       sitekey="{{ config('services.recaptcha.key') }}"
-                                       register-link="{{ route('register') }}">
-
+                        <register-form
+                                restricted="{{!auth()->user()}}" _for="'create'"
+                                {{--schools-link="{{route('school.dropdown')}}"--}}
+                                login-link="{{route('login')}}"
+                                hoozes-link="{{route('hooze.search',['username' =>auth()->user()?auth()->user()->username:''])}}"
+                                sitekey="{{ config('services.recaptcha.key') }}"
+                                register-link="{{ route('register') }}">
                         </register-form>
                         <div class="row  justify-content-center">
 

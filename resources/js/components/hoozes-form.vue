@@ -8,7 +8,8 @@
                         <i class="fa fa-search   text-primary  "></i>
                     </div>
                     <input type="text" placeholder="نام حوزه " v-model="hName" id="name-input"
-                           class="my-1 py-1 pr-1 form-control border" aria-label="SearchName">
+                           class="my-1 py-1 pr-1 form-control border" aria-label="SearchName"
+                           @keyup.enter="getHoozes();">
                     <div class=" input-group-append  btn-group-vertical   ">
                         <i class=" glyphicon glyphicon-remove text-danger  clear-btn p-1"
                            @click="hName='';getHoozes()"
@@ -253,11 +254,9 @@
     let kerman = [57.0532, 30.2880];
     export default {
 
-        props: ['schoolsLink', 'panelLink', 'hoozesLink', 'sitekey', 'canEdit', 'canDelete', 'roles'],
+        props: ['hoozesLink', 'sitekey', 'canCreate', 'canEdit', 'canDelete', 'roles'],
         components: {
-            school_map: schoolMap,
-            school_edit: schoolEdit,
-            school_create: schoolCreate,
+
             pagination: pagination,
             VueRecaptcha,
             dropdown,
@@ -280,6 +279,7 @@
                 errors: '',
                 recaptcha: "",
                 createHoozeName: "",
+
             }
         },
         mounted() {
@@ -289,7 +289,6 @@
             this.getHoozes();
 //            console.log(this.canEdit === '1' ? 'y' : 'n');
 
-            this.hooze_ids = JSON.parse(this.roles).hooze_ids;
 
         },
 
@@ -320,6 +319,20 @@
                         this.loading.addClass('hide');
                         if (response.status === 200) {
                             this.showDialog(1);
+                            this.paginator =
+                                {
+                                    current_page: response.data['current_page'],
+                                    first_page_url: response.data['first_page_url'],
+                                    next_page_url: response.data['next_page_url'],
+                                    prev_page_url: response.data['prev_page_url'],
+                                    last_page_url: response.data['last_page_url'],
+                                    last_page: response.data['last_page'],
+                                    from: response.data['from'],
+                                    to: response.data['to'],
+                                    total: response.data['total'],
+                                };
+
+                            this.$root.$emit('paginationChange', this.paginator);
 
                         }
 

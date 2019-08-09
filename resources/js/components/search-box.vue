@@ -1,7 +1,7 @@
 <template>
 
 
-    <div class="search-container d-inline-block col-md-4">
+    <div v-if="show!='create' && show!='edit'" class="search-container d-inline-block col-md-4">
 
 
         <p v-show="!simple_search" class="divider "><span>مرتب سازی</span></p>
@@ -10,22 +10,22 @@
              data-toggle="buttons">
             <label id="new-schools" for="new-schools"
                    class="btn btn-light-blue btn-group-item col-xs-6 left-border  active "
-                   @click="by='~n';  $root.$emit('search')  ">
+                   @click="by='~n';  $root.$emit('search',{'orderBy':'','direction':''})  ">
                 <input type="radio" name="options" autocomplete="off" class=" "> جدید ترین مدارس
             </label>
             <label id="old-schools" for="old-schools"
                    class="btn btn-togg btn-light-blue btn-group-item col-xs-6    "
-                   @click=" by='~o';  $root.$emit('search')">
+                   @click=" by='~o';  $root.$emit('search',{'orderBy':'','direction':''})">
                 <input type="radio" name="options" autocomplete="off" class=" "> قدیمی ترین مدارس
             </label>
             <label id="max-students" for="max-students"
                    class="btn btn-light-blue btn-group-item col-xs-6   "
-                   @click="by='~ma';  $root.$emit('search')  ">
+                   @click="by='~ma';  $root.$emit('search',{'orderBy':'','direction':''})  ">
                 <input type="radio" name="options" autocomplete="off" class=" "> بیشترین دانش آموز
             </label>
             <label id="min-students" for="min-students"
                    class="btn btn-light-blue btn-group-item col-xs-6 right-border  "
-                   @click="by='~mi';  $root.$emit('search')  ">
+                   @click="by='~mi';  $root.$emit('search',{'orderBy':'','direction':''})  ">
                 <input type="radio" name="options" autocomplete="off" class=" "> کمترین دانش آموز
             </label>
 
@@ -41,60 +41,62 @@
              data-toggle="buttons">
             <div class=" px-2  ">
                 <label class="btn   btn-outline-success  "
-                       @click=" status['koochro']=!status['koochro'];  $root.$emit('search')"> کوچ رو
+                       @click=" status['koochro']=!status['koochro'];  $root.$emit('search',{'orderBy':'','direction':''})">
+                    کوچ رو
                 </label>
 
                 <label class="btn   btn-outline-danger   "
-                       @click="status['saabet']=!status['saabet']; $root.$emit('search')  "> ثابت
+                       @click="status['saabet']=!status['saabet']; $root.$emit('search',{'orderBy':'','direction':''})  ">
+                    ثابت
                 </label>
             </div>
             <div class="  px-2 ">
                 <label class="btn btn-outline-dark-blue "
-                       @click="status['roozane']=!status['roozane'];   $root.$emit('search')  ">روزانه
+                       @click="status['roozane']=!status['roozane'];   $root.$emit('search',{'orderBy':'','direction':''})  ">روزانه
                 </label>
                 <label class="btn btn-outline-dark-gray "
-                       @click="status['shabane']=!status['shabane'];   $root.$emit('search')  ">شبانه
+                       @click="status['shabane']=!status['shabane'];   $root.$emit('search',{'orderBy':'','direction':''})  ">شبانه
                 </label>
             </div>
             <div class="  px-2 ">
                 <label class="btn btn-outline-dark-blue "
-                       @click="status['boy']=!status['boy'];   $root.$emit('search')  ">پسرانه
+                       @click="status['boy']=!status['boy'];   $root.$emit('search',{'orderBy':'','direction':''})  ">پسرانه
                 </label>
                 <label class="btn btn-outline-dark-gray "
-                       @click="status['girl']=!status['girl'];   $root.$emit('search')  ">دخترانه
+                       @click="status['girl']=!status['girl'];   $root.$emit('search',{'orderBy':'','direction':''})  ">دخترانه
                 </label>
             </div>
             <div class="  px-2 ">
                 <label class="btn btn-outline-dark-green "
-                       @click="status['ebte']=!status['ebte'];   $root.$emit('search')  ">ابتدایی
+                       @click="status['ebte']=!status['ebte'];   $root.$emit('search',{'orderBy':'','direction':''})  ">ابتدایی
                 </label>
                 <label class="btn btn-outline-success "
-                       @click="status['mote1']=!status['mote1'];   $root.$emit('search')  ">متوسطه 1
+                       @click="status['mote1']=!status['mote1'];   $root.$emit('search',{'orderBy':'','direction':''})  ">متوسطه 1
                 </label>
                 <label class="btn btn-outline-light-green "
-                       @click="status['mote2']=!status['mote2'];   $root.$emit('search')  ">متوسطه 2
+                       @click="status['mote2']=!status['mote2'];   $root.$emit('search',{'orderBy':'','direction':''})  ">متوسطه 2
                 </label>
             </div>
             <div class=" px-2  ">
                 <label class="btn btn-outline-dark "
-                       @click="status['mosta']=!status['mosta'];   $root.$emit('search')  ">مستقل
+                       @click="status['mosta']=!status['mosta'];   $root.$emit('search',{'orderBy':'','direction':''})  ">مستقل
                 </label>
                 <label class="btn btn-outline-dark-gray "
-                       @click="status['zama']=!status['zama'];   $root.$emit('search')  ">ضمیمه است
+                       @click="status['zama']=!status['zama'];   $root.$emit('search',{'orderBy':'','direction':''})  ">ضمیمه است
                 </label>
                 <label class="btn btn-outline-gray "
-                       @click="status['zamd']=!status['zamd'];   $root.$emit('search')  ">ضمیمه دارد
+                       @click="status['zamd']=!status['zamd'];   $root.$emit('search',{'orderBy':'','direction':''})  ">ضمیمه دارد
                 </label>
             </div>
             <div class="  px-2 ">
                 <label class="btn btn-outline-light-red "
-                       @click="status['kanex']=!status['kanex'];   $root.$emit('search')  ">کانکس
+                       @click="status['kanex']=!status['kanex'];   $root.$emit('search',{'orderBy':'','direction':''})  ">کانکس
                 </label>
                 <label class="btn btn-outline-flame-start "
-                       @click="status['sakhteman']=!status['sakhteman'];   $root.$emit('search')  ">ساختمان
+                       @click="status['sakhteman']=!status['sakhteman'];   $root.$emit('search',{'orderBy':'','direction':''})  ">ساختمان
                 </label>
                 <label class="btn btn-outline-cream "
-                       @click="status['chador']=!status['chador'];   $root.$emit('search')  ">چادر
+                       @click="status['chador']=!status['chador'];   $root.$emit('search',{'orderBy':'','direction':''})  ">چادر
                 </label>
             </div>
         </div>
@@ -141,17 +143,18 @@
                     <i class="fa fa-search   text-primary  "></i>
                 </div>
                 <input type="text" placeholder="نام مدرسه " v-model="sName" id="name-input"
-                       class="my-1 py-1 pr-1 form-control border" aria-label="SearchName">
+                       class="my-1 py-1 pr-1 form-control border" aria-label="SearchName"
+                       @keyup.enter="    $root.$emit('search',{'orderBy':'','direction':''}) ">
                 <div class=" input-group-append  btn-group-vertical   ">
                     <i class=" glyphicon glyphicon-remove text-danger  clear-btn p-1"
-                       @click="sName='';$root.$emit('search')"
+                       @click="sName='';$root.$emit('search',{'orderBy':'','direction':''})"
                     ></i>
                 </div>
             </div>
 
 
             <dropdown v-show="!simple_search" :data-link="this.hoozesLink" :for="'hooze'" :newable="true" :multi="true"
-                      class="col-md-6 col-sm-6 "></dropdown>
+                      class="col-md-6 col-sm-6 " :listID="'hooze'"></dropdown>
         </div>
         <!--end  search-->
 
@@ -159,7 +162,7 @@
         <div class="col-12 row mt-4 d-flex ">
             <div class="   col-md-8 col-sm-6">
                 <label id="search" for="search" class="btn bg-gradient-purple   btn-block"
-                       @click="    $root.$emit('search') ">
+                       @click="    $root.$emit('search',{'orderBy':'','direction':''}) ">
                     <i class="fa fa-search"></i> جستجو
                 </label>
             </div>
@@ -218,7 +221,7 @@
         data() {
             return {
 
-                show: 'list',
+                show: 'search',
                 simple_search: true, //only school name
                 per_page: 24,
                 sName: '',
@@ -368,6 +371,8 @@
                     ids: param['ids'],
                     sortBy: sortBy,
                     direction: direction,
+                    sortByTable: param.orderBy,
+                    directionTable: param.direction,
                     name: this.sName,
                     schoolable: schoolable,
                     is_roozane: is_roozane,
@@ -430,6 +435,14 @@
                     this.search(params);
 
                 });
+
+                this.$root.$on('changeShow', (show) => {
+//                    console.log(show);
+                    this.show = show;
+                    $(window).scrollTop(0);
+
+                });
+
 
             },
             setAxiosCsrf() {

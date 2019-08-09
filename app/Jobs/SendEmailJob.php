@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Mail\RegisterUserMail;
+use App\Mail\RegisterEditUserMail;
 use http\Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
@@ -52,7 +52,7 @@ class SendEmailJob implements ShouldQueue
     public function handle()
     {
 
-        Mail::to($this->user->email)->send(new RegisterUserMail($this->user->token));
+        Mail::to($this->user->email)->send(new RegisterEditUserMail($this->user->token));
 
 
     }

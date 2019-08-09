@@ -8,10 +8,14 @@ import selector from './components/selector.vue'
 import userPanel from './components/user-panel.vue'
 import registerForm from './components/register.vue'
 import hoozesForm from './components/hoozes-form.vue'
+import usersForm from './components/users-form.vue'
 
-
+Vue.config.devtools = false;
+Vue.config.debug = false;
+Vue.config.silent = true;
 const app = new Vue({
     el: '#app',
+    mode: 'production',
 
     components: {
         schoolCards,
@@ -24,6 +28,7 @@ const app = new Vue({
         userPanel,
         registerForm,
         hoozesForm,
+        usersForm,
 
     }
 });

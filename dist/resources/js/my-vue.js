@@ -40,10 +40,18 @@ var _hoozesForm = require('./components/hoozes-form.vue');
 
 var _hoozesForm2 = _interopRequireDefault(_hoozesForm);
 
+var _usersForm = require('./components/users-form.vue');
+
+var _usersForm2 = _interopRequireDefault(_usersForm);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+Vue.config.devtools = false;
+Vue.config.debug = false;
+Vue.config.silent = true;
 var app = new Vue({
     el: '#app',
+    mode: 'production',
 
     components: {
         schoolCards: _schoolCards2.default,
@@ -55,7 +63,8 @@ var app = new Vue({
         selector: _selector2.default,
         userPanel: _userPanel2.default,
         registerForm: _register2.default,
-        hoozesForm: _hoozesForm2.default
+        hoozesForm: _hoozesForm2.default,
+        usersForm: _usersForm2.default
 
     }
 });

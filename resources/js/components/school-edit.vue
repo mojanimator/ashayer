@@ -4,7 +4,7 @@
 
         <div class="modal-header d-flex justify-content-end  ">
             <i class=" glyphicon glyphicon-remove text-danger  clear-btn p-1   "
-               @click="$parent.show=$parent.lastShow "></i>
+               @click="$parent.show=$parent.lastShow ;$root.$emit('changeShow','search')"></i>
         </div>
 
         <div class=" row col-12">
@@ -25,6 +25,7 @@
             <!--hoozes-->
             <dropdown :data-link="this.hoozesLink" :for="'hooze'" :newable="true" :multi="false"
                       :hooze="selectedSchool.hooze? selectedSchool.hooze.name:''" ref="edit"
+                      :beforeSelected="selectedSchool.hooze? selectedSchool.hooze.id:''"
                       class="col-md-6 col-sm-6 " :listID="'edit'"></dropdown>
 
             <div class="col-md-6 col-sm-6 my-1">
@@ -125,11 +126,11 @@
                 <div class="btn-group   btn-group-toggle    col-md-6    justify-content-center "
                      data-toggle="buttons">
                     <label class="btn   btn-outline-dark-green  left-border mr-1 "
-                           :class="{'active':selectedSchool.jensiat && selectedSchool.jensiat.includes('b')}"
+                           :class="{'active':selectedSchool.jensiat && (selectedSchool.jensiat.includes('b')||selectedSchool.jensiat.includes('a'))}"
                            @click=" jensiat['b']=!jensiat['b']; "> پسرانه
                     </label>
                     <label class="btn   btn-outline-dark-red  right-border  "
-                           :class="{'active':selectedSchool.jensiat && selectedSchool.jensiat.includes('g')}"
+                           :class="{'active':selectedSchool.jensiat && (selectedSchool.jensiat.includes('g')||selectedSchool.jensiat.includes('a'))}"
                            @click="jensiat['g']=!jensiat['g']; ">دخترانه
                     </label>
                 </div>
@@ -219,13 +220,13 @@
                      data-toggle="buttons">
                     <label id="sayyar" for="sayyar"
                            class="btn btn-outline-success    col-md-6    left-border    "
-                           :class="{'active':selectedSchool.schoolable && selectedSchool.schoolable.type =='s'}"
+                           :class="{'active':koochro_type && koochro_type =='s'}"
                            @click=" koochro_type= 's' ;  ">
                         <input type="radio" name="options" autocomplete="off" class=" ">سیار
                     </label>
                     <label id="nime-sayyar" for="nime-sayyar"
                            class="btn btn-outline-dark    col-md-6    right-border  "
-                           :class="{'active':selectedSchool.schoolable && selectedSchool.schoolable.type =='n'}"
+                           :class="{'active':koochro_type && koochro_type =='n'}"
                            @click=" koochro_type= 'n';  ">
                         <input type="radio" name="options" autocomplete="off" class=" ">نیمه سیار
                     </label>
@@ -241,7 +242,8 @@
                                 <i class="fa fa-map-marker  text-primary  "></i>
                             </div>
                             <input type="text" placeholder="طول" id="loc1-lat-input" v-model="loc1_lat_input"
-                                   class="my-1 py-1 pr-1 form-control border " aria-label="">
+                                   class="my-1 py-1 pr-1 form-control border " aria-label=""
+                                   @input="key('loc1')">
 
                         </div>
                         <div class="input-group  pt-1 ">
@@ -249,7 +251,8 @@
                                 <i class="fa fa-map-marker  text-primary  "></i>
                             </div>
                             <input type="text" placeholder="عرض" id="loc1-lon-input" v-model="loc1_lon_input"
-                                   class="my-1 py-1 pr-1 form-control right-bottom-border " aria-label="">
+                                   class="my-1 py-1 pr-1 form-control right-bottom-border " aria-label=""
+                                   @input="key('loc1')">
                         </div>
                         <div class="input-group  pt-1 ">
                             <div class="input-group-prepend   btn-group-vertical p-1">
@@ -279,7 +282,8 @@
                                 <i class="fa fa-map-marker  text-primary text-danger "></i>
                             </div>
                             <input type="text" placeholder="طول" id="loc2-lat-input" v-model="loc2_lat_input"
-                                   class="my-1 py-1 pr-1 form-control  " aria-label="SearchName">
+                                   class="my-1 py-1 pr-1 form-control  " aria-label="SearchName"
+                                   @input="key('loc2')">
 
                         </div>
                         <div class="input-group  pt-1 ">
@@ -287,7 +291,8 @@
                                 <i class="fa fa-map-marker  text-primary text-danger "></i>
                             </div>
                             <input type="text" placeholder="عرض" id="loc2-lon-input" v-model="loc2_lon_input"
-                                   class="my-1 py-1 pr-1 form-control right-border   " aria-label="SearchName">
+                                   class="my-1 py-1 pr-1 form-control right-border   " aria-label="SearchName"
+                                   @input="key('loc2')">
                         </div>
                         <div class="input-group  pt-1 ">
                             <div class="input-group-prepend   btn-group-vertical p-1">
@@ -378,9 +383,12 @@
 
             </vue-recaptcha>
             <!--footer-->
-            <div class="modal-footer justify-content-center col-12">
-                <button type="button" class="btn btn-primary mx-1  btn-block  "
+            <div class="modal-footer justify-content-center   col-12">
+                <button type="button" class="btn btn-primary mx-1    col-md-6 "
                         @click="   $root.$emit('hoozeRequest', params); ">ذخیره
+                </button>
+                <button type="button" class="btn btn-danger mx-1    col-md-6 "
+                        @click=" $parent.show=$parent.lastShow ;$root.$emit('changeShow','search')  ">لغو
                 </button>
 
             </div>
@@ -398,24 +406,42 @@
     import swal from 'sweetalert2';
     import VueRecaptcha from 'vue-recaptcha';
 
-    //    import 'jquery-captcha/dist/jquery-captcha.min';
-    //    import 'ol/ol.css';
-    //    import Feature from 'ol/Feature.js';
-    //    import Map from 'ol/Map.js';
-    //    import Overlay from 'ol/Overlay.js';
-    //    import View from 'ol/View.js';
-    //    import Point from 'ol/geom/Point.js';
-    //    import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer.js';
-    //    import TileJSON from 'ol/source/TileJSON.js';
-    //    import VectorSource from 'ol/source/Vector.js';
-    //    import {Icon, Style} from 'ol/style.js';
+    import Map from 'ol/Map.js';
+    import {Style, Icon, Stroke} from 'ol/Style.js';
+    import View from 'ol/View.js';
+    import {Point, LineString} from 'ol/Geom.js';
+    import {Vector as VectorLayer, Group} from 'ol/Layer.js';
+    import {
+        OverviewMap,
+        FullScreen,
+        Attribution,
+        ZoomToExtent,
+        ScaleLine,
+        Control,
+        Zoom,
+        ZoomSlider
+    } from 'ol/Control.js';
+    import Feature from 'ol/Feature.js';
+    import {getWidth, getCenter} from 'ol/extent.js';
+    import WMTSCapabilities from 'ol/format/WMTSCapabilities.js';
+    import TileLayer from 'ol/layer/Tile.js';
+    import {get as getProjection, transform, fromLonLat} from 'ol/proj.js';
+    import {register} from 'ol/proj/proj4.js';
+    import {OSM, TileImage, TileWMS, XYZ, Vector, BingMaps} from 'ol/source.js';
+    import WMTS, {optionsFromCapabilities} from 'ol/source/WMTS.js';
+    import TileGrid from 'ol/tilegrid/TileGrid.js';
+    import proj4 from 'proj4';
+    import {Translate} from 'ol/interaction.js';
+    import Collection from 'ol/Collection.js';
+
     let regOnlyNumber = new RegExp('^[0-9]+$');
     let regIsLatLong = new RegExp("^[-+]?[0-9]{1,7}(\\.[0-9]+)?$");
     let regIsZamime = new RegExp("^(a|d)\\$\\d+(\\$\\d+)*$"); //a or d and
     let map;
     let marker1, marker2, vectorSource, lineMarker;
     let layer;
-    let kerman = [57.0532, 30.2880];
+    //    let kerman = [57.0532, 30.2880];
+    let kerman = [505044.12642724504, 3350634.803730713];
 
     let input_loc1_lat;
     let input_loc1_lon;
@@ -454,6 +480,7 @@
                 loc1: {lat: null, lon: null},
                 loc2: {lat: null, lon: null},
                 marker1: '', marker2: '',
+                markersLayer: '',
                 uploader: $('#uploader'),
                 loading: $('.loading-page'),
                 percentCompleted: 0,
@@ -491,7 +518,6 @@
         },
         mounted() {
 //            this.getSchools();
-            this.initialize_map();
 
 
             this.sName = this.selectedSchool.name;
@@ -529,6 +555,10 @@
                 this.jensiat['b'] = true;
             else if (this.selectedSchool.jensiat === 'g')
                 this.jensiat['g'] = true;
+            else if (this.selectedSchool.jensiat === 'a') {
+                this.jensiat['b'] = true;
+                this.jensiat['g'] = true;
+            }
             else {
                 this.jensiat['b'] = false;
                 this.jensiat['g'] = false;
@@ -548,25 +578,26 @@
                     this.loc1_address = this.selectedSchool.schoolable.address;
                     this.loc1_fasele_az_shahrestan = this.selectedSchool.schoolable.fasele_az_shahrestan;
                     if (this.selectedSchool.schoolable.loc) {
-                        this.loc1_lon_input = this.selectedSchool.schoolable.loc.split(',')[0];
-                        this.loc1_lat_input = this.selectedSchool.schoolable.loc.split(',')[1];
+                        this.loc1_lat_input = this.selectedSchool.schoolable.loc.split(',')[0];
+                        this.loc1_lon_input = this.selectedSchool.schoolable.loc.split(',')[1];
                     }
                 }
             } else if (this.selectedSchool.schoolable_type === 'App\\Koochro') {
 //                console.log('Koochro');
                 this.schoolable_type = 'App\\Koochro';
-                this.marker('add', 2);
+
                 if (this.selectedSchool.schoolable) {
-                    this.loc1_address = this.selectedSchool.schoolable.address;
-                    this.loc1_fasele_az_shahrestan = this.selectedSchool.schoolable.fasele_az_shahrestan;
-                    this.loc2_address = this.selectedSchool.schoolable.address;
-                    this.loc2_fasele_az_shahrestan = this.selectedSchool.schoolable.fasele_az_shahrestan;
-                    this.masafate_kooch = this.selectedSchool.schoolable.masafate_kooch;
+                    this.loc1_address = this.selectedSchool.schoolable.address_yeylagh ? this.selectedSchool.schoolable.address_yeylagh : "";
+                    this.loc1_fasele_az_shahrestan = this.selectedSchool.schoolable.fasele_az_shahrestan_yeylagh;
+                    this.loc2_address = this.selectedSchool.schoolable.address_gheshlagh ? this.selectedSchool.schoolable.address_gheshlagh : "";
+                    this.loc2_fasele_az_shahrestan = this.selectedSchool.schoolable.fasele_az_shahrestan_gheshlagh ? this.selectedSchool.schoolable.fasele_az_shahrestan_gheshlagh : "";
+                    this.masafate_kooch = this.selectedSchool.schoolable.masafate_kooch ? this.selectedSchool.schoolable.masafate_kooch : "";
+                    this.koochro_type = this.selectedSchool.schoolable.type ? this.selectedSchool.schoolable.type : '';
                     if (this.selectedSchool.schoolable.loc_yeylagh || this.selectedSchool.schoolable.loc_gheshlagh) {
-                        this.loc1_lon_input = this.selectedSchool.schoolable.loc_yeylagh.split(',')[0];
-                        this.loc1_lat_input = this.selectedSchool.schoolable.loc_yeylagh.split(',')[1];
-                        this.loc2_lon_input = this.selectedSchool.schoolable.loc_gheshlagh.split(',')[0];
-                        this.loc2_lat_input = this.selectedSchool.schoolable.loc_gheshlagh.split(',')[1];
+                        this.loc1_lat_input = this.selectedSchool.schoolable.loc_yeylagh.split(',')[0];
+                        this.loc1_lon_input = this.selectedSchool.schoolable.loc_yeylagh.split(',')[1];
+                        this.loc2_lat_input = this.selectedSchool.schoolable.loc_gheshlagh.split(',')[0];
+                        this.loc2_lon_input = this.selectedSchool.schoolable.loc_gheshlagh.split(',')[1];
                     }
                 }
             }
@@ -586,17 +617,8 @@
             //            this.setSliders(0);
             this.uploader = $('#uploader');
             this.loading = $('.loading-page');
-            //            this.loading.removeClass('hide');
 
-            //            let captchaLink = this.captchaLink;
-            //            console.log(captchaLink);
-            //            $(document).ready(function () {
-            ////                // DOM ready
-            //                captcha = $('#botdetect-captcha').captcha({
-            //                    captchaEndpoint:
-            //                    captchaLink
-            //                });
-            //            });
+            this.initialize_map();
 
         }
         ,
@@ -619,21 +641,34 @@
 //                input_loc2_lat.val(coordMarker2[1]);
 
                 $(input_loc2_lon).keyup(() => {
-                    marker2.getGeometry().setCoordinates([Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]);
+                    marker2.getGeometry().setCoordinates([Number(input_loc2_lat.val()), Number(input_loc2_lon.val())]);
                     lineMarker.getGeometry().setCoordinates
-                    ([[Number(input_loc1_lon.val()), Number(input_loc1_lat.val())],
-                        [Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]]);
+                    ([[Number(input_loc1_lat.val()), Number(input_loc1_lon.val())],
+                        [Number(input_loc2_lat.val()), Number(input_loc2_lon.val())]]);
                 });
                 $(input_loc2_lat).keyup(() => {
-                    marker2.getGeometry().setCoordinates([Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]);
+                    marker2.getGeometry().setCoordinates([Number(input_loc2_lat.val()), Number(input_loc2_lon.val())]);
                     lineMarker.getGeometry().setCoordinates
-                    ([[Number(input_loc1_lon.val()), Number(input_loc1_lat.val())],
-                        [Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]]);
+                    ([[Number(input_loc1_lat.val()), Number(input_loc1_lon.val())],
+                        [Number(input_loc2_lat.val()), Number(input_loc2_lon.val())]]);
                 });
             }
         }
         ,
         methods: {
+            key(from) {
+                this.loc1_lat_input = input_loc1_lat.val();
+                this.loc1_lon_input = input_loc1_lon.val();
+                if (this.schoolable_type === 'App\\Koochro') {
+                    this.loc2_lat_input = input_loc2_lat.val();
+                    this.loc2_lon_input = input_loc2_lon.val();
+                }
+
+                if (from === 'loc1')
+                    this.map.getView().setCenter([Number(this.loc1_lat_input), Number(this.loc1_lon_input)], 15);
+                else if (from === 'loc2')
+                    this.map.getView().setCenter([Number(this.loc2_lat_input), Number(this.loc2_lon_input)], 15);
+            },
             onVerify(token) {
 //                console.log(event);
                 this.recaptcha = token;
@@ -650,7 +685,10 @@
 //                    docs.splice(idx, 1);
 
                 } else if (from === 'img-input-before') {
+//                    console.log(this.beforeDocs);
+                    this.delDocs.push(this.selectedSchool.docs[idx].id);
                     this.beforeDocs.splice(idx, 1);
+
                 }
             }
             ,
@@ -895,7 +933,7 @@
                     id: this.selectedSchool.id,
                     recaptcha: this.recaptcha,
                     sName: this.sName,
-                    hooze: this.params.hooze,
+                    hooze_namayandegi_id: this.params.hooze,
                     code_madrese: this.code_madrese,
                     code_faza: this.code_faza,
                     sale_tasis: this.sale_tasis,
@@ -906,15 +944,15 @@
                     doore: this.params.doore,
                     jensiat: this.params.jensiat,
                     schoolable_type: this.schoolable_type,
-                    schoolable_id: this.selectedSchool.schoolable?this.selectedSchool.schoolable.id:'',
+                    schoolable_id: this.selectedSchool.schoolable ? this.selectedSchool.schoolable.id : '',
                     vaziat: this.params.vaziat,
                     loc1: {
-                        pos: this.loc1_lon_input && this.loc1_lat_input ? this.loc1_lon_input + "," + this.loc1_lat_input : "",
+                        pos: this.loc1_lon_input && this.loc1_lat_input ? this.loc1_lat_input + "," + this.loc1_lon_input : "",
                         fasele_az_shahrestan: this.loc1_fasele_az_shahrestan,
                         address: this.loc1_address
                     },
                     loc2: {
-                        pos: this.loc2_lon_input && this.loc2_lat_input ? this.loc2_lon_input + "," + this.loc2_lat_input : "",
+                        pos: this.loc2_lon_input && this.loc2_lat_input ? this.loc2_lat_input + "," + this.loc2_lon_input : "",
                         fasele_az_shahrestan: this.loc2_fasele_az_shahrestan,
                         address: this.loc2_address,
                         masafate_kooch: this.masafate_kooch,
@@ -923,7 +961,7 @@
                     },
                     docs: this.docs,
                     delDocs: this.delDocs,
-                    noe_faza: this.noe_faza,
+                    noe_fazaye_amoozeshi: this.noe_faza,
 
 
                 })
@@ -994,55 +1032,89 @@
                 }
             }
             ,
+            setMarkers() {
+                let p11, p12, p21, p22;
+                if (this.loc1_lat_input && this.loc1_lon_input) {
+                    marker1.getGeometry().setCoordinates([Number(this.loc1_lat_input), Number(this.loc1_lon_input)]);
+                    this.map.getView().setCenter(marker1.getGeometry().getCoordinates());
+                }
+                if (this.loc2_lat_input && this.loc2_lon_input)
+                    marker2.getGeometry().setCoordinates([Number(this.loc2_lat_input), Number(this.loc2_lon_input)]);
+
+
+                if (this.loc1_lat_input && this.loc1_lon_input && this.loc2_lat_input && this.loc2_lon_input) {
+                    lineMarker.getGeometry().setCoordinates([[Number(this.loc1_lat_input), Number(this.loc1_lon_input)],
+                        [Number(this.loc2_lat_input), Number(this.loc2_lon_input)]]);
+
+                    if (vectorSource.getFeatureById('marker2') === null) {
+                        vectorSource.addFeature(lineMarker);
+                        vectorSource.addFeature(marker2);
+                        let extent = this.markersLayer.getSource().getExtent();
+                        extent = [extent[0] - 100, extent[1] - 50, extent[2] + 50, extent[3] + 100]; //add padding to borders
+                        this.map.getView().fit(extent, this.map.getSize());
+                    }
+                }
+
+//                this.map.setTarget($("#map")[0]);
+//                this.layer.getSource().changed();
+//                this.map.render();
+//                let extent = layer.getSource().getExtent();
+//                this.map.getView().fit(extent, this.map.getSize());
+            },
             initialize_map() {
                 console.log('init');
+                proj4.defs('EPSG:32640', '+proj=utm +zone=40 +datum=WGS84 +units=m +no_defs');
+                register(proj4);
+                let proj32640 = getProjection('EPSG:32640');
+                proj32640.setExtent([-833718.61, 2641854.13, 1543086.51, 4422789.27]); //iran bound(l,b,r,u)
                 let iconFeatures = [];
 
-                let iconStyle1 = new ol.style.Style({
-                    image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+                let iconStyle1 = new Style({
+                    image: new Icon(/** @type {olx.style.IconOptions} */ ({
                         anchor: [.5, 1],
                         anchorXUnits: 'fraction',
                         anchorYUnits: 'fraction',
                         scale: .5,
                         opacity: .9,
-                        src: '/img/marker-school-blue.png'
+                        src: '/img/marker-school-blue-big.png'
                     }))
                 });
-                let iconStyle2 = new ol.style.Style({
-                    image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+                let iconStyle2 = new Style({
+                    image: new Icon(/** @type {olx.style.IconOptions} */ ({
                         anchor: [.5, 1],
                         anchorXUnits: 'fraction',
                         anchorYUnits: 'fraction',
                         opacity: .9,
                         scale: .5,
-                        src: '/img/marker-school-red.png'
+                        src: '/img/marker-school-red-big.png'
                     }))
                 });
-                let lineStyle = new ol.style.Style({
-                    stroke: new ol.style.Stroke({
+                let lineStyle = new Style({
+                    stroke: new Stroke({
                         color: '#09ef00',
                         width: 8
                     })
                 });
 
-                marker1 = new ol.Feature({
-                    geometry: new ol.geom.Point(ol.proj.transform(kerman, 'EPSG:4326', 'EPSG:3857')),
+
+                marker1 = new Feature({
+                    geometry: new Point(kerman),
                     name: this.sName,
 
                 });
                 marker1.setId('marker1');
-                marker2 = new ol.Feature({
-                    geometry: new ol.geom.Point(ol.proj.transform([kerman[0] - .002, kerman[1]], 'EPSG:4326', 'EPSG:3857')),
+                marker2 = new Feature({
+                    geometry: new Point([kerman[0] - 100, kerman[1]]),
                     name: this.sName,
 
                 });
                 marker2.setId('marker2');
 
-                let startPt = ol.proj.fromLonLat(kerman);
-                let endPt = ol.proj.fromLonLat([kerman[0] - .002, kerman[1]]);
+                let startPt = kerman;
+                let endPt = [kerman[0] - 100, kerman[1]];
 
-                lineMarker = new ol.Feature({
-                    geometry: new ol.geom.LineString([startPt, endPt]),
+                lineMarker = new Feature({
+                    geometry: new LineString([startPt, endPt]),
                     name: 'Line',
 
                 });
@@ -1060,39 +1132,45 @@
                     this.map.setTarget(null);
                     this.map = null;
                 }
-                vectorSource = new ol.source.Vector({
+                vectorSource = new Vector({
                     features: iconFeatures
 
                 });
-                let markersLayer = new ol.layer.Vector({
+                let markersLayer = new VectorLayer({
                     source: vectorSource,
                     name: "markers"
                 });
+                this.markersLayer = markersLayer;
 //                console.log(marker2.getGeometry().getCoordinates());
-                this.bingLayer = new ol.layer.Tile({
-                    source: new ol.source.BingMaps({
+                this.bingLayer = new TileLayer({
+                    source: new BingMaps({
                         key: 'AodEaqQSDksfjZDM0HwxhdvJQDnj0Y6wgtaP6gi_wpDBcFMaefn8kz8bjvmFpN_s',
                         imagerySet: 'Aerial', //or 'Road', 'AerialWithLabels',
                         maxZoom: 19,
+                        projection: 'EPSG:32640',
                     }),
 
                     name: "bingHybrid",
                     title: 'عوارض',
                 });
-                this.layer = new ol.layer.Tile({
-                    source: new ol.source.OSM(
+                this.layer = new TileLayer({
+                    source: new OSM(
                         {
                             url: "http://mt.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&s=IR&hl=fa",
+                            projection: 'EPSG:32640',
+
                         }
                     ),
 //                    style: iconStyle,
                     name: "main",
                     title: 'ساده',
                 });
-                this.GoogleHybridlayer = new ol.layer.Tile({
-                    source: new ol.source.OSM(
+                this.GoogleHybridlayer = new TileLayer({
+                    source: new OSM(
                         {
                             url: 'http://mt0.google.com/vt/lyrs=y&hl=fa&x={x}&y={y}&z={z}&s=IR',
+                            projection: 'EPSG:32640',
+
 
                         }
                     ),
@@ -1102,9 +1180,9 @@
                 });
 
 
-                this.map = new ol.Map({
+                this.map = new Map({
                     target: "map",
-                    layers: [new ol.layer.Group({
+                    layers: [new Group({
                         title: 'لایه ها',
                         name: 'group',
                         layers: [
@@ -1113,24 +1191,29 @@
                     }),
 //                        overlayGroup
                     ],
-                    view: new ol.View({
-                        center: ol.proj.fromLonLat(kerman),
-                        zoom: 15
+                    view: new View({
+                        center: kerman,
+                        zoom: 15,
+                        projection: 'EPSG:32640',
                     })
                 });
 
-                this.map.addControl(new ol.control.OverviewMap());
-
+                this.map.addControl(new OverviewMap());
                 this.map.addControl(new LayerSwitcher());
-
+                this.map.addControl(new FullScreen());
+                this.map.addControl(new Attribution());
+//                this.map.addControl(new ZoomToExtent());
+//                this.map.addControl(new ScaleLine());
+                this.map.addControl(new ZoomSlider());
+                this.map.addControl(new Zoom());
 //                drag features
 
 
-                let translate1 = new ol.interaction.Translate({
-                    features: new ol.Collection([marker1])
+                let translate1 = new Translate({
+                    features: new Collection([marker1])
                 });
-                let translate2 = new ol.interaction.Translate({
-                    features: new ol.Collection([marker2])
+                let translate2 = new Translate({
+                    features: new Collection([marker2])
                 });
                 this.map.addInteraction(translate1);
                 this.map.addInteraction(translate2);
@@ -1148,44 +1231,49 @@
                 translate1.on('translating', function (evt) {
                     tmpCoord1 = marker1.getGeometry().getCoordinates();
                     lineMarker.getGeometry().setCoordinates([coordMarker2, tmpCoord1]);
-                    input_loc1_lon.val(tmpCoord1[0]);
-                    input_loc1_lat.val(tmpCoord1[1]);
+                    input_loc1_lat.val(tmpCoord1[0]);
+                    input_loc1_lon.val(tmpCoord1[1]);
+
                 });
+                translate1.on('translating', this.key);
+
                 translate2.on('translatestart', function (evt) {
                     coordMarker1 = marker1.getGeometry().getCoordinates();
                 });
                 translate2.on('translating', function (evt) {
                     tmpCoord2 = marker2.getGeometry().getCoordinates();
                     lineMarker.getGeometry().setCoordinates([coordMarker1, tmpCoord2]);
-                    input_loc2_lon.val(tmpCoord2[0]);
-                    input_loc2_lat.val(tmpCoord2[1]);
+                    input_loc2_lat.val(tmpCoord2[0]);
+                    input_loc2_lon.val(tmpCoord2[1]);
 
                 });
+                translate2.on('translating', this.key);
 
                 $(input_loc1_lon).keyup(() => {
-                    marker1.getGeometry().setCoordinates([Number(input_loc1_lon.val()), Number(input_loc1_lat.val())]);
+                    marker1.getGeometry().setCoordinates([Number(input_loc1_lat.val()), Number(input_loc1_lon.val())]);
                     lineMarker.getGeometry().setCoordinates
-                    ([[Number(input_loc1_lon.val()), Number(input_loc1_lat.val())],
-                        [Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]]);
+                    ([[Number(input_loc1_lat.val()), Number(input_loc1_lon.val())],
+                        [Number(input_loc2_lat.val()), Number(input_loc2_lon.val())]]);
                 });
                 $(input_loc1_lat).keyup(() => {
-                    marker1.getGeometry().setCoordinates([Number(input_loc1_lon.val()), Number(input_loc1_lat.val())]);
+                    marker1.getGeometry().setCoordinates([Number(input_loc1_lat.val()), Number(input_loc1_lon.val())]);
                     lineMarker.getGeometry().setCoordinates
-                    ([[Number(input_loc1_lon.val()), Number(input_loc1_lat.val())],
-                        [Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]]);
+                    ([[Number(input_loc1_lat.val()), Number(input_loc1_lon.val())],
+                        [Number(input_loc2_lat.val()), Number(input_loc2_lon.val())]]);
 
                 });
                 $(input_loc2_lon).keyup(() => {
-                    marker2.getGeometry().setCoordinates([Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]);
+                    marker2.getGeometry().setCoordinates([Number(input_loc2_lat.val()), Number(input_loc2_lon.val())]);
                     lineMarker.getGeometry().setCoordinates
-                    ([[Number(input_loc1_lon.val()), Number(input_loc1_lat.val())],
-                        [Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]]);
+                    ([[Number(input_loc1_lat.val()), Number(input_loc1_lon.val())],
+                        [Number(input_loc2_lat.val()), Number(input_loc2_lon.val())]]);
                 });
                 $(input_loc2_lat).keyup(() => {
-                    marker2.getGeometry().setCoordinates([Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]);
+                    marker2.getGeometry().setCoordinates([Number(input_loc2_lat.val()), Number(input_loc2_lon.val())]);
                     lineMarker.getGeometry().setCoordinates
-                    ([[Number(input_loc1_lon.val()), Number(input_loc1_lat.val())],
-                        [Number(input_loc2_lon.val()), Number(input_loc2_lat.val())]]);
+                    ([[Number(input_loc1_lat.val()), Number(input_loc1_lon.val())],
+                        [Number(input_loc2_lat.val()), Number(input_loc2_lon.val())]]);
+
                 });
 
 
@@ -1212,8 +1300,9 @@
 
                 marker1.style = {display: 'none'};
                 lineMarker.style = {display: 'none'};
-                this.layer.getSource().changed();
-                map.render();
+
+
+                this.setMarkers();
 
             }
             ,

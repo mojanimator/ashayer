@@ -17,7 +17,8 @@ $.fn.load = function (callback) {
 // window.$ = $.extend(require('jquery-ui'));
 window.jQuery = window.$ = $.extend(require('jquery-ui/ui/widgets/slider.js'));
 // require('jquery-ui/ui/widgets/slider.js');
-window.Vue = require('vue');
+window.Vue = require('vue/dist/vue.common');
+// window.Vue = require('vue');
 window.axios = require('axios');
 
 require('dropzone');

@@ -229,7 +229,7 @@ input[type=number] {
 }
 
 .bg-gradient-purple {
-  cursor: pointer;
+  //cursor: pointer;
   border: none;
   color: #ffff;
   @include pb_gradient($indigo, $purple, 270deg);

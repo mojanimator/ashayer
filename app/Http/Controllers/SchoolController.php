@@ -16,6 +16,13 @@ use Illuminate\Support\Facades\DB;
 
 class SchoolController extends Controller
 {
+
+
+    /**
+     * SchoolController constructor.
+     */
+
+
     public function hoozes()
     {
         return Hooze::all();
@@ -23,39 +30,46 @@ class SchoolController extends Controller
 
     public function dropdown(Request $request)
     {
+        $hoozes = auth()->user()->role()->first()->hooze_ids;
+        $query = School::query();
+
+        if (count($hoozes) > 0 && !in_array('all', $hoozes))
+            $query = $query->whereIn('hooze_namayandegi_id', $hoozes);
+
         $hooze_namayandegi_id = $request->hooze_namayandegi_id;
         $command = $request->command;
         $name = $request->name;
 
+
         if (!$name)
-            return ['data' => School::get(['id', 'name'])];
+            return ['data' => $query->get(['id', 'name'])];
         if ($command == 'get')
             if ($hooze_namayandegi_id)
-                return ['data' => School::get(['id', 'name'])->whereIn('hooze_namayandegi_id', $hooze_namayandegi_id)];
-            else return ['data' => School::get(['id', 'name'])];
+                return ['data' => $query->get(['id', 'name'])->whereIn('hooze_namayandegi_id', $hooze_namayandegi_id)];
+            else return ['data' => $query->get(['id', 'name'])];
         else
             if ($command == 'add')
                 if ($hooze_namayandegi_id)
                     if (School:: where('name', $name)->whereIn('hooze_namayandegi_id', $hooze_namayandegi_id)->exists()) {
-                        return ['data' => School::get(['id', 'name'])->whereIn('hooze_namayandegi_id', $hooze_namayandegi_id),
+                        return ['data' => $query->get(['id', 'name'])->whereIn('hooze_namayandegi_id', $hooze_namayandegi_id),
                             'message' => 'نام مدرسه تکراری است', 'type' => 'error'];
                     } else {
                         $school = new School();
                         $school->name = $name;
                         $school->save();
-                        return ['data' => School::get(['id', 'name'])->whereIn('hooze_namayandegi_id', $hooze_namayandegi_id),
+                        return ['data' => $query->get(['id', 'name'])->whereIn('hooze_namayandegi_id', $hooze_namayandegi_id),
                             'message' => 'مدرسه با موفقیت اضافه شد!', 'type' => 'success'
                         ];
                     }
                 else {
-                    if (School:: where('name', $name)->exists()) {
+                    if ($query->where('name', $name)->exists()) {
                         return ['data' => School::get(['id', 'name']),
                             'message' => 'نام مدرسه تکراری است', 'type' => 'error'];
                     } else {
                         $school = new School();
                         $school->name = $name;
                         $school->save();
-                        return ['data' => School::get(['id', 'name']),
+                        return ['data' => $query->get(['id', 'name']),
                             'message' => 'مدرسه با موفقیت اضافه شد!', 'type' => 'success'
                         ];
                     }
@@ -84,11 +98,16 @@ class SchoolController extends Controller
     public function search(Request $request)
     {
 
+//        $roles = auth()->user()->role()->first()->permissions;
+        $hoozes = auth()->user()->role()->first()->hooze_ids;
+
         $ids = $request->ids;
         $paginate = $request->paginate;
         $page = $request->page;
         $sortBy = $request->sortBy;
         $direction = $request->direction;
+        $sortByTable = $request->sortByTable;
+        $directionTable = $request->directionTable;
         if (count($ids) != 0) {
             if ($sortBy && $direction)
                 return School::whereIn('id', $ids)->with('docs')->with('hooze')->with('schoolable')->orderBy($sortBy, $direction)->paginate($paginate, ['*'], 'page', $page);
@@ -115,8 +134,10 @@ class SchoolController extends Controller
         if (!$page) {
             $page = 1;
         }
-
         $query = School::query();
+
+        if (count($hoozes) > 0 && !in_array('all', $hoozes))
+            $query = $query->whereIn('hooze_namayandegi_id', $hoozes);
 
         if ($name != '')
             $query = $query->where('name', 'like', '%' . $name . '%');
@@ -147,9 +168,11 @@ class SchoolController extends Controller
 
             });
 
+
+        if ($sortByTable && $directionTable)
+            $query = $query->orderBy($sortByTable, $directionTable);
         if ($sortBy && $direction)
             $query = $query->orderBy($sortBy, $direction);
-
         return $query->with('docs')->with('hooze')->with('schoolable')->paginate($paginate, ['*'], 'page', $page);
 
     }
@@ -287,7 +310,7 @@ class SchoolController extends Controller
         DB::transaction(function () use ($request) {
 
             $date = Carbon::now();
-            $s = School::find($request->id);
+            $s = School::findOrFail($request->id)->first();
             $id = null;
 
 
@@ -295,7 +318,7 @@ class SchoolController extends Controller
 
                 //school changed from saabet to koochro ->delete saabet add koochro
                 if ($s->schoolable_type == "App\\Saabet" && $request->schoolable_type == "App\\Koochro") {
-                    Saabet::where('school-id', $s->schoolable->id)->first()->delete();
+                    Saabet::where('id', $s->schoolable_id)->delete();
                     $schoolable = Koochro::create([
                         'address_yeylagh' => $request->loc1['address'],
                         'loc_yeylagh' => $request->loc1['pos'],
@@ -312,7 +335,7 @@ class SchoolController extends Controller
                     $id = $schoolable->id;
 
                 } elseif ($s->schoolable_type == "App\\Koochro" && $request->schoolable_type == "App\\Saabet") {
-                    Koochro::where('school-id', $s->schoolable->id)->first()->delete();
+                    Koochro::where('id', $s->schoolable_id)->delete();
                     $schoolable = Saabet::create([
                         'address' => $request->loc1['address'],
                         'loc' => $request->loc1['pos'],
@@ -380,7 +403,7 @@ class SchoolController extends Controller
             }
             // delete before school docs
             if ($request->input('delDocs')) {
-                Doc::find($request->input('delDocs'))->delete();
+                Doc::whereIn('id', $request->input('delDocs'))->delete();
             }
             return 200;
         });

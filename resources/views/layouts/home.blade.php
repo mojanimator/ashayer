@@ -6,74 +6,75 @@
         <div class="colorlib-load"></div>
     </div>
 
-    <!-- ***** Header Area Start ***** -->
-    {{--<header class="header_area animated">--}}
-    {{--<div class="container-fluid">--}}
-    {{--<div class="row align-items-center">--}}
-    {{--<!-- Menu Area Start -->--}}
-    {{--<div class="col-12 col-lg-10">--}}
-    {{--<div class="menu_area">--}}
-    {{--<nav class="navbar navbar-expand-lg navbar-light">--}}
-    {{--<!-- Logo -->--}}
-    {{--<a class="navbar-brand" href="#">Ca.</a>--}}
-    {{--<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ca-navbar"--}}
-    {{--aria-controls="ca-navbar" aria-expanded="false" aria-label="Toggle navigation"><span--}}
-    {{--class="navbar-toggler-icon"></span></button>--}}
-    {{--<!-- Menu Area -->--}}
-    {{--<div class="collapse navbar-collapse" id="ca-navbar">--}}
-    {{--<ul class="navbar-nav ml-auto" id="nav">--}}
-    {{--<li class="nav-item active"><a class="nav-link" href="#home">Home</a></li>--}}
-    {{--<li class="nav-item"><a class="nav-link" href="#about">About</a></li>--}}
-    {{--<li class="nav-item"><a class="nav-link" href="#features">Features</a></li>--}}
-    {{--<li class="nav-item"><a class="nav-link" href="#screenshot">Screenshot</a></li>--}}
-    {{--<li class="nav-item"><a class="nav-link" href="#pricing">Pricing</a></li>--}}
-    {{--<li class="nav-item"><a class="nav-link" href="#testimonials">Testimonials</a></li>--}}
-    {{--<li class="nav-item"><a class="nav-link" href="#team">Team</a></li>--}}
-    {{--<li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>--}}
-    {{--</ul>--}}
-    {{--<div class="sing-up-button d-lg-none">--}}
-    {{--<a href="#">Sign Up Free</a>--}}
-    {{--</div>--}}
-    {{--</div>--}}
-    {{--</nav>--}}
-    {{--</div>--}}
-    {{--</div>--}}
-    {{--<!-- Signup btn -->--}}
-    {{--<div class="col-12 col-lg-2">--}}
-    {{--<div class="sing-up-button d-none d-lg-block">--}}
-    {{--<a href="#">Sign Up Free</a>--}}
-    {{--</div>--}}
-    {{--</div>--}}
-    {{--</div>--}}
-    {{--</div>--}}
-    {{--</header>--}}
-    <!-- ***** Header Area End ***** -->
+
 
     <!-- ***** Wellcome Area Start ***** -->
     <section class="wellcome-area clearfix" id="home">
         <div class="container-fluid h-100">
             <div class="row h-100 align-items-center">
-                <img src="/img/ashayer_bg.png" alt="">
-                <div class="col-12 col-md">
+
+                {{-----------------------carousel---------------------------}}
+                <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel" data-interval="5000">
+                    <ol class="carousel-indicators">
+                        <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+                        <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+                        <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+                    </ol>
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <img class="d-block w-100" src="/img/ashayer_bg.png" alt="">
+                        </div>
+                        <div class="carousel-item">
+                            <img class="d-block w-100" src="/img/ashayer_bg2.png" alt="">
+                        </div>
+                        <div class="carousel-item">
+                            <img class="d-block w-100" src="/img/ashayer_bg3.png" alt="">
+                        </div>
+                    </div>
+                    <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </div>
+                {{-----------------------carousel---------------------------}}
+
+
+                {{--<img src="/img/ashayer_bg.png" alt="">--}}
+                <div class="col-12 col-md front-heading position-absolute top-0">
                     <div class="wellcome-heading">
-                        <h3> سامانه مدارس عشایر کرمان </h3>
+                        {{--<h3> سامانه مدارس عشایر کرمان </h3>--}}
 
                         <h2>سامانه مدارس عشایر کرمان</h2>
                         <p>مدیریت و سازمان دهی مدارس عشایر کرمان</p>
                     </div>
-                    <div class="get-start-area">
+                    <div class="wellcome-bottoms-container row  col-12 d-flex  ">
                         <!-- Form Start -->
-                        <form action="#" method="post" class="form-inline">
-                            {{--<input type="email" class="form-control email" placeholder="name@company.com">--}}
-                            @if(auth()->guest())
-                                <a class="m-btn nav-link text-center" href="{{url('login')}}">ورود</a>
-                                <a class="m-btn nav-link text-center" href="{{url('register')}}">ثبت نام</a>
-                            @else
-                                <a class="m-btn nav-link text-center" href="{{url('login')}}">حساب کاربری</a>
-                                <a class="m-btn nav-link text-center" href="{{url('register')}}">خروج</a>
-                            @endif
-                        </form>
-                        <!-- Form End -->
+
+                        {{--<input type="email" class="form-control email" placeholder="name@company.com">--}}
+                        @if(auth()->guest())
+                            <div class="  text-center col-md-4 col-sm-4 col-6">
+                                <a class="nav-link p-1 m-btn w-100"
+                                   href="{{url('login')}}">ورود</a></div>
+                            <div class="   text-center col-md-4 col-sm-4 col-6 ">
+                                <a class="nav-link p-1 m-btn  w-100 "
+                                   href="{{url('register')}}">ثبت
+                                    نام</a></div>
+                        @else
+                            <div class="  text-center col-md-4 col-sm-4 col-6">
+                                <a class="nav-link p-1 m-btn w-100"
+                                   href="{{route('user.panel',['username' =>auth()->user()->username])}}">پنل
+                                    کاربری</a></div>
+                            <div class="   text-center col-md-4 col-sm-4 col-6 ">
+                                <a class="nav-link p-1 m-btn  w-100 "
+                                   href="{{route('logout')}}">خروج
+                                </a></div>
+                    @endif
+
+                    <!-- Form End -->
                     </div>
                 </div>
             </div>
@@ -86,45 +87,92 @@
     <!-- ***** Wellcome Area End ***** -->
 
     <!-- ***** Awesome Features Start ***** -->
-    <section class="features-area  bg-white section_padding_0_50 clearfix" id="features">
+    <section class="features-area  bg-white   clearfix mt-5" id="features">
         <div class="container  ">
             <div class="row">
                 <div class="col-12">
                     <!-- Heading Text -->
                     <div class="section-heading text-center">
-                        <h2>امکانات</h2>
-                        <div class="line-shape"></div>
+                        <h2 class="text-primary">امکانات</h2>
+
                     </div>
+                    <div class="row  text-primary text-center">
+                        <div class="col-lg-4 col-sm-6 col-sm-6 p-3">
+                            <div class="m-features">
+                                <div class="m-features-header "><span>مشاهده مدارس روی نقشه</span></div>
+                                <div class="card-body">
+                                    <img class="w-100" src="/img/features-map.png" alt="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 col-sm-6 p-3">
+                            <div class="m-features">
+                                <div class="m-features-header "><span>نمایش اطلاعات و مسیر کوچ</span></div>
+                                <div class="card-body">
+                                    <img class="w-100" src="/img/features-route.png" alt="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-sm-6 col-sm-6 offset-lg-0 offset-md-3 offset-sm-3 p-3">
+                            <div class="m-features">
+                                <div class="m-features-header "><span>سطوح دسترسی نمایندگی ها</span></div>
+                                <div class="card-body">
+                                    <img class="w-100" src="/img/features-access.png" alt="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
-            <div class="row m-features">
-                <!-- Single Feature Start -->
-                <div class="col-lg-2"></div>
-                <div class="col-12 col-sm-6 col-lg-4">
-
-                    <div class="m-card">
-
-                    </div>
-
-                </div>
-                <!-- Single Feature Start -->
-                <div class="col-12 col-sm-6 col-lg-4">
-
-                </div>
-
-
-            </div>
 
         </div>
     </section>
     <!-- ***** Awesome Features End ***** -->
 
-    <section class="madrese-num">
-        <div id="counter">
-            <div class="counter-value" data-count="300">0</div>
-            <div class="counter-value" data-count="400">100</div>
-            <div class="counter-value" data-count="1500">200</div>
+    <section class="madrese-num" id="numbers">
+        <div id="counter" class=" container ">
+
+            <!-- Heading Text -->
+            <div class="section-heading text-center ">
+                <h2 class="text-primary">تا این لحظه</h2>
+            </div>
+            <div class="row   text-primary text-center">
+                <div class="col-lg-4 col-sm-6 col-sm-6 p-3">
+                    <div class="m-features   ">
+                        <div class="m-features-header  "><span> تعداد مدارس ثبت شده</span></div>
+                        <div class="card-body  d-flex justify-content-center  ">
+                            <div class="counter-value d-flex flex-column justify-content-center align-items-center"
+                                 data-count="{{\App\School::count()}}">0
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-6 p-3">
+                    <div class="m-features">
+                        <div class="m-features-header "><span>تعداد حوزه های نمایندگی</span></div>
+                        <div class="card-body   d-flex justify-content-center  ">
+                            <div class="counter-value d-flex flex-column justify-content-center align-items-center"
+                                 data-count="{{\App\Hooze::count()}}">0
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-sm-6 col-sm-6 offset-lg-0 offset-md-3 offset-sm-3 p-3">
+                    <div class="m-features">
+                        <div class="m-features-header "><span>تعداد کاربران</span></div>
+                        <div class="card-body   d-flex justify-content-center  ">
+                            <div class="counter-value d-flex flex-column justify-content-center align-items-center"
+                                 data-count="{{\App\User::count()}}"> 0
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
         </div>
     </section>
 

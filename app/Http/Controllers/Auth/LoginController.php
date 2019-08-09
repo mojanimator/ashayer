@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+use Morilog\Jalali\CalendarUtils;
 
 class LoginController extends Controller
 {
@@ -46,6 +48,12 @@ class LoginController extends Controller
             return back()->with('flash-warning', ' ابتدا باید ایمیل خود را تایید کنید. پیام تایید ایمیل هنگام ثبت نام برای شما ارسال شده است')
                 ->with('token', $user->token);
         }
+//        dd(CalendarUtils::createCarbonFromFormat('Y/m/d', $user->expires_at));
+        if ($user->expires_at && CalendarUtils::createCarbonFromFormat('Y/m/d', $user->expires_at) < Carbon::now()) {
+            auth()->logout();
+            return back()->with('flash-error', ' اعتبار شما منقضی شده است');
+        }
+
         return redirect()->intended($this->redirectPath());
     }
 

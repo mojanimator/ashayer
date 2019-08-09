@@ -231,8 +231,7 @@ class HoozeController extends Controller
      * @param  \App\Madrese $madrese
      * @return \Illuminate\Http\Response
      */
-    public
-    function destroy(Request $request)
+    public function destroy(Request $request)
     {
 
 

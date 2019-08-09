@@ -5,6 +5,7 @@
 
 
 @section('content')
+
     <section class=" container-fluid  mt-4   " id="app">
 
         @if(auth()->user())

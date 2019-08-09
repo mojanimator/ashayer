@@ -36,7 +36,7 @@ class HoozeRequest extends FormRequest
         $rules = [
             'recaptcha' => ['required', new  Recaptcha()],
             'type' => 'required|in:edit,create',
-            'name' => 'required|max:100|unique:hoozes,name,' . $this->input('id'), //unizue except this id (edit)
+            'name' => 'required|max:100|unique:hoozes,name' . $this->input('type') == 'edit' ? ',' . $this->input('id') : '',//unique except this id (edit)
             'parent_id' => 'nullable|numeric|exists:hoozes,id' . $this->input('type') == 'edit' ? '|different:id' : '', // not same with parent
         ];
 

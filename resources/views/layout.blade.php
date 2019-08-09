@@ -18,7 +18,7 @@
 <body>
 
 {{--static navbar--}}
-<nav class="navbar navbar-expand-md navbar-dark fixed-top  bg-gradient-blue">
+<nav class="navbar navbar-expand-md navbar-dark fixed-top  bg-gradient-blue" id="navbar">
 
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
             aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -29,9 +29,7 @@
             <li class="{{request()->is('/') ? 'active ':''}}nav-item text-center">
                 <a class="nav-link" href="/">خانه <span class="sr-only">(current)</span></a>
             </li>
-            <li class="{{request()->is('banners/create') ? 'active ':''}} nav-item text-center">
-                <a class="nav-link" href="/banners/create">ساخت</a>
-            </li>
+
             @if(auth()->user())
                 <li class="{{request()->is('schools') ? 'active ':''}}nav-item text-center">
                     <a class="nav-link"
@@ -50,6 +48,11 @@
                 <li class="{{request()->is('register') ? 'active ':''}}nav-item">
                     <a class="nav-link text-center" href="{{url('register')}}">ثبت نام</a></li>
             @else
+                @can('create','App\User')
+                    <li class="{{request()->is('register') ? 'active ':''}}nav-item">
+                        <a class="nav-link text-center"
+                           href="{{route('user.view',['username' =>auth()->user()->username])}}">ثبت کاربر</a></li>
+                @endcan
                 <li class="nav-item dropdown ">
                     <a href="#" class=" nav-link dropdown-toggle" data-toggle="dropdown" role="button"
                        aria-expanded="false">
@@ -91,21 +94,25 @@
 
         </ul>
 
-        <form class="form-inline mt-2 mt-md-0">
-            {{csrf_field()}}
-            <input class="form-control mr-sm-2" type="text" placeholder="جستجو" aria-label="Search">
-            <button class="btn btn-outline-secondary my-2 my-sm-0" type="submit">جستجو</button>
-        </form>
+        {{--<form class="form-inline mt-2 mt-md-0">--}}
+        {{--{{csrf_field()}}--}}
+        {{--<input class="form-control mr-sm-2" type="text" placeholder="جستجو" aria-label="Search">--}}
+        {{--<button class="btn btn-outline-secondary my-2 my-sm-0" type="submit">جستجو</button>--}}
+        {{--</form>--}}
 
     </div> <!-- nav collapse -->
+    <div
+            class=" bg-gradient-purple small position-absolute left-0 bottom-0 px-2 mx-2 ">{{ \Morilog\Jalali\Jalalian::forge('today')->format('%A, %d %B %y')}}</div>
     <a class="navbar-brand" href="/">عشایر</a>
 </nav>
 {{--end static navbar--}}
 
-<section class=" container-full  " id="app">
+<section class=" container-full parallax-front " id="app">
     @yield('content')
 </section>
-@yield('footer')
+
+@include('layouts.footer')
+
 <script src='https://google.com/recaptcha/api.js?hl=fa'></script>
 <script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
 <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/build/ol.js"></script>
@@ -116,5 +123,45 @@
 {{--@include('flash')--}}
 {{--@yield('script')--}}
 @include('flash')
+<script>
+    let prevScrollpos = window.pageYOffset;
+    window.onscroll = function () {
+        let currentScrollPos = window.pageYOffset;
+        if (prevScrollpos > currentScrollPos) {
+            document.getElementById("navbar").style.top = "0";
+        } else {
+            document.getElementById("navbar").style.top = "-4.5rem";
+        }
+        prevScrollpos = currentScrollPos;
+    };
+
+    //    $(window).scroll(function () {
+    //        let bottom_of_screen = $(window).scrollTop() + window.innerHeight;
+    //        let top_of_screen = $(window).scrollTop();
+    //        let features = $("#features");
+    //        let numbers = $("#numbers");
+    //
+    //        let top_of_features = features.offset().top;
+    //        let bottom_of_features = top_of_features + features.outerHeight();
+    //
+    //        if ((bottom_of_screen > top_of_features) && (top_of_screen < bottom_of_features)) {
+    //            $(features).fadeIn();
+    //        }
+    //        else {
+    //            $(features).fadeOut();
+    //        }
+    //
+    //        let top_of_numbers = numbers.offset().top;
+    //        let bottom_of_numbers = top_of_numbers + numbers.outerHeight();
+    //
+    //        if ((bottom_of_screen > top_of_numbers) && (top_of_screen < bottom_of_numbers)) {
+    //            $(numbers).fadeIn();
+    //        }
+    //        else {
+    //            $(numbers).fadeOut();
+    //        }
+    //    });
+
+</script>
 </body>
 </html>

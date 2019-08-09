@@ -2,6 +2,23 @@
 
     <div class="row  mx-1  gallery">
 
+        <div class="row col-12 mt-5" v-show="show=='create' || show=='edit' "></div>
+
+        <div class="row col-12" v-show="show=='list' || show=='card' ">
+            <div class="  col-md-4">
+
+                <div class="  ">
+                    <label id="create" for="create" class="btn btn-success   btn-block hov-pointer"
+                           :class="{'ui-state-disabled':canCreate !== '1' }"
+                           @click="lastShow=show; show='create' ;$root.$emit('changeShow','create')">
+                        <i class="fa fa-plus"></i> مدرسه جدید
+                    </label>
+                </div>
+
+            </div>
+            <pagination class="  col-md-4"></pagination>
+        </div>
+
         <div v-show="show=='card'" class="row mt-1">
             <div v-for="s,idx in schools" class="col-12 col-sm-6 col-md-4 col-lg-3 p-1">
 
@@ -127,21 +144,59 @@
                     <!--<caption> لیست مدارس</caption>-->
                     <thead class="bg-gradient-blue text-center text-white  ">
                     <tr>
-                        <th scope="col">کد مدرسه</th>
-                        <th scope="col">نام</th>
-                        <th scope="col">کد فضا</th>
-                        <th scope="col">تاسیس</th>
-                        <th scope="col">حوزه نمایندگی</th>
-                        <th scope="col">نوع</th>
-                        <th scope="col">تعداد همکاران</th>
-                        <th scope="col"> پایه تحصیلی</th>
-                        <th scope="col">تعداد پایه تحصیلی</th>
-                        <th scope="col">ضمیمه</th>
+                        <th scope="col" class="hov-pointer"
+                            @click="orderBy='code_madrese';direction=='ASC'?direction='DESC':direction='ASC'; $root.$emit('search',{orderBy,direction});">
+                            کد مدرسه
+                        </th>
+                        <th scope="col" class="hov-pointer"
+                            @click="orderBy='name';direction=='ASC'?direction='DESC':direction='ASC'; $root.$emit('search',{orderBy,direction});">
+                            نام
+                        </th>
+                        <th scope="col" class="hov-pointer"
+                            @click="orderBy='code_faza';direction=='ASC'?direction='DESC':direction='ASC'; $root.$emit('search',{orderBy,direction});">
+                            کد فضا
+                        </th>
+                        <th scope="col" class="hov-pointer"
+                            @click="orderBy='sale_tasis';direction=='ASC'?direction='DESC':direction='ASC'; $root.$emit('search',{orderBy,direction});">
+                            تاسیس
+                        </th>
+                        <th scope="col" class="hov-pointer"
+                            @click="orderBy='hooze_namayandegi_id';direction=='ASC'?direction='DESC':direction='ASC'; $root.$emit('search',{orderBy,direction});">
+                            حوزه نمایندگی
+                        </th>
+                        <th scope="col" class="hov-pointer"
+                            @click="orderBy='schoolable_type';direction=='ASC'?direction='DESC':direction='ASC'; $root.$emit('search',{orderBy,direction});">
+                            نوع
+                        </th>
+                        <th scope="col" class="hov-pointer"
+                            @click="orderBy='noe_fazaye_amoozeshi';direction=='ASC'?direction='DESC':direction='ASC'; $root.$emit('search',{orderBy,direction});">
+                            نوع فضا
+                        </th>
+                        <th scope="col" class="hov-pointer"
+                            @click="orderBy='tedad_daneshamooz';direction=='ASC'?direction='DESC':direction='ASC'; $root.$emit('search',{orderBy,direction});">
+                            تعداد دانش آموز
+                        </th>
+                        <th scope="col" class="hov-pointer"
+                            @click="orderBy='tedad_hamkaran';direction=='ASC'?direction='DESC':direction='ASC'; $root.$emit('search',{orderBy,direction});">
+                            تعداد همکاران
+                        </th>
+                        <th scope="col" class="hov-pointer"
+                            @click="orderBy='doore';direction=='ASC'?direction='DESC':direction='ASC'; $root.$emit('search',{orderBy,direction});">
+                            پایه تحصیلی
+                        </th>
+                        <th scope="col" class="hov-pointer"
+                            @click="orderBy='tedad_paye_tahsili';direction=='ASC'?direction='DESC':direction='ASC'; $root.$emit('search',{orderBy,direction});">
+                            تعداد پایه تحصیلی
+                        </th>
+                        <th scope="col" class="hov-pointer"
+                            @click="orderBy='vaziat';direction=='ASC'?direction='DESC':direction='ASC'; $root.$emit('search',{orderBy,direction});">
+                            ضمیمه
+                        </th>
                         <th scope="col">عملیات</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr v-for="s,idx in schools" class=" small    ">
+                    <tr v-for="s,idx in schools" class=" small " :key="'row-'+s.id">
                         <th scope="row" class="text-center align-middle">{{s.code_madrese}}</th>
                         <td class="align-middle">{{s.name}}</td>
                         <td class="align-middle">{{s.code_faza}}</td>
@@ -156,6 +211,14 @@
                             {{getType(s, "sayyar")}}
                         </td>
                         <td v-else="" class="align-middle"><i class="fas  fa-question-circle text-danger   "></i></td>
+
+                        <td class="align-middle" v-if="s.noe_fazaye_amoozeshi==='s' ">ساختمان</td>
+                        <td class="align-middle" v-else-if="s.noe_fazaye_amoozeshi==='k' ">کانکس</td>
+                        <td class="align-middle" v-else-if="s.noe_fazaye_amoozeshi==='c' ">چادر</td>
+                        <td v-else="" class="align-middle"><i class="fas  fa-question-circle text-danger   "></i></td>
+
+                        <td class="align-middle" v-if="s.tedad_daneshamooz">{{s.tedad_daneshamooz}}</td>
+                        <td class="align-middle" v-else=""><i class="fas  fa-question-circle text-danger"></i></td>
 
                         <td class="align-middle" v-if="s.tedad_hamkaran">{{s.tedad_hamkaran}}</td>
                         <td class="align-middle" v-else=""><i class="fas  fa-question-circle text-danger"></i></td>
@@ -194,11 +257,14 @@
                                     <i class="fa fa-edit" aria-hidden="true"></i>
                                 </div>
                                 <div class=" p-1 nav-link text-blue hoverable"
-                                     @click="selectedSchool=s;lastShow=show;show='edit';"> ویرایش
+                                     :class="{'ui-state-disabled':canEdit !== '1' }"
+                                     @click="selectedSchool=s;lastShow=show;show='edit';$root.$emit('changeShow','edit')">
+                                    ویرایش
                                     <i class="fa fa-edit" aria-hidden="true"></i>
                                 </div>
 
                                 <div class=" p-1 nav-link text-red  hoverable "
+                                     :class="{'ui-state-disabled':canDelete !== '1' }"
                                      @click="showDialog(0,s)"> حذف
                                     <i class="fa fa-window-close" aria-hidden="true"></i>
                                 </div>
@@ -214,12 +280,16 @@
         </div>
 
         <school_create class="mt-1" v-if=" show=='create'" :sitekey="sitekey"
-                       :hoozes-link="hoozesLink">
+                       :hoozes-link="hoozesLink"
+                       :create-school-link="createSchoolLink"
+                       :schools-link="schoolsLink">
         </school_create>
 
         <school_edit class="mt-1" v-if="selectedSchool && show=='edit'" :selectedSchool="selectedSchool"
                      :sitekey="sitekey" :hoozes-link="hoozesLink" :panel-link="panelLink" :schools-link="schoolsLink">
         </school_edit>
+
+        <pagination class="col-12   "></pagination>
 
         <div class="modal fade px-2 " id="mapModal" tabindex="-1" role="dialog" aria-labelledby="mapModalLabel"
              aria-hidden="true">
@@ -291,28 +361,39 @@
 </template>
 
 <script>
+    import pagination from './pagination.vue';
     import schoolMap from './map.vue';
     import schoolEdit from './school-edit.vue';
     import schoolCreate from './school-create.vue';
     import LayerSwitcher from 'ol-layerswitcher/dist/ol-layerswitcher';
-    //    import 'ol/ol.css';
-    //    import Feature from 'ol/Feature.js';
-    //    import Map from 'ol/Map.js';
-    //    import Overlay from 'ol/Overlay.js';
-    //    import View from 'ol/View.js';
-    //    import Point from 'ol/geom/Point.js';
-    //    import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer.js';
-    //    import TileJSON from 'ol/source/TileJSON.js';
-    //    import VectorSource from 'ol/source/Vector.js';
-    //    import {Icon, Style} from 'ol/style.js';
+
+    import Map from 'ol/Map.js';
+    import {Style, Icon} from 'ol/Style.js';
+    import View from 'ol/View.js';
+    import {Point} from 'ol/Geom.js';
+    import {Vector as VectorLayer, Group} from 'ol/Layer.js';
+
+    import {OverviewMap} from 'ol/Control.js';
+    import Feature from 'ol/Feature.js';
+    import {getWidth, getCenter} from 'ol/extent.js';
+    import WMTSCapabilities from 'ol/format/WMTSCapabilities.js';
+    import TileLayer from 'ol/layer/Tile.js';
+    import {get as getProjection, transform, fromLonLat} from 'ol/proj.js';
+    import {register} from 'ol/proj/proj4.js';
+    import {OSM, TileImage, TileWMS, XYZ, Vector, BingMaps} from 'ol/source.js';
+    import WMTS, {optionsFromCapabilities} from 'ol/source/WMTS.js';
+    import TileGrid from 'ol/tilegrid/TileGrid.js';
+    import proj4 from 'proj4';
+    import {Translate} from 'ol/interaction.js';
 
     let map;
     let layer;
     let kerman = [57.0532, 30.2880];
     export default {
 
-        props: ['schoolsLink', 'panelLink', 'hoozesLink', 'sitekey'],
+        props: ['schoolsLink', 'panelLink', 'hoozesLink', 'sitekey', 'createSchoolLink', 'canCreate', 'canEdit', 'canDelete'],
         components: {
+            pagination: pagination,
             school_map: schoolMap,
             school_edit: schoolEdit,
             school_create: schoolCreate,
@@ -321,6 +402,8 @@
             return {
                 show: 'list', //card and table
                 lastShow: 'list', //card and table
+                orderBy: '',
+                direction: 'ASC',
                 schools: [],
                 params: null,
                 selectedSchool: null,
@@ -340,6 +423,8 @@
             this.add_marker();
             this.loading = $('.loading-page');
 
+
+//            console.log(ol.proj.transform(['637095', '3165881']));
         },
         created() {
 
@@ -354,7 +439,7 @@
 
 //                console.log(this.panelLink + "/delete/s=" + school.id);
 //                console.log(param);
-                axios.post(this.panelLink + "/delete/s=" + school.id, {
+                axios.post(this.panelLink + "/delete", {
 
                     id: school.id,
                     schoolable_id: school.schoolable ? school.schoolable.id : 0,
@@ -366,7 +451,20 @@
                         this.loading.addClass('hide');
                         if (response.status === 200) {
                             this.showDialog(1);
+                            this.paginator =
+                                {
+                                    current_page: response.data['current_page'],
+                                    first_page_url: response.data['first_page_url'],
+                                    next_page_url: response.data['next_page_url'],
+                                    prev_page_url: response.data['prev_page_url'],
+                                    last_page_url: response.data['last_page_url'],
+                                    last_page: response.data['last_page'],
+                                    from: response.data['from'],
+                                    to: response.data['to'],
+                                    total: response.data['total'],
+                                };
 
+                            this.$root.$emit('paginationChange', this.paginator);
                         }
 
                     }).catch((error) => {
@@ -431,7 +529,7 @@
             },
 
             add_marker() {
-                console.log("add marker");
+//                console.log("add marker");
 
                 let iconFeatures = [];
 
@@ -439,17 +537,17 @@
 //                layer = this.map.getLayers().getArray()[2];
 
                 layer = this.map.getLayers().getArray()[0].getLayers().getArray()[3]; //markers layer
+//                console.log(this.map.getLayers().getArray()[0]);
 
-
-                let marker1 = new ol.Feature({
-                    geometry: new ol.geom.Point(ol.proj.transform(kerman, 'EPSG:4326',
+                let marker1 = new Feature({
+                    geometry: new Point(transform(kerman, 'EPSG:4326',
                         'EPSG:3857')),
                     name: "kerman",
 
 
                 });
                 iconFeatures.push(marker1);
-                this.map.getView().setCenter(ol.proj.fromLonLat(kerman), 4);
+                this.map.getView().setCenter(fromLonLat(kerman), 4);
 
 
                 layer.getSource().clear();
@@ -471,11 +569,17 @@
 
             },
             initialize_map() {
-                console.log('init map');
+                proj4.defs('EPSG:32640', '+proj=utm +zone=40 +datum=WGS84 +units=m +no_defs');
+                register(proj4);
+                let proj32640 = getProjection('EPSG:32640');
+                proj32640.setExtent([-833718.61, 2641854.13, 1543086.51, 4422789.27]); //iran bound(l,b,r,u)
+//                console.log('init map');
+//                console.log(transform(['637095', '3165881',]));
+
                 let iconFeatures = [];
 
-                let iconStyle = new ol.style.Style({
-                    image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+                let iconStyle = new Style({
+                    image: new Icon(/** @type {olx.style.IconOptions} */ ({
                         anchor: [0.5, 1],
                         anchorXUnits: 'fraction',
                         anchorYUnits: 'fraction',
@@ -483,9 +587,9 @@
                         src: '/img/marker-school-blue.png'
                     }))
                 });
-                let marker1 = new ol.Feature({
+                let marker1 = new Feature({
 //                    geometry: new ol.geom.Point(kerman),
-                    geometry: new ol.geom.Point(ol.proj.transform(kerman, 'EPSG:4326', 'EPSG:3857')),
+                    geometry: new Point(transform(kerman, 'EPSG:4326', 'EPSG:3857')),
 //                    name: this.s.name,
 //                    population: this.s.hooze.name,
 
@@ -498,29 +602,33 @@
                     this.map.setTarget(null);
                     this.map = null;
                 }
-                let vectorSource = new ol.source.Vector({
+                let vectorSource = new Vector({
                     features: [marker1]
 
                 });
-                let markersLayer = new ol.layer.Vector({
+                let markersLayer = new VectorLayer({
+
                     source: vectorSource,
                     style: iconStyle,
-                    name: "markers"
+                    name: "markers",
+                    projection: 'EPSG:32640',
                 });
 
-                this.bingLayer = new ol.layer.Tile({
-                    source: new ol.source.BingMaps({
+                this.bingLayer = new TileLayer({
+                    source: new BingMaps({
                         key: 'AodEaqQSDksfjZDM0HwxhdvJQDnj0Y6wgtaP6gi_wpDBcFMaefn8kz8bjvmFpN_s',
                         imagerySet: 'Aerial', //or 'Road', 'AerialWithLabels',
                         maxZoom: 19,
+                        projection: 'EPSG:32640',
                     }),
 
                     name: "bingHybrid",
                     title: 'جزییات',
                 });
-                this.layer = new ol.layer.Tile({
-                    source: new ol.source.OSM(
+                this.layer = new TileLayer({
+                    source: new OSM(
                         {
+                            projection: 'EPSG:32640',
 //                            var urlTpl = 'https://{1-4}.{base}.maps.cit.api.here.com' +
 //                                '/{type}/2.1/maptile/newest/{scheme}/{z}/{x}/{y}/256/png' +
 //                                '?app_id={app_id}&app_code={app_code}';
@@ -534,9 +642,10 @@
                     name: "main",
                     title: 'ساده',
                 });
-                this.GoogleHybridlayer = new ol.layer.Tile({
-                    source: new ol.source.OSM(
+                this.GoogleHybridlayer = new TileLayer({
+                    source: new OSM(
                         {
+                            projection: 'EPSG:32640',
 //                            url: "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
 //                            url: "http://mt.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
                             url: 'http://mt0.google.com/vt/lyrs=y&hl=fa&x={x}&y={y}&z={z}&s=IR',
@@ -553,9 +662,9 @@
 //                    layers: []
 //                });
 
-                this.map = new ol.Map({
+                this.map = new Map({
                     target: "map",
-                    layers: [new ol.layer.Group({
+                    layers: [new Group({
                         title: 'لایه ها',
                         name: 'group',
                         layers: [
@@ -564,9 +673,10 @@
                     }),
 //                        overlayGroup
                     ],
-                    view: new ol.View({
-                        center: ol.proj.fromLonLat(kerman),
-                        zoom: 15
+                    view: new View({
+                        center: fromLonLat(kerman),
+                        zoom: 15,
+                        projection: 'EPSG:32640',
                     })
                 });
 
@@ -577,7 +687,7 @@
 //                this.map.addControl(new ol.control.Permalink('permalink'));
 //                this.map.addControl(new ol.control.KeyboardDefaults());
 //                this.map.addControl(new ol.control.KeyboardDefaults());
-                this.map.addControl(new ol.control.OverviewMap());
+                this.map.addControl(new OverviewMap());
                 this.map.addControl(new LayerSwitcher());
 
                 let extent = vectorSource.getExtent();
@@ -691,6 +801,8 @@
                     this.schools = data;
 //                    this.initialize_map();
 //                    this.addMarker();
+//                    this.show = 'edit';
+//                    this.selectedSchool = this.schools[8];
                 });
                 this.$root.$on('viewChange', (view) => {
 //                    console.log(view);

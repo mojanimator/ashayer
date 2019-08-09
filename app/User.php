@@ -4,12 +4,14 @@ namespace App;
 
 
 use App\Notifications\MyResetPassword;
+use Carbon\Carbon;
 use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
+use Morilog\Jalali\Jalalian;
 use OwenIt\Auditing\Contracts\Auditable;
 use Illuminate\Auth\Notifications\ResetPassword as ResetPasswordNotification;
 
@@ -51,6 +53,12 @@ class User extends Authenticatable implements Auditable, CanResetPassword
 
     ];
 
+    public function getExpiresAtAttribute($value)
+    {
+        if (!$value) return $value;
+        return \Morilog\Jalali\CalendarUtils::strftime('Y/m/d', strtotime($value));
+    }
+
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new MyResetPassword($token));
@@ -60,4 +68,5 @@ class User extends Authenticatable implements Auditable, CanResetPassword
     {
         return $this->hasOne(Role::class);
     }
+
 }

@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Requests\UserRequest;
 use App\Jobs\SendEmailJob;
-use App\Mail\RegisterUserMail;
+use App\Mail\RegisterEditUserMail;
 use App\Role;
 use App\Rules\Recaptcha;
 use App\User;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
@@ -50,6 +53,21 @@ class RegisterController extends Controller
 //        return '/panel/' . auth()->user()->username;
     }
 
+    public function register(UserRequest $request)
+    {
+
+        $this->validator($request->all())->validate();
+
+        event(new Registered($user = $this->create($request->all())));
+
+//        $this->guard()->login($user);
+//        return redirect('/login')->with('flash-success', 'برای تکمیل ثبت نام لطفا ایمیل خود را تایید کنید پیام تایید ایمیل  برای شما ارسال شده است');
+
+        return $this->registered($request, $user)
+            ?: redirect($this->redirectPath());
+//        $this->guard()->logout();
+    }
+
     /**
      * Create a new controller instance.
      *
@@ -69,14 +87,14 @@ class RegisterController extends Controller
     protected function validator(array $data)
     {
 
-        return Validator::make($data, [
-            'recaptcha' => ['required', new  Recaptcha()],
-            'username' => 'required|string|min:6|max:20|unique:users',
-            'name' => ['required', 'string', 'min:3', 'max:50'],
+        return Validator::make($data, ['recaptcha' => ['required', new  Recaptcha()],
+
+            'username' => 'required|string|min:6|max:20|unique:users,username',
+            'name' => 'required|string|min:3|max:50',
             'family' => 'required|string|min:3|max:50',
             'phone_number' => 'required|numeric|max:99999999999999999999',
-            'email' => ['required', 'string', 'email', 'min:6', 'max:50', 'unique:users'],
-            'password' => ['required', 'string', 'min:6', 'max:50', 'confirmed'],
+            'email' => ['required', 'string', 'email', 'min:6', 'max:50', 'unique:users,email' ],
+            'password' => 'string|min:6|max:50|confirmed|required',
             'access_all' => 'required|boolean',
             'access_view_schools' => 'required|boolean',
             'access_create_schools' => 'required|boolean',
@@ -93,72 +111,73 @@ class RegisterController extends Controller
             'hoozes_all' => 'required|boolean',
             'deactivate_user' => 'required|boolean',
             "hoozes" => "nullable|array",
-            "hoozes.*" => "numeric|exists:hoozes,id",
-        ], [
-            'recaptcha.required' => 'لطفا گزینه من ربات نیستم را تایید نمایید',
-            'username.required' => 'نام کاربری ضروری است',
-            'username.string' => 'نام کاربری نمی تواند عدد باشد',
-            'username.min' => 'نام کاربری حداقل 6 حرف باشد',
-            'username.max' => 'نام کاربری حداکثر 20 حرف باشد',
-            'username.unique' => 'نام کاربری تکراری است',
-            'name.required' => 'نام  ضروری است',
-            'name.string' => 'نام  نمی تواند عدد باشد',
-            'name.min' => 'نام  حداقل 3 حرف باشد',
-            'name.max' => 'نام  حداکثر 50 حرف باشد',
-            'family.required' => 'نام خانوادگی ضروری است',
-            'family.string' => 'نام خانوادگی نمی تواند عدد باشد',
-            'family.min' => 'نام خانوادگی حداقل 3 حرف باشد',
-            'family.max' => 'نام خانوادگی  حداکثر 50 حرف باشد',
-            'phone_number.required' => 'شماره تماس ضروری است',
-            'phone_number.numeric' => 'شماره تماس باید عدد باشد',
-            'phone_number.max' => 'شماره تماس حداکثر 20 عدد باشد',
-            'email.required' => 'ایمیل ضروری است',
-            'email.string' => 'ایمیل نامعتبر است',
-            'email.email' => 'ایمیل نامعتبر است',
-            'email.min' => 'ایمیل حداقل 6 حرف باشد',
-            'email.max' => 'ایمیل حداکثر 50 حرف باشد',
-            'email.unique' => 'ایمیل تکراری است',
-            'password.required' => 'گذرواژه  ضروری است',
-            'password.string' => 'گذرواژه  نمی تواند فقط عدد باشد',
-            'password.min' => 'گذرواژه  حداقل 6 حرف باشد',
-            'password.max' => 'گذرواژه  حداکثر 50 حرف باشد',
-            'password.confirmed' => 'گذرواژه با تکرار آن مطابقت ندارد',
-            'access_all.required' => 'پارامتر دسترسی نامعتبر است',
-            'access_all.boolean' => 'پارامتر دسترسی نامعتبر است',
-            'access_view_schools.required' => 'پارامتر دسترسی نامعتبر است',
-            'access_view_schools.boolean' => 'پارامتر دسترسی نامعتبر است',
-            'access_create_schools.required' => 'پارامتر دسترسی نامعتبر است',
-            'access_create_schools.boolean' => 'پارامتر دسترسی نامعتبر است',
-            'access_edit_schools.required' => 'پارامتر دسترسی نامعتبر است',
-            'access_edit_schools.boolean' => 'پارامتر دسترسی نامعتبر است',
-            'access_remove_schools.required' => 'پارامتر دسترسی نامعتبر است',
-            'access_remove_schools.boolean' => 'پارامتر دسترسی نامعتبر است',
-            'access_view_users.required' => 'پارامتر دسترسی نامعتبر است',
-            'access_view_users.boolean' => 'پارامتر دسترسی نامعتبر است',
-            'access_create_users.required' => 'پارامتر دسترسی نامعتبر است',
-            'access_create_users.boolean' => 'پارامتر دسترسی نامعتبر است',
-            'access_edit_users.required' => 'پارامتر دسترسی نامعتبر است',
-            'access_edit_users.boolean' => 'پارامتر دسترسی نامعتبر است',
-            'access_remove_users.required' => 'پارامتر دسترسی نامعتبر است',
-            'access_remove_users.boolean' => 'پارامتر دسترسی نامعتبر است',
-            'access_create_hoozes.required' => 'پارامتر دسترسی نامعتبر است',
-            'access_create_hoozes.boolean' => 'پارامتر دسترسی نامعتبر است',
-            'access_remove_hoozes.required' => 'پارامتر دسترسی نامعتبر است',
-            'access_remove_hoozes.boolean' => 'پارامتر دسترسی نامعتبر است',
-            'access_view_reports.required' => 'پارامتر دسترسی نامعتبر است',
-            'access_view_reports.boolean' => 'پارامتر دسترسی نامعتبر است',
-            'access_edit_hoozes.required' => 'پارامتر دسترسی نامعتبر است',
-            'access_edit_hoozes.boolean' => 'پارامتر دسترسی نامعتبر است',
-            'hoozes_all.required' => 'پارامتر دسترسی نامعتبر است',
-            'hoozes_all.boolean' => 'پارامتر دسترسی نامعتبر است',
-            'deactivate_user.required' => 'پارامتر دسترسی نامعتبر است',
-            'deactivate_user.boolean' => 'پارامتر دسترسی نامعتبر است',
-            'hoozes.array' => 'نوع حوزه ها نامعتبر است',
-            "hoozes.*.numeric" => "نوع حوزه ها نامعتبر است",
-            "hoozes.*.exists" => "حوزه ها موجود نیستند!",
-        ]);
+            "hoozes.*" => "numeric|exists:hoozes,id"],
 
+            [
+                'recaptcha.required' => 'لطفا گزینه من ربات نیستم را تایید نمایید',
+                'username.required' => 'نام کاربری ضروری است',
+                'username.string' => 'نام کاربری نمی تواند عدد باشد',
+                'username.min' => 'نام کاربری حداقل 6 حرف باشد',
+                'username.max' => 'نام کاربری حداکثر 20 حرف باشد',
+                'username.unique' => 'نام کاربری تکراری است',
+                'name.required' => 'نام  ضروری است',
+                'name.string' => 'نام  نمی تواند عدد باشد',
+                'name.min' => 'نام  حداقل 3 حرف باشد',
+                'name.max' => 'نام  حداکثر 50 حرف باشد',
+                'family.required' => 'نام خانوادگی ضروری است',
+                'family.string' => 'نام خانوادگی نمی تواند عدد باشد',
+                'family.min' => 'نام خانوادگی حداقل 3 حرف باشد',
+                'family.max' => 'نام خانوادگی  حداکثر 50 حرف باشد',
+                'phone_number.required' => 'شماره تماس ضروری است',
+                'phone_number.numeric' => 'شماره تماس باید عدد باشد',
+                'phone_number.max' => 'شماره تماس حداکثر 20 عدد باشد',
+                'email.required' => 'ایمیل ضروری است',
+                'email.string' => 'ایمیل نامعتبر است',
+                'email.email' => 'ایمیل نامعتبر است',
+                'email.min' => 'ایمیل حداقل 6 حرف باشد',
+                'email.max' => 'ایمیل حداکثر 50 حرف باشد',
+                'email.unique' => 'ایمیل تکراری است',
+                'password.required' => 'گذرواژه  ضروری است',
+                'password.string' => 'گذرواژه  نمی تواند فقط عدد باشد',
+                'password.min' => 'گذرواژه  حداقل 6 حرف باشد',
+                'password.max' => 'گذرواژه  حداکثر 50 حرف باشد',
+                'password.confirmed' => 'گذرواژه با تکرار آن مطابقت ندارد',
+                'access_all.required' => 'پارامتر دسترسی نامعتبر است',
+                'access_all.boolean' => 'پارامتر دسترسی نامعتبر است',
+                'access_view_schools.required' => 'پارامتر دسترسی نامعتبر است',
+                'access_view_schools.boolean' => 'پارامتر دسترسی نامعتبر است',
+                'access_create_schools.required' => 'پارامتر دسترسی نامعتبر است',
+                'access_create_schools.boolean' => 'پارامتر دسترسی نامعتبر است',
+                'access_edit_schools.required' => 'پارامتر دسترسی نامعتبر است',
+                'access_edit_schools.boolean' => 'پارامتر دسترسی نامعتبر است',
+                'access_remove_schools.required' => 'پارامتر دسترسی نامعتبر است',
+                'access_remove_schools.boolean' => 'پارامتر دسترسی نامعتبر است',
+                'access_view_users.required' => 'پارامتر دسترسی نامعتبر است',
+                'access_view_users.boolean' => 'پارامتر دسترسی نامعتبر است',
+                'access_create_users.required' => 'پارامتر دسترسی نامعتبر است',
+                'access_create_users.boolean' => 'پارامتر دسترسی نامعتبر است',
+                'access_edit_users.required' => 'پارامتر دسترسی نامعتبر است',
+                'access_edit_users.boolean' => 'پارامتر دسترسی نامعتبر است',
+                'access_remove_users.required' => 'پارامتر دسترسی نامعتبر است',
+                'access_remove_users.boolean' => 'پارامتر دسترسی نامعتبر است',
+                'access_create_hoozes.required' => 'پارامتر دسترسی نامعتبر است',
+                'access_create_hoozes.boolean' => 'پارامتر دسترسی نامعتبر است',
+                'access_remove_hoozes.required' => 'پارامتر دسترسی نامعتبر است',
+                'access_remove_hoozes.boolean' => 'پارامتر دسترسی نامعتبر است',
+                'access_view_reports.required' => 'پارامتر دسترسی نامعتبر است',
+                'access_view_reports.boolean' => 'پارامتر دسترسی نامعتبر است',
+                'access_edit_hoozes.required' => 'پارامتر دسترسی نامعتبر است',
+                'access_edit_hoozes.boolean' => 'پارامتر دسترسی نامعتبر است',
+                'hoozes_all.required' => 'پارامتر دسترسی نامعتبر است',
+                'hoozes_all.boolean' => 'پارامتر دسترسی نامعتبر است',
+                'deactivate_user.required' => 'پارامتر دسترسی نامعتبر است',
+                'deactivate_user.boolean' => 'پارامتر دسترسی نامعتبر است',
+                'hoozes.array' => 'نوع حوزه ها نامعتبر است',
+                "hoozes.*.numeric" => "نوع حوزه ها نامعتبر است",
+                "hoozes.*.exists" => "حوزه ها موجود نیستند!",
+            ]);
     }
+
 
     /**
      * Create a new user instance after a valid registration.
@@ -197,14 +216,16 @@ class RegisterController extends Controller
                 'hooze_ids' => $data['hoozes_all'] == true ? ['all'] : $data['hoozes'],
             ]);
 //            dispatch(new SendEmailJob($user))->onQueue('default');
-            Mail::to($user->email)->send(new RegisterUserMail($user->token));
+            Mail::to($user->email)->send(new RegisterEditUserMail($user->token, 'register'));
 //            Mail::to($user->email)->queue(new OrderShipped($order));
         });
         return $user;
     }
 
-    public function verify($token)
+    public function verify($token, $from)
     {
+
+
         if (!$token) {
             return redirect('login')->with('flash-error', 'لینک نامعتبر است!');
         }
@@ -221,7 +242,10 @@ class RegisterController extends Controller
 
         if ($user->save()) {
 
-            return redirect('login')->with('flash-success', 'ثبت نام شما با موفقیت کامل شد!');
+            if ($from == 'register')
+                return redirect('login')->with('flash-success', 'ثبت نام شما با موفقیت کامل شد!');
+            else if ($from == 'edit')
+                return redirect('login')->with('flash-success', 'تایید ایمیل با موفقیت کامل شد!');
 
         }
 
@@ -271,20 +295,22 @@ class RegisterController extends Controller
         return view('auth.register');
     }
 
-    protected function registered(Request $request, $user)
+    protected function registered(UserRequest $request, $user)
     {
 //        $this->guard()->logout();
-        return redirect('login')->with('flash-success', 'برای تکمیل ثبت نام لطفا ایمیل خود را تایید کنید پیام تایید ایمیل  برای شما ارسال شده است');
+//        flash('flash-success', 'برای تکمیل ثبت نام لطفا ایمیل خود را تایید کنید پیام تایید ایمیل  برای شما ارسال شده است');
+        return view('auth.login')->with('flash-success', 'برای تکمیل ثبت نام لطفا ایمیل خود را تایید کنید پیام تایید ایمیل  برای شما ارسال شده است')
+            ->render();
     }
 
-    public function resend(Request $request)
+    public function resend(UserRequest $request)
     {
 //        $this->guard()->logout();
         $user = User::where('token', $request->token)->first();
 //        return redirect('login')->with('flash-success', $user->token);
         if ($user) {
 //            dispatch(new SendEmailJob($user))->onQueue('default');
-            Mail::to($user->email)->send(new RegisterUserMail($user->token));
+            Mail::to($user->email)->send(new RegisterEditUserMail($user->token, 'register'));
 
             return redirect('login')->with('flash-success', 'برای تکمیل ثبت نام لطفا ایمیل خود را تایید کنید پیام تایید ایمیل  برای شما ارسال شد');
         } else {

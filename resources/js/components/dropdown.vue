@@ -65,7 +65,7 @@
             this.data_input = $('#dataInput');
 
             if (this.multi && this.for === 'hooze') {
-                this.sData = 'همه نمایندگی ها ';
+                this.placeholder = 'حوزه نمایندگی';
                 this.offset = 0;
             }
 
@@ -104,7 +104,7 @@
                 //hoozeRequest->hoozeResponse->selectorResponse
                 this.$root.$on('hoozeRequest', params => {
 
-                    params.hooze = selected[0].id;
+                    params.hooze = this.selected[0] ? this.selected[0].id : "";
 
 
                     if (params.vaziat === 'd' || params.vaziat === 'a') //school selector is not available
@@ -116,15 +116,17 @@
 
                 this.$root.$on('search', (params) => {
                     this.params['data'] = [];
-                    if (params !== undefined)
+                    if (params !== undefined) {
                         this.params['page'] = params['page'];
+                        this.params['orderBy'] = params['orderBy'];
+                        this.params['direction'] = params['direction'];
+                    }
 
-                    if ((this.multi && !this.activeData[0]) || !this.multi)
-                        for (let i in selected)
-
-                            this.params['data'].push(selected[i].id);
-
-//                    console.log(this.params);
+//                    if ((this.multi && !this.activeData[0]) || !this.multi)
+                    for (let i in this.selected)
+                        this.params['data'].push(this.selected[i].id);
+                    this.params['hooze'] = this.params['data'];
+//                    console.log(this.params['h']);
                     this.$root.$emit('dropdownResponse', this.params);
                 });
             },
@@ -136,8 +138,8 @@
                     .then((response) => {
 //                        console.log(response);
                         this.data = response.data;
-                        if (this.multi && this.for === 'hooze') //multi is for  search , not create
-                            this.data.unshift({'name': 'همه نمایندگی ها', 'id': 0});
+//                        if (this.multi && this.for === 'hooze') //multi is for  search , not create
+//                            this.data.unshift({'name': 'همه نمایندگی ها', 'id': 0});
                         this.filteredData = this.data;
 //                        console.log(selectedBefore);
                         if (this.listID === 'edit')
@@ -151,7 +153,7 @@
                                 }
 
                         }
-                        selected = this.selected;
+//                        selected = this.selected;
 //                        console.log(this.activeData);
                     }).catch((error) => {
                     console.log(' error:');
@@ -171,45 +173,45 @@
 
                     this.filteredData = this.data;
                     let i = 0;
-                    let selected = [];
+//                    let selected = [];
 //                    this.activeData[0] = false; //dont count in find
-                    if (this.multi && this.activeData[0] === true) {
-//                        console.log('h');
-                        this.sData = 'همه نمایندگی ها ';
-                        this.params['h'] = [];//no filter on types
-                    } else {
+//                    if (this.multi && this.activeData[0] === true) {
+////                        console.log('h');
+//                        this.sData = 'همه نمایندگی ها ';
+//                        this.params['h'] = [];//no filter on types
+//                    } else {
 //                        console.log(this.activeData);
-                        this.activeData.find((t, index) => {
-                            if (t) {
-//                                console.log(index);
-                                i++;
-                                selected.push(this.data[index + this.offset]);
-                            }
+//                    this.activeData.find((t, index) => {
+//                        if (t) {
+//
+//                            i++;
+//                            selected.push(this.data[index + this.offset]);
+//                        }
+//
+//                    });
 
-                        });
-
-                        if (selected.length === 0)
-                            this.params['h'] = [];//no filter on types
-                        else
-                            this.params['h'] = selected;
+//                    if (selected.length === 0)
+//                        this.params['h'] = [];//no filter on types
+//                    else
+//                        this.params['h'] = selected;
 //                            this.params['t'] = selected.slice(0, -1) + ')';
 
-                        console.log(selected);
-                        if (i < 4) {
-                            this.sData = '';
-                            for (let i in selected) {
-                                this.sData += selected[i].name + ', ';
-                            }
-                            this.sData = this.sData.slice(0, this.sData.length - 2); //remove last ,
+//                    console.log(selected);
+                    if (i < 4) {
+                        this.sData = '';
+                        for (let i in this.selected) {
+                            this.sData += this.selected[i].name + ', ';
+                        }
+                        this.sData = this.sData.slice(0, this.sData.length - 2); //remove last ,
 //                            console.log(this.sData);
 
-                        }
-                        else if (i > 0)
-                            this.sData = i + ' انتخاب ';
+                    }
+                    else if (i > 0)
+                        this.sData = i + ' انتخاب ';
 //                        else
 //                            this.sData = '';
-                    }
-                    this.selected = selected;
+//                    }
+//                    this.selected = selected;
                     this.data_dropdown.addClass('hide');
                 }
             },
@@ -219,18 +221,20 @@
 //                console.log(hId);
                 let all = $('#h0.hooze-items');
                 if (hId === 'clr') {
-                    all.removeClass('active');
+//                    all.removeClass('active');
                     $('.hooze-items').removeClass('active');
-                    for (let i in this.activeData)
-                        this.activeData[i] = false;
+//                    for (let i in this.activeData) {
+//                        this.activeData[i] = false;
+//                    }
+                    this.selected = [];
                 }
                 else if (hId === 'key') {
 
                     this.filteredData = this.data.filter(entry => {
                         return entry['name'].includes(this.sData);
                     });
-                    if (this.multi && this.filteredData[0]['name'].includes('همه'))
-                        this.filteredData.shift(); //remove first item (همه نمایندگی ها)
+//                    if (this.multi && this.filteredData[0]['name'].includes('همه'))
+//                        this.filteredData.shift(); //remove first item (همه نمایندگی ها)
                     if (this.sData === '' || this.sData === ' ')
                         this.filteredData = this.data;
                     if (this.filteredData.length === 0)
@@ -238,50 +242,59 @@
                 }
                 else {
 
+                    this.selected = [];
                     let item = $('#h' + this.listID + hId);
-
+                    if (!this.multi)
+                        $('.hooze-items').removeClass('active');
                     item.toggleClass('active');
 
-                    if (!this.multi) {
-                        this.activeData[0] = false;
-                        if (item.hasClass('active')) {
-                            $('.hooze-items').removeClass('active');
-                            item.addClass('active');
-                        }
+                    for (let i = 0; i < this.data.length; i++)
+                        if ($(this.$refs['h' + this.listID + this.data[i].id]).hasClass('active'))
+                            this.selected.push(this.data[i]);
+                }
+//                console.log(this.selected);
+//                        this.activeData[i] = ($('#h' + i).hasClass('active'));
+//                        this.activeData[i] = ($(this.$refs['h' + this.listID + i]).hasClass('active'));
+//                    if (!this.multi) {
+//                        this.activeData[0] = false;
+//                        if (item.hasClass('active')) {
+//                            $('.hooze-items').removeClass('active');
+//                            item.addClass('active');
+//                        }
+//
+//                        for (let i = 0; i < this.data.length; i++)
+//                            this.activeData[i + 1] = ($(this.$refs['h' + this.listID + this.data[i].id]).hasClass('active'));
+////                        console.log(this.activeData);
+//                        this.closeDropdown('h');
+//                    }
+//                    else {
 
-                        for (let i = 0; i < this.data.length; i++)
-                            this.activeData[i + 1] = ($(this.$refs['h' + this.listID + this.data[i].id]).hasClass('active'));
-//                        console.log(this.activeData);
-                        this.closeDropdown('h');
-                    }
-                    else {
-
-                        if (hId === 0)
-                            if (all.hasClass('active')) {
-                                $('.hooze-items').addClass('active');
-                                this.activeData[0] = true;
-                            }
-                            else {
-                                $('.hooze-items').removeClass('active');
-                                this.activeData[0] = false;
-                                this.sData = '';
-                            }
-                        else {
-                            // one item deselected => remove active class from همه
-                            if (!item.hasClass('active')) {
-                                all.removeClass('active');
-                                this.activeData[0] = false;
-                            }
-                        }
+//                        if (hId === 0)
+//                            if (all.hasClass('active')) {
+//                                $('.hooze-items').addClass('active');
+//                                this.activeData[0] = true;
+//                            }
+//                            else {
+//                                $('.hooze-items').removeClass('active');
+//                                this.activeData[0] = false;
+//                                this.sData = '';
+//                            }
+//                        else {
+//                            // one item deselected => remove active class from همه
+//                            if (!item.hasClass('active')) {
+//                                all.removeClass('active');
+//                                this.activeData[0] = false;
+//                            }
+//                        }
 
 //                    this.activeData[0] = false;//only for undefined error!
-                        for (let i = 1; i < this.data.length; i++)
+//                        for (let i = 0; i < this.data.length; i++)
 //                        this.activeData[i] = ($('#h' + i).hasClass('active'));
-                            this.activeData[i] = ($(this.$refs['h' + this.listID + i]).hasClass('active'));
+//                            this.activeData[i] = ($(this.$refs['h' + this.listID + i]).hasClass('active'));
 //                        console.log(this.$refs['h' + i]);
-//                    console.log(this.activeData);
-                    }
-                }
+//                        console.log(this.activeData);
+//                            }
+//            }
 
 
 //                this.filteredData = this.data.filter(entry => {

@@ -1,50 +1,7 @@
 <template>
-    <div class=" m-panel container-fluid">
-        <div class="row col-12 ">
-            <div class="   col-md-6 col-lg-4 ">
-                <div class="panel-part">
-                    <div class=" colored-half p-1 bg-primary d-flex flex-column align-items-center  justify-content-between">
-                        <div class="image-container    ">
-                            <img class="image  " src="/storage/img/white-user.png" alt="">
-                        </div>
-                        <div class="h5 pt-1 text-white">کاربران</div>
-                    </div>
-                </div>
-            </div>
-            <div class=" col-md-6 col-lg-4">
-                <div class="panel-part" @click="view('schools')">
-                    <div class=" colored-half  p-1 bg-purple d-flex flex-column align-items-center  justify-content-between">
-                        <div class="image-container    ">
-                            <img class="image  " src="/storage/img/white-school.png" alt="">
-                        </div>
-                        <div class="h5 pt-1 text-white">مدارس</div>
-                    </div>
-                </div>
-            </div>
-            <div class=" col-md-6 col-lg-4">
-                <div class="panel-part" @click="view('hoozes')">
-                    <div class=" colored-half  p-1 bg-red d-flex flex-column align-items-center  justify-content-between">
-                        <div class="image-container    ">
-                            <img class="image  " src="/storage/img/white-hoozes.png" alt="">
-                        </div>
-                        <div class="h5 pt-1 text-white">حوزه ها</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="panel-part    " @click="view('reports')">
-                    <div class=" colored-half p-1 bg-secondary d-flex flex-column align-items-center  justify-content-between">
-                        <div class="image-container    ">
-                            <img class="image  " src="/storage/img/white-reports.png" alt="">
-                        </div>
-                        <div class="h5 pt-1 text-white">گزارشات</div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-        <div class="row  col-12">
-            <div class="col-sm-6 col-md-6 col-lg-4 user-panel mb-1 d-flex flex-column  justify-content-between ">
+    <div class="row    m-panel container-fluid  ">
+        <div class=" col-lg-4 col-md-6">
+            <div class="    user-panel mb-1 d-flex flex-column  justify-content-between ">
                 <div class="user-panel-header bg-gradient-blue  d-flex flex-column align-items-center ">
                     <div class="user-image-container">
                         <img class="user-image" src="/storage/img/blue-user.png" alt="">
@@ -74,10 +31,55 @@
                 </div>
 
             </div>
-
-
         </div>
+
+        <div class="row  col-lg-8 col-md-6 ">
+            <div class="   col-lg-6 ">
+                <div class="panel-part " @click="view('users')">
+                    <div class=" colored-half p-1 bg-primary d-flex flex-column align-items-center  justify-content-between">
+                        <div class="image-container    ">
+                            <img class="image  " src="/storage/img/white-user.png" alt="">
+                        </div>
+                        <div class="h5 pt-1 text-white">کاربران</div>
+                    </div>
+                </div>
+            </div>
+            <div class=" col-lg-6">
+                <div class="panel-part" @click="view('schools')">
+                    <div class=" colored-half  p-1 bg-purple d-flex flex-column align-items-center  justify-content-between">
+                        <div class="image-container    ">
+                            <img class="image  " src="/storage/img/white-school.png" alt="">
+                        </div>
+                        <div class="h5 pt-1 text-white">مدارس</div>
+                    </div>
+                </div>
+            </div>
+            <div class=" col-lg-6">
+                <div class="panel-part" @click="view('hoozes')">
+                    <div class=" colored-half  p-1 bg-red d-flex flex-column align-items-center  justify-content-between">
+                        <div class="image-container    ">
+                            <img class="image  " src="/storage/img/white-hoozes.png" alt="">
+                        </div>
+                        <div class="h5 pt-1 text-white">حوزه ها</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6  ">
+                <div class="panel-part    " @click="view('reports')">
+                    <div class=" colored-half p-1 bg-secondary d-flex flex-column align-items-center  justify-content-between">
+                        <div class="image-container    ">
+                            <img class="image  " src="/storage/img/white-reports.png" alt="">
+                        </div>
+                        <div class="h5 pt-1 text-white">گزارش </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
     </div>
+
+
 </template>
 
 <script>
@@ -107,6 +109,8 @@
             view(v) {
                 let link;
                 if (v === 'schools')
+                    link = this.panelLink + "/" + v;
+                if (v === 'users')
                     link = this.panelLink + "/" + v;
                 else if (v === 'hoozes')
                     link = this.panelLink + "/" + v;

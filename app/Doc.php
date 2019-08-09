@@ -12,12 +12,13 @@ use Mockery\Exception;
 
 use OwenIt\Auditing\Contracts\Auditable;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 
 class Doc extends Model implements Auditable
 {
     use \OwenIt\Auditing\Auditable;
-
+    use SoftDeletes;
 
     protected $fillable = [
         'id', 'school_id', 'uploader_id', 'file_type', 'path',
